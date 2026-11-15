@@ -1,0 +1,65 @@
+// The PDF has no toolbar row (guide 1d, step 5): its controls float as one
+// pill at the bottom of the PDF, and the page fills the whole pane.
+//
+// For now the pill keeps every stock control (Recompile, logs, download,
+// page, zoom). Recompile moves to the run widget in step 3 and logs to the
+// problems widget in step 6; then the pill keeps only page, zoom and
+// download.
+$sx-pdf-pane: '.ide-redesign-pdf-container';
+
+#{$sx-pdf-pane} {
+  // Same surface as the editor, so the editor and PDF read as one island
+  --pdf-bg: var(--sx-island);
+
+  .pdf .toolbar.toolbar-pdf {
+    position: absolute;
+    bottom: var(--spacing-05);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--spacing-02);
+    width: auto;
+    max-width: calc(100% - 2 * var(--spacing-05));
+    height: 34px;
+    padding: 0 var(--spacing-03);
+    overflow-x: auto;
+    scrollbar-width: none;
+    background: var(--sx-island-raised);
+    border: 1px solid var(--sx-border);
+    border-radius: var(--border-radius-full);
+    box-shadow: 0 6px 20px rgb(0 0 0 / 30%);
+  }
+
+  // The halves of the old toolbar sit side by side inside the pill
+  .toolbar-pdf-right,
+  .toolbar-pdf-controls {
+    flex: 0 0 auto;
+    margin-right: 0;
+  }
+
+  // The page now starts at the top of the pane
+  .pdf-viewer,
+  .pdf-errors,
+  .pdf-uncompiled {
+    top: 0;
+  }
+
+  .pdf-code-check-failed-banner-container {
+    top: var(--spacing-04);
+  }
+}
+
+// The stock controls show page and zoom in full only when their box is at
+// least 320px wide, and the pill shrinks to its content. So give that box
+// 320px whenever the PDF pane has room; narrow panes keep the compact menu.
+#{$sx-pdf-pane} {
+  container-type: inline-size;
+}
+
+@container (min-width: 560px) {
+  .pdfjs-viewer-controls {
+    min-width: 320px;
+  }
+}
