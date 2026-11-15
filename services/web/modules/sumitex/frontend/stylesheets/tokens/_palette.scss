@@ -1,14 +1,24 @@
+// Raw colours only. Nothing outside tokens/ should use these directly.
+// Contrast (WCAG) is checked against the island and editor backgrounds:
+// every text and syntax colour reaches at least 4.5:1 (AA).
 :root {
-  --sx-ink-950: #0b0c0e;  
-  --sx-ink-900: #111215;  
-  --sx-ink-850: #17181b;
-  --sx-ink-800: #1e2024;  
-  --sx-ink-700: #272a2f;
+  // Sumi ink: cool near-blacks for the dark theme
+  --sx-ink-950: #0b0d10;
+  --sx-ink-900: #15181d;
+  --sx-ink-800: #1d2128;
+  --sx-ink-700: #2a2f37;
+  --sx-ink-400: #a0a7b1;
+  --sx-ink-100: #e6e4df;
 
-  --sx-paper-50 : #fbfaf7; 
-  --sx-paper-100: #f1efe9; 
-  --sx-paper-200: #e3e0d8;
-  
-  --sx-ai-300: #8fb0e8;   
-  --sx-ai-600: #2e4a8a;    // aizome indigo
+  // Paper: clean neutrals for the light theme
+  --sx-paper-0: #ffffff;
+  --sx-paper-50: #f4f5f7;
+  --sx-paper-100: #e9ebef;
+  --sx-paper-200: #d9dce1;
+  --sx-paper-600: #5b6470;
+  --sx-paper-900: #1b1e23;
+
+  // Aizome indigo: the one accent
+  --sx-ai-300: #7aa2ff;
+  --sx-ai-600: #2f5bd3;
 }

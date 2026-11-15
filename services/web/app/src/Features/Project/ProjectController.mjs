@@ -1515,6 +1515,9 @@ const THEME_LIST = [
   { name: 'monokai', dark: true },
   { name: 'overleaf', dark: false },
   { name: 'overleaf_dark', dark: true },
+  // SumiTeX
+  { name: 'sumitex_dark', dark: true },
+  { name: 'sumitex_light', dark: false },
   { name: 'textmate', dark: false },
 ]
 
