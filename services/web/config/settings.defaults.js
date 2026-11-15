@@ -1050,9 +1050,17 @@ module.exports = {
         __dirname,
         '../modules/error-assistant/frontend/js/last-fix-store'
       ),
+      // SumiTeX
+      Path.resolve(__dirname, '../modules/sumitex/frontend/js/extensions'),
     ],
     sourceEditorVisualExtensions: [],
-    sourceEditorComponents: [],
+    sourceEditorComponents: [
+      // SumiTeX
+      Path.resolve(
+        __dirname,
+        '../modules/sumitex/frontend/js/bridge/sumitex-bridge'
+      ),
+    ],
     pdfLogEntryHeaderActionComponents: [
       Path.resolve(
         __dirname,
