@@ -1,0 +1,42 @@
+// Narrow windows (guide 1d, step 8): below 900px the side panels stop
+// taking room from the editor and slide over it as drawers instead. The
+// body gets .sx-narrow from layout/use-narrow-layout.ts.
+$sx-left-drawer: "[data-panel-id^='ide-redesign-sidebar-panel-']";
+$sx-right-drawer: "[data-panel-id='sx-right-panel']";
+
+body.sx-narrow {
+  .ide-redesign-inner {
+    position: relative;
+  }
+
+  #{$sx-left-drawer},
+  #{$sx-right-drawer} {
+    position: absolute;
+    top: 0;
+    bottom: var(--sx-island-gap);
+    z-index: 400; // above the editor's own top bar (cm-panels-top, z-index 300)
+    width: min(320px, 80vw);
+    box-shadow: 0 12px 40px rgb(0 0 0 / 45%);
+  }
+
+  // Beside the 40px icon strips
+  #{$sx-left-drawer} {
+    left: 40px;
+  }
+
+  #{$sx-right-drawer} {
+    right: calc(40px + var(--sx-island-gap));
+  }
+
+  // A closed (collapsed) panel has no size; don't draw the drawer then
+  #{$sx-left-drawer}[data-panel-size='0.0'],
+  #{$sx-left-drawer}[data-panel-size='0'] {
+    display: none;
+  }
+
+  // The resize handles next to the drawers have nothing to resize
+  #{$sx-left-drawer} + [data-panel-resize-handle-id],
+  [data-panel-resize-handle-id]:has(+ #{$sx-right-drawer}) {
+    display: none;
+  }
+}

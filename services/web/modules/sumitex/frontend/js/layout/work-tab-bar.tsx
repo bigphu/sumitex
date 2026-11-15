@@ -15,6 +15,7 @@ import { useAreTabsEnabled } from '@/features/ide-react/hooks/use-are-tabs-enabl
 import { useLayoutContext } from '@/shared/context/layout-context'
 import { useEditorOpenDocContext } from '@/features/ide-react/context/editor-open-doc-context'
 import ProblemsWidget from './problems-widget'
+import { useIsNarrow, useNarrowLayout } from './use-narrow-layout'
 
 type LayoutChoice = 'source' | 'split' | 'pdf'
 
@@ -26,6 +27,7 @@ const CHOICES: { key: LayoutChoice; label: string; title: string }[] = [
 
 function LayoutSwitch() {
   const { pdfLayout, view, changeLayout, detachRole } = useLayoutContext()
+  const narrow = useIsNarrow()
 
   // A detached PDF lives in another window, so there is nothing to switch
   if (detachRole === 'detacher') return null
@@ -40,7 +42,8 @@ function LayoutSwitch() {
 
   return (
     <div className="sx-segmented" role="group" aria-label="Layout">
-      {CHOICES.map(({ key, label, title }) => (
+      {CHOICES.filter(({ key }) => !(narrow && key === 'split')).map(
+        ({ key, label, title }) => (
         <button
           key={key}
           type="button"
@@ -53,7 +56,8 @@ function LayoutSwitch() {
         >
           {label}
         </button>
-      ))}
+        )
+      )}
     </div>
   )
 }
@@ -61,6 +65,7 @@ function LayoutSwitch() {
 export default function WorkTabBar() {
   const tabsEnabled = useAreTabsEnabled()
   const { openDocName } = useEditorOpenDocContext()
+  useNarrowLayout() // below 900px: no Split, side panels as drawers
 
   return (
     <div className="sx-work-tabbar">
