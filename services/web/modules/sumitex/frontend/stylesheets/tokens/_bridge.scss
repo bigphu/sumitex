@@ -32,6 +32,26 @@ body[data-theme] {
   --ide-rail-link-active-background: var(--sx-island-raised);
   --ide-rail-header-subdued-button-color: var(--sx-muted);
   --ide-rail-header-subdued-button-hover-background: var(--sx-island-raised);
+
+  // Overleaf green → SumiTeX indigo. bg-accent drives primary buttons
+  // (Share, Recompile) and the Code / Visual switch.
+  --bg-accent-01: var(--sx-accent-fill);
+  --bg-accent-02: var(--sx-accent-fill-hover);
+  --bg-accent-03: var(--sx-selected-bg);
+  --btn-primary-background: var(--sx-accent-fill);
+  --btn-primary-hover-background: var(--sx-accent-fill-hover);
+  --btn-primary-hover-border: var(--sx-accent-fill-hover);
+
+  // Selected file in the file tree and the current outline item
+  --file-tree-item-selected-bg: var(--sx-selected-bg);
+  --file-tree-item-selected-color: var(--sx-selected-fg);
+  --outline-item-highlight-bg: var(--sx-selected-bg);
+  --outline-item-highlight-color: var(--sx-selected-fg);
+
+  // Highlighted row in the command palette
+  --command-palette-selected-bg: var(--sx-selected-bg);
+  --command-palette-selected-color: var(--sx-selected-fg);
+  --command-palette-description-selected-color: var(--sx-selected-fg);
 }
 
 // Upstream sets this one on .ide-redesign-main itself, so override it there.
