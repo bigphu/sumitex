@@ -254,7 +254,11 @@ export const SettingsModalProvider: FC<React.PropsWithChildren> = ({
               },
               {
                 key: 'write-and-cite-settings',
-                component: <ReferenceSearchSetting />,
+                // SumiTeX: only build the element when a module provides it,
+                // so React doesn't warn about an undefined component type
+                component: ReferenceSearchSetting ? (
+                  <ReferenceSearchSetting />
+                ) : null,
                 hidden: !ReferenceSearchSetting,
               },
             ],
