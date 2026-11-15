@@ -1,0 +1,22 @@
+// dark (the 'default' theme)
+:root {    
+  --sx-frame        : var(--sx-ink-950);
+  --sx-island       : var(--sx-ink-850);
+  --sx-island-raised: var(--sx-ink-800);
+  --sx-border       : var(--sx-ink-700);
+  --sx-fg           : #dedbd3;  
+  --sx-muted        : #9a9893;
+  --sx-accent       : var(--sx-ai-300);
+  --sx-island-radius: 8px;  
+  --sx-island-gap   : 6px;    // the same in both themes
+}
+
+@include theme('light') {
+  --sx-frame        : var(--sx-paper-200);
+  --sx-island       : var(--sx-paper-50);
+  --sx-island-raised: #fff;
+  --sx-border       : #e2dfd7;
+  --sx-fg           : #22211e;
+  --sx-muted        : #66645f;
+  --sx-accent       : var(--sx-ai-600);
+}

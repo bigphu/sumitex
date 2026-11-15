@@ -1,0 +1,6 @@
+// The frame: everything that isn't an island. The toolbar and the left icon
+// strip sit on it; a gap of frame shows around the islands.
+.ide-redesign-body {
+  background-color: var(--sx-frame);
+  padding: 0 var(--sx-island-gap) var(--sx-island-gap) 0;
+}

@@ -1,0 +1,42 @@
+// Points upstream's own variables at SumiTeX tokens, so upstream components
+// change their look without their files being edited.
+//
+// Set on :root and body for both themes: upstream defines some of these on
+// body (the rail) and in [data-theme='light'] blocks on body, which would
+// otherwise win. Every value is a --sx- token, which already follows the theme.
+:root,
+body,
+body[data-theme] {
+  // Whole editor page
+  --ide-redesign-background: var(--sx-frame);
+  --ide-redesign-color: var(--sx-fg);
+  --ide-redesign-resizing-background: var(--sx-frame);
+
+  // Toolbar: the title bar, sitting on the frame
+  --redesign-toolbar-background: var(--sx-frame);
+  --redesign-toolbar-border-divider: transparent; // islands, so no divider line
+  --redesign-toolbar-home-link-color: var(--sx-fg);
+  --redesign-toolbar-home-button-hover-background: var(--sx-island-raised);
+  --redesign-subdued-button-color: var(--sx-muted);
+  --redesign-subdued-button-hover-background: var(--sx-island-raised);
+
+  // Rail: the side panel is an island; the icon strip itself is set to the
+  // frame in overrides/components/_rail.scss
+  --ide-rail-background: var(--sx-island);
+  --ide-rail-color: var(--sx-fg);
+  --ide-rail-border-colour: transparent;
+  --ide-rail-link-background: transparent;
+  --ide-rail-link-hover-color: var(--sx-fg);
+  --ide-rail-link-hover-background: var(--sx-island-raised);
+  --ide-rail-link-active-color: var(--sx-accent);
+  --ide-rail-link-active-background: var(--sx-island-raised);
+  --ide-rail-header-subdued-button-color: var(--sx-muted);
+  --ide-rail-header-subdued-button-hover-background: var(--sx-island-raised);
+}
+
+// Upstream sets this one on .ide-redesign-main itself, so override it there.
+// The resize handles between islands become the frame-coloured gaps.
+body[data-theme] .ide-redesign-main,
+.ide-redesign-main {
+  --editor-resizer-bg-color: var(--sx-frame);
+}

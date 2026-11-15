@@ -1,0 +1,6 @@
+// The left icon strip sits on the frame, not on the island colour that
+// --ide-rail-background now holds for the side panel.
+.ide-rail {
+  background: var(--sx-frame);
+  border-right: 0;
+}

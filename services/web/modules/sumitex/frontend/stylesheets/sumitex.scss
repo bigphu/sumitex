@@ -1,0 +1,12 @@
+// SumiTeX styles, imported last from frontend/stylesheets/pages/all.scss.
+// Order matters: tokens first, then the shell, then upstream overrides.
+@import 'tokens/palette';
+@import 'tokens/themes';
+@import 'tokens/bridge';
+
+@import 'shell/frame';
+@import 'shell/islands';
+@import 'shell/titlebar';
+
+@import 'overrides/components/toolbar';
+@import 'overrides/components/rail';

@@ -1,0 +1,21 @@
+// Islands, after JetBrains IDEs: the side panel is one island, and the editor
+// and PDF share a second one. The gaps between them are the resize handles,
+// coloured as frame in tokens/_bridge.scss.
+$sx-side-panel: "[data-panel-id^='ide-redesign-sidebar-panel-']";
+$sx-work-island: "[data-panel-id='ide-redesign-editor-and-pdf-panel']";
+
+#{$sx-side-panel},
+#{$sx-work-island} {
+  background-color: var(--sx-island);
+  border-radius: var(--sx-island-radius);
+  overflow: hidden;
+}
+
+// Inside the work island, the editor and the PDF are split by a thin line
+// instead of a frame gap. The handle keeps its width so it stays easy to grab.
+#{$sx-work-island} .horizontal-resize-handle {
+  background:
+    linear-gradient(var(--sx-border), var(--sx-border)) center / 1px 100%
+      no-repeat,
+    var(--sx-island);
+}
