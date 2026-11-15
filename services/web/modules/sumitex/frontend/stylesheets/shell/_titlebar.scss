@@ -1,3 +1,158 @@
-// The SumiTeX title bar (main menu, run widget, Share) is a new component in
-// Phase 1. Until it exists, the upstream toolbar is restyled through
-// tokens/_bridge.scss and overrides/components/_toolbar.scss.
+// The SumiTeX title bar (guide 1d, step 3): ensō main menu on the left, the
+// project name in the middle, the run widget and Share on the right. It
+// keeps the stock toolbar's class, so its height and colours carry over.
+.sx-titlebar {
+  align-items: center;
+}
+
+.sx-titlebar-start,
+.sx-titlebar-end {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-04);
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.sx-titlebar-end {
+  justify-content: flex-end;
+}
+
+.sx-titlebar-hidden {
+  display: none;
+}
+
+// Ensō main menu: the button, then the stock menu bar inline when open
+.sx-main-menu {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-02);
+  min-width: 0;
+}
+
+.sx-enso {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: var(--border-radius-base);
+  background: transparent;
+  color: var(--sx-fg);
+  cursor: pointer;
+
+  &:hover,
+  .sx-main-menu-open & {
+    background: var(--sx-island-raised);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--sx-accent);
+    outline-offset: 1px;
+  }
+}
+
+.sx-main-menu-items {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-02);
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+// Doubled class: the toolbar's own link colour is otherwise more specific
+.sx-main-menu-home.sx-main-menu-home {
+  padding: var(--spacing-02) var(--spacing-04);
+  border-radius: var(--border-radius-base);
+  color: var(--sx-fg);
+  font-size: var(--font-size-02);
+  text-decoration: none;
+
+  &:hover {
+    background: var(--sx-island-raised);
+    color: var(--sx-fg);
+  }
+}
+
+// Run widget: [ Normal ▾ | ▶ ] with the last result as a dot
+.sx-run {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  border-radius: var(--border-radius-base);
+  background: var(--sx-island-raised);
+}
+
+.sx-run-profile {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 var(--spacing-03) 0 var(--spacing-04);
+  color: var(--sx-fg) !important;
+  font-size: var(--font-size-02);
+  text-decoration: none !important;
+
+  &:hover {
+    background: var(--sx-border);
+    border-radius: var(--border-radius-base) 0 0 var(--border-radius-base);
+  }
+}
+
+.sx-run-play {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 28px;
+  border: 0;
+  border-left: 1px solid var(--sx-border);
+  border-radius: 0 var(--border-radius-base) var(--border-radius-base) 0;
+  background: transparent;
+  color: var(--content-positive-themed, #5fd38a);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--sx-border);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .material-symbols {
+    font-size: 22px;
+  }
+}
+
+// Unsaved changes since the last compile: the ▶ is brighter
+.sx-run-changed .sx-run-play {
+  color: var(--sx-accent);
+}
+
+.sx-run-dot {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--sx-island-raised);
+}
+
+.sx-run-warning .sx-run-dot {
+  background: var(--content-warning-themed, #e8b04a);
+}
+
+.sx-run-error .sx-run-dot {
+  background: var(--content-danger-themed, #ff7a6b);
+}
+
+// With the run widget in the title bar, the PDF pill drops its Recompile.
+// The stock button stays mounted there (hidden): it registers the compile
+// commands for the palette and the shortcuts.
+body:has(.sx-titlebar) .ide-redesign-pdf-container .toolbar-pdf .compile-button-group {
+  display: none !important;
+}

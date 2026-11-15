@@ -18,6 +18,8 @@ import importOverleafModules from '../../../../../macros/import-overleaf-module.
 // SumiTeX: one tab bar across the editor-and-PDF island
 import WorkTabBar from '@modules/sumitex/frontend/js/layout/work-tab-bar'
 import StatusBar from '@modules/sumitex/frontend/js/layout/status-bar'
+import TitleBar from '@modules/sumitex/frontend/js/layout/title-bar'
+import { useFeatureFlag } from '@/shared/context/split-test-context'
 
 const mainEditorLayoutPanels: Array<{
   import: { default: ElementType }
@@ -30,6 +32,8 @@ const mainEditorLayoutModalsModules: Array<{
 }> = importOverleafModules('mainEditorLayoutModals')
 
 export default function MainLayout() {
+  // SumiTeX: the title bar replaces the stock toolbar while this flag is on
+  const sumitexTitleBar = useFeatureFlag('sumitex-title-bar')
   const [resizing, setResizing] = useState(false)
   const { resizing: railResizing } = useRailContext()
   const {
@@ -49,7 +53,7 @@ export default function MainLayout() {
 
   return (
     <div className="ide-redesign-main">
-      <Toolbar />
+      {sumitexTitleBar ? <TitleBar /> : <Toolbar />}
       <EditingPausedBanner />
       <div className="ide-redesign-body">
         <PanelGroup

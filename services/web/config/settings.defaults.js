@@ -1401,6 +1401,7 @@ module.exports.splitTestOverrides = {
   // SumiTeX
   'command-palette': 'enabled',
   'focus-mode': 'enabled',
+  'sumitex-title-bar': 'enabled',
 }
 
 module.exports.oauthProviders = {

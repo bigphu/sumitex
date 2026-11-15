@@ -648,6 +648,7 @@ const _ProjectController = {
       'intermittent-connection-improvements',
       'symbol-recognition',
       'ai-assistant-pointer',
+      'sumitex-title-bar', // SumiTeX
     ].filter(Boolean)
 
     const getUserValues = async userId =>
