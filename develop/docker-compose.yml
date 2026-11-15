@@ -203,7 +203,7 @@ services:
       - dev.env
     environment:
       - NODE_OPTIONS=--require /overleaf/.pnp.cjs --import /overleaf/.pnp.register.mjs
-      - APP_NAME=Overleaf Community Edition
+      - APP_NAME=SumiTeX
       - ENABLED_LINKED_FILE_TYPES=project_file,project_output_file,url,mendeley,zotero
       - EMAIL_CONFIRMATION_DISABLED=true
       - EXTERNAL_AUTH=${EXTERNAL_AUTH:-none}
