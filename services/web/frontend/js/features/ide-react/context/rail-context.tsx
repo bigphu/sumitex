@@ -10,6 +10,7 @@ import {
   SetStateAction,
   useCallback,
   useContext,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -54,6 +55,13 @@ const RailContext = createContext<
       setActiveModal: Dispatch<SetStateAction<RailModalKey | null>>
       openTab: (tab: RailTabKey) => void
       selectTab: (tab: RailTabKey) => void
+      // SumiTeX: Review opens in the right island with its own state;
+      // reviewInlineOpen shows the stock inline panel while a new comment
+      // is being written
+      reviewPanelOpen: boolean
+      setReviewPanelOpen: Dispatch<SetStateAction<boolean>>
+      reviewInlineOpen: boolean
+      setReviewInlineOpen: Dispatch<SetStateAction<boolean>>
     }
   | undefined
 >(undefined)
@@ -105,30 +113,53 @@ export const RailProvider: FC<React.PropsWithChildren> = ({ children }) => {
     }
   }, [isOpen, selectedTab])
 
+  // SumiTeX: Review no longer takes over the left side panel. It has its own
+  // open state and its column sits on the editor's right; every way of
+  // opening the 'review-panel' tab opens it there instead.
+  const [reviewPanelOpen, setReviewPanelOpen] = usePersistedState<boolean>(
+    `sumitex-review-open-${projectId}`,
+    false
+  )
+
+  const [reviewInlineOpen, setReviewInlineOpen] = useState(false)
+
+  // A left panel saved as 'review-panel' before this change: show Files there
+  // and open Review on the right
+  useEffect(() => {
+    if (selectedTab === 'review-panel') {
+      setSelectedTab('file-tree')
+      setReviewPanelOpen(true)
+    }
+  }, [selectedTab, setSelectedTab, setReviewPanelOpen])
+
   const selectTab = useCallback(
     (tab: RailTabKey) => {
+      if (tab === 'review-panel') {
+        setReviewPanelOpen(true) // SumiTeX
+        return
+      }
       setSelectedTab(tab)
     },
-    [setSelectedTab]
+    [setSelectedTab, setReviewPanelOpen]
   )
 
   const openTab = useCallback(
     (tab: RailTabKey) => {
+      if (tab === 'review-panel') {
+        setReviewPanelOpen(true) // SumiTeX
+        return
+      }
       setSelectedTab(tab)
       setIsOpen(true)
     },
-    [setIsOpen, setSelectedTab]
+    [setIsOpen, setSelectedTab, setReviewPanelOpen]
   )
 
   useEventListener(
     'ui.toggle-review-panel',
     useCallback(() => {
-      if (isOpen && selectedTab === 'review-panel') {
-        handlePaneCollapse()
-      } else {
-        openTab('review-panel')
-      }
-    }, [handlePaneCollapse, selectedTab, isOpen, openTab])
+      setReviewPanelOpen(open => !open) // SumiTeX
+    }, [setReviewPanelOpen])
   )
 
   useEventListener(
@@ -177,6 +208,10 @@ export const RailProvider: FC<React.PropsWithChildren> = ({ children }) => {
       setActiveModal,
       openTab,
       selectTab,
+      reviewPanelOpen,
+      setReviewPanelOpen,
+      reviewInlineOpen,
+      setReviewInlineOpen,
     }),
     [
       selectedTab,
@@ -192,6 +227,10 @@ export const RailProvider: FC<React.PropsWithChildren> = ({ children }) => {
       setActiveModal,
       openTab,
       selectTab,
+      reviewPanelOpen,
+      setReviewPanelOpen,
+      reviewInlineOpen,
+      setReviewInlineOpen,
     ]
   )
 

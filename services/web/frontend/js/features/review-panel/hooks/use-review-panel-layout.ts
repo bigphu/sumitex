@@ -14,28 +14,24 @@ export default function useReviewPanelLayout(): {
 } {
   const ranges = useRangesContext()
   const threads = useThreadsContext()
-  const {
-    selectedTab: selectedRailTab,
-    isOpen: railIsOpen,
-    openTab: openRailTab,
-    setIsOpen: setRailIsOpen,
-  } = useRailContext()
+  // SumiTeX: Review opens as a list in the right island (reviewPanelOpen).
+  // In the editor the stock panel stays in its small "mini" form, and opens
+  // in full only while a new comment is being written (reviewInlineOpen).
+  const { setReviewPanelOpen, reviewInlineOpen } = useRailContext()
   const { focusMode } = useLayoutContext()
 
-  const reviewPanelOpen = selectedRailTab === 'review-panel' && railIsOpen
-
   const openReviewPanel = useCallback(() => {
-    openRailTab('review-panel')
-  }, [openRailTab])
+    setReviewPanelOpen(true)
+  }, [setReviewPanelOpen])
 
   const closeReviewPanel = useCallback(() => {
-    setRailIsOpen(false)
-  }, [setRailIsOpen])
+    setReviewPanelOpen(false)
+  }, [setReviewPanelOpen])
 
   const hasCommentOrChange = hasActiveRange(ranges, threads)
-  const showPanel = focusMode ? false : reviewPanelOpen || !!hasCommentOrChange
-  const mini = !reviewPanelOpen
-  const showHeader = showPanel && !mini
+  const showPanel = focusMode ? false : reviewInlineOpen || !!hasCommentOrChange
+  const mini = !reviewInlineOpen
+  const showHeader = false // SumiTeX: the island has its own header
 
   return { showPanel, showHeader, mini, openReviewPanel, closeReviewPanel }
 }

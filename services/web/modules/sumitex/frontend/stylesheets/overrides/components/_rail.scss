@@ -6,9 +6,8 @@
 }
 
 // Left strip order, as in the mockup: Files, Outline, Search, History,
-// Integrations. Review, Chat and the AI assistant stay below until they move
-// to the right strip (guide 1d, step 4). Module entries are always added
-// after the stock tabs, so the order is set here rather than in rail.tsx.
+// Integrations. Module entries are always added after the stock tabs, so
+// the order is set here rather than in rail.tsx.
 .ide-rail-tabs-wrapper {
   > * { order: 9; } // anything else, such as the "more" overflow menu, goes last
   > [data-rr-ui-event-key='file-tree'] { order: 1; }
@@ -16,9 +15,13 @@
   > [data-rr-ui-event-key='full-project-search'] { order: 3; }
   > [data-sx-rail-key='sumitex-history'] { order: 4; }
   > [data-rr-ui-event-key='integrations'] { order: 5; }
-  > [data-rr-ui-event-key='review-panel'] { order: 6; }
-  > [data-rr-ui-event-key='chat'] { order: 7; }
-  > [data-rr-ui-event-key='workbench'] { order: 8; }
+  // Review, Chat and the AI assistant moved to the right strip
+  // (layout/right-strip.tsx)
+  > [data-rr-ui-event-key='review-panel'],
+  > [data-rr-ui-event-key='chat'],
+  > [data-rr-ui-event-key='workbench'] {
+    display: none;
+  }
 }
 
 // Files shows only the file tree; the outline has its own strip entry.

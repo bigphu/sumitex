@@ -1060,6 +1060,10 @@ module.exports = {
         __dirname,
         '../modules/sumitex/frontend/js/bridge/sumitex-bridge'
       ),
+      Path.resolve(
+        __dirname,
+        '../modules/sumitex/frontend/js/review/review-island'
+      ),
     ],
     pdfLogEntryHeaderActionComponents: [
       Path.resolve(
@@ -1109,6 +1113,8 @@ module.exports = {
         __dirname,
         '../modules/workbench/frontend/js/assistant-right-panel'
       ),
+      // SumiTeX: keep last, so the strip sits at the window's right edge
+      Path.resolve(__dirname, '../modules/sumitex/frontend/js/layout/right-strip'),
     ],
     pythonRunner: [
       Path.resolve(

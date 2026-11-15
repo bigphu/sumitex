@@ -236,8 +236,8 @@ export const RailLayout = () => {
     }
   }, [railTabs, selectedTab, openTab, isOpen])
 
-  const isReviewPanelOpen =
-    selectedTab === 'review-panel' && isOpen && !isHistoryView
+  // SumiTeX: Review opens on the right and no longer hides the left panel
+  const isReviewPanelOpen = false
 
   const { tabsInRail, tabsInOverflow, tabWrapperRef } =
     useRailOverflow(railTabs)

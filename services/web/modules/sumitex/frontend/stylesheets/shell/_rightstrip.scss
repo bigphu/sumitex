@@ -1,0 +1,191 @@
+// The right strip (guide 1d, step 4): Review, Chat and the AI assistant on
+// the frame at the window's right edge; Chat opens in an island beside it.
+.sx-right-strip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-02);
+  flex: 0 0 40px;
+  width: 40px;
+  margin-left: var(--sx-island-gap); // frame gap after the island beside it
+  padding: var(--spacing-02);
+  background: var(--sx-frame);
+}
+
+.sx-right-strip-button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: var(--border-radius-base);
+  background: transparent;
+  color: var(--sx-muted);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--sx-island-raised);
+    color: var(--sx-fg);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--sx-accent);
+    outline-offset: 1px;
+  }
+
+  // Unread chat messages, as on the stock rail
+  .badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 10px;
+  }
+}
+
+.sx-right-strip-button-active,
+.sx-right-strip-button-active:hover:not(:disabled) {
+  background: var(--sx-island-raised);
+  color: var(--sx-accent);
+}
+
+// The Chat panel is an island like the left side panel
+[data-panel-id='sx-right-panel'] {
+  background-color: var(--sx-island);
+  border-radius: var(--sx-island-radius);
+  overflow: hidden;
+}
+
+.sx-right-panel {
+  height: 100%;
+  overflow: hidden;
+}
+
+// The strip sits on the frame at the right edge, so the frame's right gap
+// is no longer needed
+.ide-redesign-body:has(.sx-right-strip) {
+  padding-right: 0;
+}
+
+// In the editor, Review stays in its small "mini" form (markers beside
+// lines with a comment or suggestion), now on the editor's right next to the
+// Review island. Upstream puts it first in the editor's scroller.
+.cm-scroller > .review-panel-container {
+  order: 99;
+}
+
+// The divider is an inset shadow, not a border: a 1px border made the
+// editor 1px too wide and showed a horizontal scrollbar
+.review-panel-inner {
+  border-right: none;
+  border-left: none;
+  box-shadow: inset 1px 0 0 var(--sx-border);
+}
+
+.sx-review-close.sx-review-close {
+  border: 0;
+  background: transparent;
+  color: var(--sx-muted);
+
+  &:hover {
+    background: var(--sx-island-raised);
+    color: var(--sx-fg);
+  }
+}
+
+// The Review island (mockup frame 24): header, actions, then the list
+.sx-review-host:empty::before {
+  content: attr(data-empty-label);
+  display: block;
+  padding: var(--spacing-06);
+  color: var(--sx-muted);
+  font-size: var(--font-size-02);
+  text-align: center;
+}
+
+.sx-review-island {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.sx-review-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-02);
+  padding: var(--spacing-03) var(--spacing-03) var(--spacing-02)
+    var(--spacing-05);
+}
+
+.sx-review-title {
+  flex: 1 1 auto;
+  margin: 0;
+  color: var(--sx-fg);
+  font-size: var(--font-size-03);
+  font-weight: 600;
+}
+
+.sx-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-02);
+  padding: 0 var(--spacing-05) var(--spacing-04);
+  border-bottom: 1px solid var(--sx-border);
+}
+
+.sx-review-action {
+  height: 26px;
+  padding: 0 var(--spacing-04);
+  border: 1px solid var(--sx-border);
+  border-radius: var(--border-radius-full);
+  background: transparent;
+  color: var(--sx-fg);
+  font-size: var(--font-size-02);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--sx-island-raised);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.sx-review-filter {
+  margin-left: auto;
+}
+
+.sx-review-filter-on {
+  border-color: transparent;
+  background: var(--sx-selected-bg);
+  color: var(--sx-selected-fg);
+}
+
+// The stock Overview list, filling the island
+.sx-review-list.review-panel-container {
+  order: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+  position: relative;
+  top: auto;
+  overflow-y: auto;
+
+  .review-panel-inner {
+    width: 100%;
+    border-left: none;
+    background: transparent;
+  }
+}
+
+.sx-review-comments-only .review-panel-entry-change {
+  display: none;
+}
