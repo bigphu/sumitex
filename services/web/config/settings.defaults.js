@@ -1307,6 +1307,15 @@ module.exports = {
         __dirname,
         '../modules/workbench/frontend/js/assistant-rail-entry'
       ),
+      // SumiTeX
+      Path.resolve(
+        __dirname,
+        '../modules/sumitex/frontend/js/outline/outline-rail-entry'
+      ),
+      Path.resolve(
+        __dirname,
+        '../modules/sumitex/frontend/js/rail/history-rail-entry'
+      ),
     ],
     railPopovers: [],
     railActions: [],

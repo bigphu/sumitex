@@ -4,3 +4,33 @@
   background: var(--sx-frame);
   border-right: 0;
 }
+
+// Left strip order, as in the mockup: Files, Outline, Search, History,
+// Integrations. Review, Chat and the AI assistant stay below until they move
+// to the right strip (guide 1d, step 4). Module entries are always added
+// after the stock tabs, so the order is set here rather than in rail.tsx.
+.ide-rail-tabs-wrapper {
+  > * { order: 9; } // anything else, such as the "more" overflow menu, goes last
+  > [data-rr-ui-event-key='file-tree'] { order: 1; }
+  > [data-rr-ui-event-key='sumitex-outline'] { order: 2; }
+  > [data-rr-ui-event-key='full-project-search'] { order: 3; }
+  > [data-sx-rail-key='sumitex-history'] { order: 4; }
+  > [data-rr-ui-event-key='integrations'] { order: 5; }
+  > [data-rr-ui-event-key='review-panel'] { order: 6; }
+  > [data-rr-ui-event-key='chat'] { order: 7; }
+  > [data-rr-ui-event-key='workbench'] { order: 8; }
+}
+
+// Files shows only the file tree; the outline has its own strip entry.
+// The stock split stays in the code (file-tree-outline-panel.tsx), hidden.
+.file-tree-outline-panel-group {
+  > .file-tree-panel { flex: 1 1 auto !important; }
+  > .file-outline-panel,
+  > [data-panel-resize-handle-id] { display: none; }
+}
+
+// The Outline panel fills the side island
+.sx-outline-panel {
+  height: 100%;
+  overflow: auto;
+}

@@ -25,6 +25,9 @@ export type RailTabKey =
   | 'full-project-search'
   | 'dimensions'
   | 'workbench'
+  // SumiTeX
+  | 'sumitex-outline'
+  | 'sumitex-history'
 
 export type RailModalKey =
   | 'keyboard-shortcuts'
