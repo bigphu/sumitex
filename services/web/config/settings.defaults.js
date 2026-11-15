@@ -1068,6 +1068,10 @@ module.exports = {
         __dirname,
         '../modules/sumitex/frontend/js/layout/editor-problems'
       ),
+      Path.resolve(
+        __dirname,
+        '../modules/sumitex/frontend/js/session/welcome-back'
+      ),
     ],
     pdfLogEntryHeaderActionComponents: [
       Path.resolve(

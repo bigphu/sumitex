@@ -6,3 +6,44 @@ body:not(.sx-code-toolbar):not(.sx-visual)
   .ol-cm-toolbar-wrapper {
   display: none;
 }
+
+// "Back where you left off" (session/welcome-back.tsx): a small toast at
+// the editor's bottom-left, as in the mockup
+.sx-welcome-back {
+  position: absolute;
+  left: var(--spacing-05);
+  bottom: var(--spacing-05);
+  z-index: 310; // above the editor's own top bar layer
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-03);
+  padding: var(--spacing-02) var(--spacing-02) var(--spacing-02)
+    var(--spacing-04);
+  border: 1px solid var(--sx-border);
+  border-radius: var(--border-radius-base);
+  background: var(--sx-island-raised);
+  color: var(--sx-fg);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-01);
+  box-shadow: 0 6px 20px rgb(0 0 0 / 30%);
+
+  .material-symbols {
+    font-size: 16px;
+    color: var(--sx-muted);
+  }
+}
+
+.sx-welcome-back-dismiss {
+  border: 0;
+  border-radius: var(--border-radius-base);
+  padding: 2px var(--spacing-03);
+  background: transparent;
+  color: var(--sx-muted);
+  font: inherit;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--sx-border);
+    color: var(--sx-fg);
+  }
+}
