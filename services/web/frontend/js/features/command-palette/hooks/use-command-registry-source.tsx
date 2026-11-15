@@ -28,6 +28,7 @@ const useCommandRegistrySource = (): CommandPaletteSource => {
           'change-layout-pdf-only',
           'change-layout-detached-pdf',
           'change-layout-focus-mode',
+          'sumitex-toggle-zen-mode', // SumiTeX
         ],
       },
       {
