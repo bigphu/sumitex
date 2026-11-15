@@ -235,3 +235,44 @@
 body:has(.sx-titlebar) .ide-redesign-pdf-container .toolbar-pdf .compile-button-group {
   display: none !important;
 }
+
+.sx-main-menu-install {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.sx-main-menu-home {
+  white-space: nowrap;
+}
+
+// While the ensō menu is open, its items take the breadcrumb's place
+.sx-main-menu-open + .sx-titlebar-crumb {
+  display: none;
+}
+
+// Installed as an app, with window controls overlay (guide 1c): the title
+// bar becomes the window's title bar. It keeps clear of the system's own
+// buttons, its empty parts drag the window, and its controls stay clickable.
+@media (display-mode: window-controls-overlay) {
+  .sx-titlebar {
+    height: env(titlebar-area-height, 36px);
+    padding-left: max(var(--spacing-02), env(titlebar-area-x, 0px));
+    padding-right: max(
+      var(--spacing-02),
+      calc(100vw - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100vw))
+    );
+    app-region: drag;
+    -webkit-app-region: drag;
+
+    button,
+    a,
+    input,
+    [role='button'],
+    .dropdown,
+    .sx-search {
+      app-region: no-drag;
+      -webkit-app-region: no-drag;
+    }
+  }
+}

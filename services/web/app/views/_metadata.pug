@@ -145,9 +145,9 @@ link(
 if metadata && metadata.canonicalURL
 	link(rel='canonical' href=metadata.canonicalURL)
 
-//- Manifest
+//- Manifest (SumiTeX: its own manifest and icons, so it installs as an app)
 link(
 	rel='manifest'
-	href='/web.sitemanifest.json'
+	href='/sumitex/sumitex.webmanifest'
 	crossorigin=settings.isCodeSpace ? 'use-credentials' : false
 )
