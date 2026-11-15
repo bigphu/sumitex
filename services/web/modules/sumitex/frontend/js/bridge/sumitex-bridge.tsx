@@ -8,6 +8,8 @@ import { useCodeMirrorViewContext } from '@/features/source-editor/components/co
 import { useCommandProvider } from '@/features/ide-react/hooks/use-command-provider'
 import type { IdeLayout } from '@/shared/context/layout-context'
 import { setZen } from '../editor/zen-mode'
+import { useEditorPropertiesContext } from '@/features/ide-react/context/editor-properties-context'
+import { applyCodeToolbarClass } from '../settings/prefs'
 
 // The layout to go back to when Zen ends. Kept in localStorage so that
 // leaving Zen after a reload still brings the PDF back.
@@ -58,6 +60,16 @@ export default function SumitexBridge() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view, focusMode])
+
+  // Body classes the styles follow: Visual mode, and the Code-mode
+  // formatting toolbar preference (shell/_editor.scss)
+  const { showVisual } = useEditorPropertiesContext()
+  useEffect(() => {
+    document.body.classList.toggle('sx-visual', Boolean(showVisual))
+  }, [showVisual])
+  useEffect(() => {
+    applyCodeToolbarClass()
+  }, [])
 
   // A palette entry under View, next to the stock "Toggle focus mode"
   useCommandProvider(

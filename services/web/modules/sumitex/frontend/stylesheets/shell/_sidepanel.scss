@@ -1,0 +1,128 @@
+// The left side panel, as in the mockup: an uppercase 11px header, small
+// muted icon buttons, and 26px rows whose active item is a quiet raised
+// row rather than the accent colour.
+
+// Header ("FILES", "FILE OUTLINE")
+.file-tree-toolbar,
+.outline-header {
+  height: 36px;
+  padding: 0 var(--spacing-03) 0 var(--spacing-04);
+}
+
+.file-tree-toolbar h4,
+.outline-header h4,
+.outline-header-name {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--sx-muted) !important;
+}
+
+.file-tree-toolbar .material-symbols,
+.outline-header .material-symbols {
+  font-size: 16px;
+  color: var(--sx-muted);
+}
+
+.file-tree-toolbar button:hover .material-symbols {
+  color: var(--sx-fg);
+}
+
+// Rows
+.file-tree {
+  --file-tree-line-height: 26px;
+
+  li .entity {
+    border-radius: 6px;
+  }
+
+  .entity-name {
+    font-size: 12.5px !important;
+    line-height: 26px;
+    border-radius: 6px;
+  }
+
+  .file-tree-icon {
+    font-size: 15px !important;
+    color: var(--sx-muted);
+  }
+}
+
+.outline-item-link {
+  font-size: 12.5px;
+  border-radius: 6px;
+}
+
+.file-tree li.selected > .entity .entity-name,
+.outline-item-link-highlight {
+  font-weight: 500;
+}
+
+// File tree header, as in the mockup: "FILES" and its actions, nothing else.
+// - The label no longer collapses the tree: Files and Outline are separate
+//   panels now, and collapsing moved the header. Its chevron goes too;
+//   "Collapse all folders" (files/file-tree-extras.tsx) takes its place.
+// - The × goes: the Files icon on the left strip opens and closes the panel.
+// - The label reads "Files", the mockup's word for it.
+.file-tree-expand-collapse-button {
+  pointer-events: none;
+  cursor: default;
+
+  > .material-symbols {
+    display: none;
+  }
+
+  h4 {
+    font-size: 0 !important;
+
+    &::after {
+      content: 'Files';
+      font-size: 11px;
+    }
+  }
+}
+
+.file-tree-toolbar-action-buttons > .file-tree-toolbar-action-button:last-child {
+  display: none !important;
+}
+
+.file-tree-toolbar-action-button {
+  width: 26px;
+  height: 26px;
+  border-radius: 5px;
+
+  &:hover {
+    background: var(--sx-island-raised);
+  }
+}
+
+// Rows: a little air on both sides, and quiet hover
+.file-tree ul.file-tree-list {
+  padding: 0 var(--spacing-02);
+}
+
+.file-tree li .entity:hover .entity-name {
+  background: var(--sx-island-raised);
+}
+
+// Label on the left, then the actions and Collapse all together on the right
+.file-tree-toolbar {
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.file-tree-toolbar-action-buttons {
+  margin-left: auto;
+}
+
+.sx-collapse-all {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: var(--sx-muted);
+
+  &:hover {
+    color: var(--sx-fg);
+  }
+}

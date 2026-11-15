@@ -1,0 +1,13 @@
+// Scrollbars on the editor page: thin and faint, on a transparent track, so
+// they take as little room and attention as the browser allows.
+.ide-redesign-main,
+.ide-redesign-main * {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--sx-fg) 22%, transparent)
+    transparent;
+}
+
+.ide-redesign-main *:hover {
+  scrollbar-color: color-mix(in srgb, var(--sx-fg) 38%, transparent)
+    transparent;
+}

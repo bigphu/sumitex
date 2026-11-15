@@ -1,0 +1,20 @@
+// The small chevron handles on the dividers that hide and show the side
+// panel and the PDF: kept, but quiet until you reach for them.
+.custom-toggler {
+  height: 32px !important;
+  background: transparent !important;
+  color: var(--sx-muted);
+  opacity: 0.35;
+  transition: opacity 0.12s ease-out;
+
+  .material-symbols {
+    font-size: 14px;
+  }
+
+  &:hover,
+  &:focus-visible {
+    opacity: 1;
+    background: var(--sx-island-raised) !important;
+    color: var(--sx-fg);
+  }
+}

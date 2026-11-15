@@ -1,0 +1,13 @@
+// Density, as in the mockup: Inter for the interface and a slightly smaller
+// type scale, so the shell reads like a desktop IDE rather than a web page.
+// Only the editor page is affected (modals, which render outside it, keep
+// the stock sizes), and the code keeps its own font (JetBrains Mono).
+.ide-redesign-main {
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-size-01: 0.71875rem; // 11.5px (stock 12px)
+  --font-size-02: 0.8125rem; // 13px (stock 14px)
+  --font-size-03: 0.875rem; // 14px (stock 16px)
+  --editor-tab-row-height: 32px;
+
+  font-family: var(--font-sans);
+}

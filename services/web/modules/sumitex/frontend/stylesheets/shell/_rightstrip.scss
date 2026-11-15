@@ -133,29 +133,32 @@
 
 .sx-review-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-02);
-  padding: 0 var(--spacing-05) var(--spacing-04);
+  align-items: center;
+  gap: var(--spacing-01);
+  padding: 0 var(--spacing-04) var(--spacing-03);
   border-bottom: 1px solid var(--sx-border);
 }
 
+// Quiet text buttons, not three outlined pills
 .sx-review-action {
-  height: 26px;
-  padding: 0 var(--spacing-04);
-  border: 1px solid var(--sx-border);
-  border-radius: var(--border-radius-full);
+  height: 24px;
+  padding: 0 var(--spacing-03);
+  border: 0;
+  border-radius: var(--border-radius-base);
   background: transparent;
-  color: var(--sx-fg);
-  font-size: var(--font-size-02);
+  color: var(--sx-muted);
+  font-size: var(--font-size-01);
+  white-space: nowrap;
   cursor: pointer;
 
   &:hover:not(:disabled) {
     background: var(--sx-island-raised);
+    color: var(--sx-fg);
   }
 
   &:disabled {
     cursor: not-allowed;
-    opacity: 0.5;
+    opacity: 0.45;
   }
 }
 
@@ -163,8 +166,8 @@
   margin-left: auto;
 }
 
-.sx-review-filter-on {
-  border-color: transparent;
+.sx-review-filter-on,
+.sx-review-filter-on:hover:not(:disabled) {
   background: var(--sx-selected-bg);
   color: var(--sx-selected-fg);
 }
@@ -188,4 +191,28 @@
 
 .sx-review-comments-only .review-panel-entry-change {
   display: none;
+}
+
+// The stock list sets its own width (the inline review-panel width), which
+// left the empty state off-centre in the island; let it fill the island
+.sx-review-list.review-panel-container,
+.sx-review-list .review-panel-inner {
+  width: 100% !important;
+}
+
+// Upstream fixes the empty state to the window with the old panel's width;
+// here it fills the island and centres in it
+.sx-review-list .review-panel-empty-state {
+  position: absolute;
+  inset: 0;
+  width: auto;
+}
+
+// The mode pill in the header: quiet, like the other header controls
+.sx-review-mode .review-mode-switcher-toggle-button {
+  height: 24px;
+  border: 1px solid var(--sx-border);
+  background: transparent !important;
+  color: var(--sx-fg);
+  font-size: var(--font-size-01);
 }

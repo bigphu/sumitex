@@ -1,8 +1,87 @@
-// The SumiTeX title bar (guide 1d, step 3): ensō main menu on the left, the
-// project name in the middle, the run widget and Share on the right. It
-// keeps the stock toolbar's class, so its height and colours carry over.
+// The SumiTeX title bar (guide 1d, step 3; mockup frame 1): the ensō main
+// menu and "SumiTeX / Project ▾" on the left, the search box in the middle,
+// the run widget and Share on the right. It keeps the stock toolbar's class,
+// so its colours carry over.
 .sx-titlebar {
   align-items: center;
+  height: 36px;
+}
+
+// SumiTeX / Project ▾ (mockup frame 1)
+.sx-titlebar-crumb {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-02);
+  min-width: 0;
+
+  // The stock project title, made quieter to sit in the breadcrumb
+  .ide-redesign-toolbar-project-dropdown-toggle {
+    font-weight: 400 !important;
+    color: var(--sx-muted) !important;
+    padding-inline: var(--spacing-02);
+  }
+}
+
+.sx-titlebar-app.sx-titlebar-app {
+  color: var(--sx-fg);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.sx-titlebar-slash {
+  color: var(--sx-muted);
+  opacity: 0.6;
+}
+
+// The search box in the middle: opens quick open (Ctrl+P)
+.sx-search {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-03);
+  flex: 0 1 360px;
+  min-width: 160px;
+  height: 26px;
+  padding: 0 var(--spacing-03) 0 var(--spacing-04);
+  border: 1px solid var(--sx-border);
+  border-radius: var(--border-radius-base);
+  background: var(--sx-island);
+  color: var(--sx-muted);
+  font-size: var(--font-size-02);
+  cursor: text;
+
+  &:hover {
+    border-color: var(--sx-muted);
+  }
+
+  .material-symbols {
+    font-size: 16px;
+  }
+}
+
+.sx-search-label {
+  flex: 1 1 auto;
+  text-align: left;
+}
+
+.sx-search-key {
+  padding: 0 var(--spacing-02);
+  border-radius: 3px;
+  background: var(--sx-island-raised);
+  color: var(--sx-muted);
+  font-family: inherit;
+  font-size: 11px;
+  box-shadow: none;
+}
+
+// Share is a quiet button in the mockup, not a filled primary one
+.sx-titlebar .sx-titlebar-end .btn-primary {
+  background: transparent !important;
+  border: 1px solid var(--sx-border) !important;
+  color: var(--sx-fg) !important;
+
+  &:hover {
+    background: var(--sx-island-raised) !important;
+  }
 }
 
 .sx-titlebar-start,

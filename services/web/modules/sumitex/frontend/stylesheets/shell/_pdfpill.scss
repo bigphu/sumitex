@@ -24,8 +24,8 @@ $sx-pdf-pane: '.ide-redesign-pdf-container';
     max-width: calc(100% - 2 * var(--spacing-05));
     height: 34px;
     padding: 0 var(--spacing-03);
-    overflow-x: auto;
-    scrollbar-width: none;
+    // visible, so the zoom menu and the compact ⋯ menu aren't clipped
+    overflow: visible;
     background: var(--sx-island-raised);
     border: 1px solid var(--sx-border);
     border-radius: var(--border-radius-full);
@@ -52,16 +52,14 @@ $sx-pdf-pane: '.ide-redesign-pdf-container';
 }
 
 // The stock controls show page and zoom in full only when their box is at
-// least 320px wide, and the pill shrinks to its content. So give that box
-// 320px whenever the PDF pane has room; narrow panes keep the compact menu.
-#{$sx-pdf-pane} {
-  container-type: inline-size;
-}
-
-@container (min-width: 560px) {
-  .pdfjs-viewer-controls {
-    min-width: 320px;
-  }
+// least 320px wide; below that they collapse into a "View options" (⋯) menu
+// that only repeats the page box and zoom − +. Keep the full controls
+// always: give the box 320px, and since the page arrows, zoom − + and dark
+// PDF are hidden (about 135px of content), pull it left over its own empty
+// start so the pill doesn't show the gap.
+.ide-redesign-pdf-container .pdfjs-viewer-controls {
+  min-width: 320px;
+  margin-left: -185px;
 }
 
 // The log, opened from the problems widget, also starts at the top of the
@@ -71,4 +69,51 @@ $sx-pdf-pane: '.ide-redesign-pdf-container';
   top: 0;
   bottom: calc(34px + 2 * var(--spacing-05));
   background-color: var(--sx-island);
+}
+
+// Compact pill, as in the mockup: page · zoom · ⌖ · download.
+// Hidden here but still reachable: page arrows (type a page, or scroll),
+// zoom − and + (in the zoom menu), dark PDF (Settings → Appearance).
+.ide-redesign-pdf-container .toolbar-pdf {
+  .pdfjs-toolbar-buttons,
+  .theme-toggle-btn {
+    display: none !important;
+  }
+
+  // Download goes last, after the page, zoom and ⌖
+  .toolbar-pdf-left {
+    order: 2;
+  }
+}
+
+// The jump arrows on the divider became ⌖ in the pill
+.ide-redesign-editor-and-pdf-panel .synctex-controls,
+[data-panel-id='ide-redesign-editor-and-pdf-panel'] .synctex-controls {
+  display: none;
+}
+
+// The ⌖ button added by layout/pdf-pill-extras.tsx, matching the others
+.sx-pdf-jump {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: var(--border-radius-base);
+  background: transparent;
+  color: var(--sx-fg);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--sx-border);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  .material-symbols {
+    font-size: 18px;
+  }
 }

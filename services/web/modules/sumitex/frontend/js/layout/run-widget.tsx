@@ -66,7 +66,8 @@ export default function RunWidget() {
           className="sx-run-profile"
           aria-label={t('toggle_compile_options_menu')}
         >
-          {draft ? t('fast') : t('normal')}
+          {/* Profile names from the mockup: a normal compile is a full build */}
+          {draft ? 'Draft' : 'Full build'}
         </OLDropdownToggle>
         <OLDropdownMenu>
           <OLDropdownHeader>{t('compile_mode')}</OLDropdownHeader>

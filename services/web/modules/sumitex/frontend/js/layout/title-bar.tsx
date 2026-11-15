@@ -1,6 +1,7 @@
 /**
- * The SumiTeX title bar (guide 1d, step 3), on the frame above the islands:
- * the ensō main menu, the project name, the run widget and Share.
+ * The SumiTeX title bar (guide 1d, step 3; mockup frame 1), on the frame
+ * above the islands: the ensō main menu and "SumiTeX / Project ▾", a search
+ * box that opens quick open, the run widget and Share.
  *
  * It's built from the stock toolbar's parts. The ensō shows and hides the
  * stock menu bar (File, Edit, Insert, View, Format, Help) inline, as the
@@ -30,6 +31,29 @@ import { useEditorContext } from '@/shared/context/editor-context'
 import { useFeatureFlag } from '@/shared/context/split-test-context'
 import OLTooltip from '@/shared/components/ol/ol-tooltip'
 import RunWidget from './run-widget'
+import MaterialIcon from '@/shared/components/material-icon'
+import { isMac } from '@/shared/utils/os'
+
+// The search box in the middle of the title bar (mockup frame 1). It opens
+// the command palette's quick open, the same as Ctrl+P / Cmd+P.
+function SearchBox() {
+  const open = () =>
+    window.dispatchEvent(
+      new KeyboardEvent('keydown', {
+        key: 'p',
+        ctrlKey: !isMac,
+        metaKey: isMac,
+        bubbles: true,
+      })
+    )
+  return (
+    <button type="button" className="sx-search" onClick={open}>
+      <MaterialIcon type="search" />
+      <span className="sx-search-label">Search</span>
+      <kbd className="sx-search-key">{isMac ? '⌘P' : 'Ctrl+P'}</kbd>
+    </button>
+  )
+}
 
 // An ensō: one open brush circle, the SumiTeX mark and the main-menu button
 function Enso() {
@@ -126,8 +150,19 @@ export default function TitleBar() {
     >
       <div className="sx-titlebar-start">
         <MainMenu />
+        {/* SumiTeX / Project ▾, as in the mockup; the project name keeps the
+            stock dropdown (rename, copy, download, …) */}
+        <div className="sx-titlebar-crumb">
+          <a className="sx-titlebar-app" href="/project">
+            SumiTeX
+          </a>
+          <span className="sx-titlebar-slash" aria-hidden="true">
+            /
+          </span>
+          <ToolbarProjectTitle />
+        </div>
       </div>
-      <ToolbarProjectTitle />
+      <SearchBox />
       <div className="sx-titlebar-end">
         {improvedFlakyConnections && (
           <OfflineIndicator isOffline={isOfflineDueToNetworkStall} />

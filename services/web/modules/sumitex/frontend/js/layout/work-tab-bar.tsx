@@ -14,15 +14,41 @@ import EditorSwitch from '@/features/source-editor/components/editor-switch'
 import { useAreTabsEnabled } from '@/features/ide-react/hooks/use-are-tabs-enabled'
 import { useLayoutContext } from '@/shared/context/layout-context'
 import { useEditorOpenDocContext } from '@/features/ide-react/context/editor-open-doc-context'
-import ProblemsWidget from './problems-widget'
 import { useIsNarrow, useNarrowLayout } from './use-narrow-layout'
+import PdfPillExtras from './pdf-pill-extras'
+import FileTreeExtras from '../files/file-tree-extras'
 
 type LayoutChoice = 'source' | 'split' | 'pdf'
 
-const CHOICES: { key: LayoutChoice; label: string; title: string }[] = [
-  { key: 'source', label: 'Source', title: 'Source only' },
-  { key: 'split', label: 'Split', title: 'Source and PDF side by side' },
-  { key: 'pdf', label: 'PDF', title: 'PDF only' },
+// Icon buttons, as in the mockup: source only, split, PDF only
+const SourceIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+    <rect x="2" y="2.5" width="12" height="11" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.3" />
+    <path d="M4.5 5.5h7M4.5 8h5M4.5 10.5h6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+  </svg>
+)
+const SplitIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+    <rect x="2" y="2.5" width="12" height="11" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.3" />
+    <path d="M8 2.5v11" stroke="currentColor" strokeWidth="1.3" />
+  </svg>
+)
+const PdfIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+    <path d="M4 1.8h5.2L12.5 5v9.2H4z" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+    <path d="M9 2v3.3h3.3" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+  </svg>
+)
+
+const CHOICES: {
+  key: LayoutChoice
+  label: string
+  title: string
+  Icon: () => JSX.Element
+}[] = [
+  { key: 'source', label: 'Source', title: 'Source only', Icon: SourceIcon },
+  { key: 'split', label: 'Split', title: 'Source and PDF side by side', Icon: SplitIcon },
+  { key: 'pdf', label: 'PDF', title: 'PDF only', Icon: PdfIcon },
 ]
 
 function LayoutSwitch() {
@@ -43,7 +69,7 @@ function LayoutSwitch() {
   return (
     <div className="sx-segmented" role="group" aria-label="Layout">
       {CHOICES.filter(({ key }) => !(narrow && key === 'split')).map(
-        ({ key, label, title }) => (
+        ({ key, label, title, Icon }) => (
         <button
           key={key}
           type="button"
@@ -54,7 +80,8 @@ function LayoutSwitch() {
           })}
           onClick={() => choose(key)}
         >
-          {label}
+          <Icon />
+          <span className="visually-hidden">{label}</span>
         </button>
         )
       )}
@@ -77,10 +104,11 @@ export default function WorkTabBar() {
         )}
       </div>
       <div className="sx-work-tabbar-end">
-        <ProblemsWidget />
         {openDocName && <EditorSwitch />}
         <LayoutSwitch />
       </div>
+      <PdfPillExtras />
+      <FileTreeExtras />
     </div>
   )
 }

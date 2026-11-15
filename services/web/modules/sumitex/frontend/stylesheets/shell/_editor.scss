@@ -1,0 +1,8 @@
+// The editor inside the work island, as in the mockup: no formatting
+// toolbar row in Code mode (Settings → Editor → SumiTeX brings it back; it
+// always shows in Visual mode). The bridge sets the body classes.
+body:not(.sx-code-toolbar):not(.sx-visual)
+  .ide-redesign-editor-container
+  .ol-cm-toolbar-wrapper {
+  display: none;
+}

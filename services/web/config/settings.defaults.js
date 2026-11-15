@@ -1064,6 +1064,10 @@ module.exports = {
         __dirname,
         '../modules/sumitex/frontend/js/review/review-island'
       ),
+      Path.resolve(
+        __dirname,
+        '../modules/sumitex/frontend/js/layout/editor-problems'
+      ),
     ],
     pdfLogEntryHeaderActionComponents: [
       Path.resolve(
@@ -1299,7 +1303,13 @@ module.exports = {
       ),
     ],
     referenceSearchSetting: [],
-    settingsModalEditorTabSections: [],
+    settingsModalEditorTabSections: [
+      // SumiTeX
+      Path.resolve(
+        __dirname,
+        '../modules/sumitex/frontend/js/settings/editor-settings-section'
+      ),
+    ],
     settingsModalSpellcheckSections: [],
     editorFloatingMenuActions: [],
     referenceIndices: [

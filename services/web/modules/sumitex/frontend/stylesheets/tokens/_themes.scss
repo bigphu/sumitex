@@ -6,6 +6,9 @@
   --sx-island: var(--sx-ink-900);
   --sx-island-raised: var(--sx-ink-800);
   --sx-border: var(--sx-ink-700);
+  --sx-row-active: var(--sx-ink-750); // active row in lists and trees
+  --sx-tabbar-bg: var(--sx-ink-900); // tab bar: same as the island, so it doesn't stand out
+  --sx-tab-active-bg: var(--sx-ink-800); // the open tab
   --sx-fg: var(--sx-ink-100); // 14.0:1 on the island
   --sx-muted: var(--sx-ink-400); // 7.3:1
   --sx-accent: var(--sx-ai-300); // 7.2:1
@@ -22,6 +25,9 @@
   --sx-island: var(--sx-paper-0);
   --sx-island-raised: var(--sx-paper-50);
   --sx-border: var(--sx-paper-200);
+  --sx-row-active: var(--sx-paper-75);
+  --sx-tabbar-bg: var(--sx-paper-0);
+  --sx-tab-active-bg: var(--sx-paper-50);
   --sx-fg: var(--sx-paper-900); // 16.7:1
   --sx-muted: var(--sx-paper-600); // 6.0:1
   --sx-accent: var(--sx-ai-600); // 5.9:1

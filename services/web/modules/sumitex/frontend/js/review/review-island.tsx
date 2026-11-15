@@ -29,6 +29,7 @@ import { useReviewPanelStyles } from '@/features/review-panel/hooks/use-review-p
 import { useRailContext } from '@/features/ide-react/context/rail-context'
 import { usePermissionsContext } from '@/features/ide-react/context/permissions-context'
 import OLIconButton from '@/shared/components/ol/ol-icon-button'
+import ReviewModeSwitcher from '@/features/review-panel/components/review-mode-switcher'
 import {
   getReviewIslandHost,
   subscribeReviewIslandHost,
@@ -50,6 +51,11 @@ function ReviewList() {
     <div className="sx-review-island">
       <div className="sx-review-header">
         <h4 className="sx-review-title">{t('review')}</h4>
+        {/* Editing / Reviewing / Viewing, moved here from the editor's
+            corner: the mockup keeps the track-changes control in Review */}
+        <div className="sx-review-mode">
+          <ReviewModeSwitcher />
+        </div>
         <ReviewPanelResolvedThreadsButton />
         <OLIconButton
           icon="close"

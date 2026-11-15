@@ -37,7 +37,8 @@ function FileTreeFolder({
 
   const [expanded, setExpanded] = usePersistedState(
     `folder.${id}.expanded`,
-    false
+    false,
+    { listen: true } // SumiTeX: so "Collapse all folders" reaches open folders
   )
 
   useEffect(() => {

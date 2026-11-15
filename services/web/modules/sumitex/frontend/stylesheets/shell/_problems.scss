@@ -77,3 +77,30 @@
 .ide-redesign-pdf-container .toolbar-pdf .log-btn {
   display: none !important; // the button also has Bootstrap's d-inline-grid, which is !important
 }
+
+// In the editor's top-right corner, over the text (mockup frame 1)
+.sx-editor-problems {
+  position: absolute;
+  top: var(--spacing-03);
+  right: var(--spacing-07);
+  z-index: 310; // above the editor's top bar (z-index 300)
+
+  .sx-problems {
+    background: var(--sx-island-raised);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 25%);
+  }
+}
+
+// The stock Editing / Reviewing pill moved into the Review island header
+.cm-scroller .review-mode-switcher-container {
+  display: none;
+}
+
+.sx-review-mode .review-mode-switcher-container {
+  position: static;
+  display: block;
+}
+
+.sx-review-mode .review-mode-switcher {
+  position: static;
+}
