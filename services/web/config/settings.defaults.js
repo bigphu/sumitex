@@ -1380,7 +1380,10 @@ module.exports.splitTestOverrides = {
   'export-docx': 'enabled',
   'export-markdown': 'enabled',
   'export-html': 'enabled',
-  'intermittent-connection-improvements': 'enabled'
+  'intermittent-connection-improvements': 'enabled',
+  // SumiTeX
+  'command-palette': 'enabled',
+  'focus-mode': 'enabled',
 }
 
 module.exports.oauthProviders = {
