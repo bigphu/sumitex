@@ -56,7 +56,7 @@ const tooltipThemeCache = new ThemeCache()
 
 const createThemeFromOptions = ({
   fontSize = 12,
-  fontFamily = 'monaco',
+  fontFamily = 'jetbrainsmono', // SumiTeX
   lineHeight = 'normal',
   activeOverallTheme = 'dark',
 }: Options) => {

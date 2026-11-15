@@ -1,6 +1,8 @@
 export type OverallTheme = '' | 'light-' | 'system'
 
 export const fontFamilies = {
+  // SumiTeX: default editor font
+  jetbrainsmono: ['JetBrains Mono', 'monospace'],
   monaco: ['Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'monospace'],
   lucida: ['Lucida Console', 'Source Code Pro', 'monospace'],
   opendyslexicmono: ['OpenDyslexic Mono', 'monospace'],

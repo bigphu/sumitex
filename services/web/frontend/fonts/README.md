@@ -2,6 +2,7 @@ This directory contains fonts used by the Overleaf web application.
 
 - [DM Mono](https://github.com/googlefonts/dm-mono)
 - [Inter](https://rsms.me/inter/)
+- [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono) (added by SumiTeX)
 - [Lato](https://www.latofonts.com/)
 - [Material Symbols](https://github.com/google/material-design-icons)
 - [Merriweather](https://github.com/SorkinType/Merriweather)

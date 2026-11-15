@@ -1,0 +1,33 @@
+/* JetBrains Mono v2.304, SIL Open Font License 1.1 (see OFL.txt).
+   Added by SumiTeX as the default editor font. */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: fallback;
+  src: url('JetBrainsMono-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: italic;
+  font-weight: 400;
+  font-display: fallback;
+  src: url('JetBrainsMono-Italic.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: fallback;
+  src: url('JetBrainsMono-Bold.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: italic;
+  font-weight: 700;
+  font-display: fallback;
+  src: url('JetBrainsMono-BoldItalic.woff2') format('woff2');
+}

@@ -11,6 +11,11 @@ export default function FontFamilySetting() {
       id="fontFamily"
       label={t('editor_font_family')}
       options={[
+        // SumiTeX
+        {
+          value: 'jetbrainsmono',
+          label: 'JetBrains Mono',
+        },
         {
           value: 'monaco',
           label: 'Monaco / Menlo / Consolas',

@@ -58,7 +58,7 @@ async function buildUserSettings(_req, _res, user) {
     pdfViewer: user.ace.pdfViewer,
     syntaxValidation: user.ace.syntaxValidation,
     previewTabs: user.ace.previewTabs ?? false,
-    fontFamily: user.ace.fontFamily || 'lucida',
+    fontFamily: user.ace.fontFamily || 'jetbrainsmono', // SumiTeX
     lineHeight: user.ace.lineHeight || 'normal',
     overallTheme: getOverallTheme(user),
     mathPreview: user.ace.mathPreview,

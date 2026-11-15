@@ -22,7 +22,7 @@ export const defaultSettings: UserSettings = {
   overallTheme: '',
   mode: 'default',
   fontSize: 12,
-  fontFamily: 'monaco',
+  fontFamily: 'jetbrainsmono', // SumiTeX
   lineHeight: 'normal',
   mathPreview: true,
   editorTabs: true,
