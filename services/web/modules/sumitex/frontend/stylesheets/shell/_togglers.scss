@@ -18,3 +18,16 @@
     color: var(--sx-fg);
   }
 }
+
+// The dotted grips on the dividers go: the cursor already changes to the
+// resize arrow over a divider, which is all the hint it needs
+.horizontal-resize-handle.horizontal-resize-handle-enabled {
+  &::before,
+  &::after {
+    content: none;
+  }
+}
+
+.vertical-resize-handle::after {
+  content: none;
+}
