@@ -17,6 +17,7 @@ import { DefaultSynctexControl } from '@/features/pdf-preview/components/detach-
 import importOverleafModules from '../../../../../macros/import-overleaf-module.macro'
 // SumiTeX: one tab bar across the editor-and-PDF island
 import WorkTabBar from '@modules/sumitex/frontend/js/layout/work-tab-bar'
+import StatusBar from '@modules/sumitex/frontend/js/layout/status-bar'
 
 const mainEditorLayoutPanels: Array<{
   import: { default: ElementType }
@@ -138,6 +139,7 @@ export default function MainLayout() {
           )}
         </PanelGroup>
       </div>
+      <StatusBar /* SumiTeX */ />
       {mainEditorLayoutModalsModules.map(
         ({ import: { default: Component }, path }) => (
           <Component key={path} />
