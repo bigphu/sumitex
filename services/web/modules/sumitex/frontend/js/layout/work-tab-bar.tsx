@@ -14,6 +14,7 @@ import EditorSwitch from '@/features/source-editor/components/editor-switch'
 import { useAreTabsEnabled } from '@/features/ide-react/hooks/use-are-tabs-enabled'
 import { useLayoutContext } from '@/shared/context/layout-context'
 import { useEditorOpenDocContext } from '@/features/ide-react/context/editor-open-doc-context'
+import ProblemsWidget from './problems-widget'
 
 type LayoutChoice = 'source' | 'split' | 'pdf'
 
@@ -71,6 +72,7 @@ export default function WorkTabBar() {
         )}
       </div>
       <div className="sx-work-tabbar-end">
+        <ProblemsWidget />
         {openDocName && <EditorSwitch />}
         <LayoutSwitch />
       </div>

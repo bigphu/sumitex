@@ -63,3 +63,12 @@ $sx-pdf-pane: '.ide-redesign-pdf-container';
     min-width: 320px;
   }
 }
+
+// The log, opened from the problems widget, also starts at the top of the
+// pane, and stops above the pill so Recompile and "Back to PDF" stay
+// reachable (the stock log sits above the PDF controls, z-index 11).
+.ide-redesign-pdf-container .new-logs-pane {
+  top: 0;
+  bottom: calc(34px + 2 * var(--spacing-05));
+  background-color: var(--sx-island);
+}

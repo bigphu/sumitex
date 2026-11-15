@@ -1,0 +1,79 @@
+// The problems widget in the island's tab bar (guide 1d, step 6):
+// ⓧ 1 ⚠ 2 ⓘ 1 ˄ ˅, quiet until there's something to see.
+.sx-problems {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  border-radius: var(--border-radius-full);
+  background: var(--sx-island-raised);
+  color: var(--sx-muted);
+  font-size: var(--font-size-02);
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    border-radius: var(--border-radius-full);
+
+    &:hover:not(:disabled) {
+      color: var(--sx-fg);
+      background: var(--sx-border);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--sx-accent);
+      outline-offset: 1px;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    &[aria-pressed='true'] {
+      color: var(--sx-fg);
+      background: var(--sx-selected-bg);
+    }
+  }
+
+  .material-symbols {
+    font-size: 16px;
+  }
+}
+
+.sx-problems-counts {
+  gap: var(--spacing-04);
+  padding: 0 var(--spacing-04);
+}
+
+.sx-problems-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.sx-problems-error {
+  color: var(--content-danger-themed);
+}
+
+.sx-problems-warning .material-symbols {
+  color: var(--content-warning-themed);
+}
+
+.sx-problems-info .material-symbols {
+  color: var(--sx-accent);
+}
+
+.sx-problems-arrow {
+  padding: 0 var(--spacing-02);
+}
+
+// The widget replaces the logs button in the PDF pill. "Back to PDF", shown
+// while the log is open, stays in the pill.
+.ide-redesign-pdf-container .toolbar-pdf .log-btn {
+  display: none !important; // the button also has Bootstrap's d-inline-grid, which is !important
+}
