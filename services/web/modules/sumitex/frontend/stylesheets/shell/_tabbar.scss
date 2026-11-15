@@ -1,0 +1,92 @@
+// The editor-and-PDF island's tab bar (guide 1d, step 2): open files on the
+// left, Code / Visual and Source / Split / PDF at the right end.
+
+// The island stacks the tab bar over the editor-and-PDF split
+[data-panel-id='ide-redesign-editor-and-pdf-panel'] {
+  display: flex;
+  flex-direction: column;
+
+  > [data-panel-group] {
+    flex: 1 1 0;
+    min-height: 0;
+    height: auto !important;
+  }
+}
+
+.sx-work-tabbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-04);
+  flex: 0 0 auto;
+  min-height: var(--editor-tab-row-height, 36px);
+  padding-right: var(--spacing-03);
+  background: var(--sx-island);
+  border-bottom: 1px solid var(--sx-border);
+}
+
+.sx-work-tabbar-tabs {
+  flex: 1 1 auto;
+  min-width: 0; // lets the tab row scroll instead of pushing the switches out
+
+  .editor-tabs-container {
+    background: transparent;
+  }
+}
+
+.sx-work-tabbar-name {
+  padding-inline: var(--spacing-05);
+  color: var(--sx-fg);
+  font-size: var(--font-size-02);
+}
+
+.sx-work-tabbar-end {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-03);
+  flex: 0 0 auto;
+
+  // The stock switch keeps its look; drop its outer margin here
+  .toggle-switch {
+    margin-right: 0;
+  }
+}
+
+// Source / Split / PDF: a segmented control in the same shape as Code / Visual
+.sx-segmented {
+  display: inline-flex;
+  height: 26px;
+  padding: 2px;
+  border-radius: var(--border-radius-full);
+  background: var(--sx-island-raised);
+}
+
+.sx-segmented-item {
+  border: 0;
+  border-radius: var(--border-radius-full);
+  padding: 0 var(--spacing-05);
+  background: transparent;
+  color: var(--sx-muted);
+  font-size: var(--font-size-02);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--sx-fg);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--sx-accent);
+    outline-offset: 1px;
+  }
+}
+
+.sx-segmented-item-active,
+.sx-segmented-item-active:hover {
+  background: var(--sx-accent-fill);
+  color: #fff;
+}
+
+// The stock Code / Visual switch in the editor's formatting toolbar is now
+// in the tab bar, so hide the copy there
+.ide-redesign-editor-container .editor-toggle-switch {
+  display: none;
+}

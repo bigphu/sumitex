@@ -15,6 +15,8 @@ import { useRailContext } from '../../context/rail-context'
 import HistoryContainer from '@/features/ide-react/components/history-container'
 import { DefaultSynctexControl } from '@/features/pdf-preview/components/detach-synctex-control'
 import importOverleafModules from '../../../../../macros/import-overleaf-module.macro'
+// SumiTeX: one tab bar across the editor-and-PDF island
+import WorkTabBar from '@modules/sumitex/frontend/js/layout/work-tab-bar'
 
 const mainEditorLayoutPanels: Array<{
   import: { default: ElementType }
@@ -59,6 +61,7 @@ export default function MainLayout() {
           <RailLayout />
           <Panel id="ide-redesign-editor-and-pdf-panel" order={2}>
             <HistoryContainer />
+            {view !== 'history' && <WorkTabBar /> /* SumiTeX */}
             <PanelGroup
               autoSaveId="ide-redesign-editor-and-pdf-panel-group"
               direction="horizontal"
