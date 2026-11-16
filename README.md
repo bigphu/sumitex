@@ -28,6 +28,9 @@ SumiTeX (墨, *sumi*: the ink of brush calligraphy) is a LaTeX editor for writin
 - **Zen mode**: a centred column, typewriter scrolling and no chrome.
 - **Back where you left off**: the file, cursor, PDF page and open folders come back when you reopen a project.
 - **Install as an app** for a window of its own, with SumiTeX's title bar as the window's.
+- **VS Code keys**: Ctrl+D for the next match, Ctrl+L, Ctrl+G, Alt+↑/↓, Ctrl+1/2/3 for the views, Ctrl+Shift+E/H/M for files, history and problems, and more. They step aside for Vim and Emacs.
+- **A command palette** that works like VS Code's: Ctrl+P for files, Ctrl+Shift+P for commands, `@` for sections, `#` for labels, `:` for a line, with recent files and suggested commands before you type.
+- **A shortcut sheet** (Ctrl+K Ctrl+S) with every key in one place, an index and a filter.
 
 Nothing Overleaf or AyakaLeaf offers is removed: stock parts are restyled, moved, or one setting away. [SUMITEX-FEATURES.md](SUMITEX-FEATURES.md) lists every agreed feature and how it behaves.
 
@@ -55,8 +58,8 @@ bin/dev web webpack
 | Phase | What | Status |
 |---|---|---|
 | 1 | Minimalist layout, run widget, Zen mode, installable app, compile log panel | Done, [v0.1.0](https://github.com/bigphu/sumitex/releases/tag/v0.1.0) |
-| 2 | VS Code keys and the command palette (Ctrl+Shift+P, Ctrl+P, Ctrl+1/2/3) | Next |
-| 3 | A live linter with one-click "add package" fixes, plain-language errors | |
+| 2 | VS Code keys, the command palette and the shortcut sheet | Done |
+| 3 | A live linter with one-click "add package" fixes, plain-language errors | Next |
 | 4 | Snippets that bring their packages, math auto-expansion | |
 | 5 | Folders for projects on the dashboard | |
 | 6 | Draggable lists and table columns, the Outline with blocks | |

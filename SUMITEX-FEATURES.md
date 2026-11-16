@@ -36,8 +36,8 @@ This file lists every feature agreed so far: what it does, how it behaves, what'
 |---|---|---|---|
 | 1 | Minimalist IDE layout | **Done** 16 Nov 2026 | Medium |
 | 2 | Zen focus mode | **Done** 15 Nov 2026 | Small–medium |
-| 3 | VS Code keyboard shortcuts | Partial: editor keymaps exist; next (Phase 2) | Small |
-| 4 | Command palette | Switched on; VS Code triggers and SumiTeX commands next (Phase 2) | Small |
+| 3 | VS Code keyboard shortcuts | **Done** 16 Nov 2026 (Phase 2) | Small |
+| 4 | Command palette | **Done** 16 Nov 2026 (Phase 2); `@` blocks come with feature 11 | Small |
 | 5 | Project folders: nested folders on the dashboard, plus polish for folders inside a project | Partial: dashboard tags exist (no nesting yet); folders inside a project already work | About 1 week (dashboard) + small polish |
 | 6 | Better linter and compile output | Started: the log is a bottom panel (Problems with filters, Log with folds and search); linter and plain-language rules still to do | Medium |
 | 7 | Snippets that bring their packages | Partial: snippet completions exist | Medium |
@@ -135,40 +135,50 @@ Esc or the exit button brings back the normal layout.
 
 ## 3 · VS Code keyboard shortcuts
 
-**Bindings to add**
+**Done 16 Nov 2026** (Build Guide Phase 2, branch `phase-2-vscode-keys`).
 
-| Key | Action |
+**The pattern (decided 16 Nov 2026).** Ctrl for the text, Ctrl+Shift for places outside the editor, Ctrl + digit for the view, Ctrl+Alt for compile and the PDF, Ctrl+K for modes and rare actions. Cmd instead of Ctrl on a Mac.
+
+| Keys | Action |
 |---|---|
-| Alt+↑/↓ | Move line (on an `\item` line: move the whole list item, see feature 9) |
-| Shift+Alt+↑/↓ | Copy line |
-| Ctrl+Shift+K | Delete line |
-| Ctrl+L | Select line |
-| Ctrl+/ | Toggle comment |
-| Ctrl+Shift+\ | Jump to matching bracket |
-| Ctrl+Shift+L | Select all matches |
+| Ctrl+P / Ctrl+Shift+P / Ctrl+Shift+O | Palette: files first / commands / sections |
+| Ctrl+1 / 2 / 3 | Source only / Split / PDF only |
+| Ctrl+Shift+E / F / H / M | Files / project search / History / Problems and the log |
+| Ctrl+J, Ctrl+, | Review (Overleaf's), Settings |
+| Ctrl+Alt+B, Ctrl+Alt+J, Shift+F5 | Compile, show the cursor in the PDF, stop |
+| Ctrl+K Z, Ctrl+K Ctrl+S | Zen mode, the shortcut sheet |
+| Alt+↑/↓, Shift+Alt+↑/↓, Ctrl+Shift+K | Move, copy, delete line (CodeMirror's defaults) |
+| Ctrl+L, Ctrl+Shift+L | Select line (again: the next one too), select all matches |
+| Ctrl+D, Ctrl+K Ctrl+D | Add the next match, skip it |
+| Ctrl+G | Go to line (was Ctrl+Shift+L) |
+| Shift+Alt+→ / ← | Grow / shrink the selection |
+| Ctrl+K Ctrl+O / J | Fold / unfold all |
+| F8 / Shift+F8 | Next / previous problem |
+| Alt+click, Shift+Alt+drag | Add a cursor, select a column |
 
-**Rules**
-- **Precedence:** one keymap with high precedence.
-- **Keep:** Ctrl+S and Ctrl+Enter keep compiling.
-- **Clashes:** check each key against the editor's keyboard-shortcuts list first. Ctrl+/ may already open it.
-- **Other modes:** turn the VS Code keymap off when Vim or Emacs mode is on.
-- **Shortcut sheet:** Ctrl+K Ctrl+S opens a sheet of every shortcut.
+**Rules as built**
+- **Kept from Overleaf:** Ctrl+S and Ctrl+Enter compile, Ctrl+B bold, Ctrl+U uppercase, Ctrl+J Review. Ctrl+D (delete line) moved to Ctrl+Shift+K, and Overleaf's Ctrl+Shift+M focus mode gave way to Problems; Zen is Ctrl+K Z.
+- **Editor keys** live in one `Prec.highest` keymap (`editor/vscode-keymap.ts`) and step aside when Vim or Emacs keys are on.
+- **Page keys** (`layout/use-global-shortcuts.ts`) work wherever the focus is. Ctrl+K Z, Ctrl+K Ctrl+S, Ctrl+G and F8 also work outside the editor; inside it the editor's keymaps answer.
+- **One table of keys** (`palette/keys.ts`) feeds the palette's key column, the shortcut sheet and tooltips.
+- **Shortcut sheet** (Ctrl+K Ctrl+S, Help › Keyboard shortcuts): every key, Overleaf's included, in groups with an index on the left (the group being read is set in on a darker block) and a filter box. It replaces the stock sheet while the `sumitex-title-bar` flag is on.
+- **Still to come:** Alt+↑/↓ on an `\item` moves the whole item (feature 9); F12 go to label and Ctrl+. quick fix come with go to definition and feature 6.
 
 ## 4 · Command palette
 
-**What you see.** Ctrl+P opens the palette with files first. Ctrl+Shift+P opens it with commands first. Search across:
-- files
-- "go to line"
-- layout commands
-- insert commands (math, figure, table, citation…)
-- compile
-- SumiTeX commands such as "Toggle Zen mode"
-- sections and blocks with `@`, for example `@fig pipe` (see feature 11)
+**Done 16 Nov 2026** (Phase 2). Centred in the window, as in the mockup (frames 2 and 17): a search box with prefix chips under it (`@` sections, `#` labels, `:` line, `>` commands), group headings, the typed words highlighted, and keys or `file:line` on the right.
 
-**How it's built**
-- **Turn it on:** add `'command-palette': 'enabled'` to `splitTestOverrides`.
-- **Mode:** pass Shift into the palette from `use-command-palette-triggers.ts` to choose the mode.
-- **Commands:** register SumiTeX commands with `useCommandProvider`. If a command doesn't appear, add its id to the `elements` list in `use-command-registry-source.tsx`.
+| Mode | Nothing typed | Typing |
+|---|---|---|
+| Ctrl+P (files) | Recent files, recently used commands, a few suggested ones | Files first, then commands |
+| Ctrl+Shift+P (`>`) | Recently used, Suggested (the mockup's list), then every command | Commands; recently used ones rank higher |
+| Ctrl+Shift+O (`@`) | The open file's sections, indented by level | Matching sections |
+| `#` | The open file's labels, with what they label | Matching labels |
+| `:` | A hint with the file's line count | Jump to the line (`:42,5` for a column) |
+
+**How it's built.** The stock palette with a few marked lines: the trigger chooses the mode, the body renders `palette/palette-row.tsx`, the result type gains an optional `sumitex` field (group, glyph, location), and SumiTeX sources add sections, labels, recent files and the line hint. Every `sumitex-*` command joins the list without being named in `use-command-registry-source.tsx`. Blocks under `@` (for example `@fig pipe`) come with the Outline (feature 11).
+
+**Dialogs (done with Phase 2).** The stock `themed-modals` flag is on, so most dialogs follow the theme, and every themed dialog shares one SumiTeX surface and scrollbar (`shell/_dialogs.scss`). Settings uses the sheet's look: an index on the left, small-capital headings, rows on hairlines.
 
 ## 5 · Project folders
 
@@ -576,7 +586,7 @@ The design doc's priorities table holds more ideas than the twelve above. Each f
 
 This follows the roadmap whiteboard's phases. A phase starts when the gate before it passes.
 
-1. **P0, foundation:** dev setup and backups; turn on the command palette and focus mode; create the `sumitex` module and rename the site; run one existing test; then features 1 (layout and run widget) → 3 → 4 → 2, persistent editor state, and the installable app. Progress 16 Nov 2026: 1, 2, persistent state and the app are done; 3 and 4 (Build Guide Phase 2) are next. *Gate 1: staging runs and a backup restore is tested.*
+1. **P0, foundation:** dev setup and backups; turn on the command palette and focus mode; create the `sumitex` module and rename the site; run one existing test; then features 1 (layout and run widget) → 3 → 4 → 2, persistent editor state, and the installable app. Progress 16 Nov 2026: 1, 2, 3, 4, persistent state and the app are done (Build Guide Phases 1 and 2); feature 6 (Phase 3) is next. *Gate 1: staging runs and a backup restore is tested.*
 2. **P1, core:** the steps below up to math, plus dashboard project folders (feature 5), inline math preview, and image paste and drag. *Gate 2: the smoke suite passes after an upstream rebase.*
 3. **Errors:** feature 6, whose "add package" helper feature 7 reuses.
 4. **Presets and Outline:** feature 7 (start with the 10–15 most used presets), then Outline v1 (feature 11, block rows and toggle), then Outline v2 (`@` search and edit pop-ups).
