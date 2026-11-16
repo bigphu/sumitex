@@ -1,0 +1,75 @@
+// Zen's chrome, as in the mockup (frame 3; layout/zen-chrome.tsx): no
+// title bar, tabs or strips, only two quiet buttons at the top right and
+// one centred status line at the bottom, both on the frame colour.
+
+.sx-zen-bar {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  height: 36px;
+  padding: 0 12px;
+  background: var(--sx-frame);
+}
+
+.sx-zen-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--sx-muted);
+  font-size: 13px;
+  line-height: 18px;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--sx-row-active);
+    color: var(--sx-fg);
+  }
+}
+
+.sx-zen-status {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  background: var(--sx-frame);
+  color: var(--sx-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.sx-zen-status-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  & + &::before {
+    content: '·';
+    margin: 0 10px;
+  }
+}
+
+.sx-zen-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.sx-zen-dot-ok {
+  background: var(--sx-positive);
+}
+
+.sx-zen-dot-warning {
+  background: var(--sx-warning);
+}
+
+.sx-zen-dot-error {
+  background: var(--sx-danger);
+}

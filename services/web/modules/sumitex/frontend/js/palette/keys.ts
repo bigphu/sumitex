@@ -106,6 +106,7 @@ export function sheetGroups(options: { review: boolean }): SheetGroup[] {
     rows: [
       { label: 'Source only / Split / PDF only', keys: ['Mod+1 / 2 / 3'] },
       { label: 'Zen mode (Esc leaves)', keys: ['Mod+K Z'] },
+      { label: 'In Zen: the PDF or the source', keys: ['Mod+\\'] },
       { label: 'Files', keys: ['Mod+Shift+E'] },
       { label: 'Search project', keys: ['Mod+Shift+F'] },
       { label: 'History', keys: ['Mod+Shift+H'] },

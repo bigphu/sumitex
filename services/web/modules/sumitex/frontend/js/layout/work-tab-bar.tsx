@@ -98,6 +98,10 @@ export default function WorkTabBar() {
   const { openDocName } = useEditorOpenDocContext()
   const narrow = useNarrowLayout() // below 900px: no Split, side panels as drawers
   useGlobalShortcuts(narrow) // Ctrl+1/2/3, Ctrl+Shift+E/H/M, Ctrl+, …
+  const { focusMode } = useLayoutContext()
+
+  // Zen has no tab bar (mockup frame 3); the PDF pill keeps its extras
+  if (focusMode) return <PdfPillExtras />
 
   return (
     <div className="sx-work-tabbar">

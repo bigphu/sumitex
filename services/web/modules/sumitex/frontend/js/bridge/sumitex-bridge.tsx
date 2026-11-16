@@ -16,8 +16,9 @@ import { SHOW_SHORTCUTS_EVENT, setVscodeKeys } from '../editor/vscode-keymap'
 import { useRecordRecentFile } from '../palette/recent-files'
 import { gotoLine } from '@codemirror/search'
 
-// The layout to go back to when Zen ends. Kept in localStorage so that
-// leaving Zen after a reload still brings the PDF back.
+// The layout Zen came from ('sideBySide' or 'flat'), to go back to when it
+// ends. Kept in localStorage so that leaving Zen after a reload still
+// brings the split back.
 const PREV_LAYOUT_KEY = 'sumitex.zen.prev-layout'
 
 const readPrevLayout = (): IdeLayout | null => {
@@ -51,16 +52,22 @@ export default function SumitexBridge() {
     setZen(view, focusMode)
 
     if (focusMode) {
-      // Zen is source only: hide the PDF, and remember the split to restore
-      if (pdfLayoutRef.current === 'sideBySide') {
-        writePrevLayout('sideBySide')
-        changeLayout('flat', 'editor')
+      // Zen starts on the source. Remember the layout it came from (kept
+      // if already stored: after a reload in Zen the layout is already flat)
+      if (!readPrevLayout()) {
+        writePrevLayout(
+          pdfLayoutRef.current === 'sideBySide' ? 'sideBySide' : 'flat'
+        )
       }
+      changeLayout('flat', 'editor')
     } else {
+      // Leaving Zen always brings the source back: the split it came from,
+      // or the source alone, even if Zen was showing the PDF (Ctrl+\)
       const prev = readPrevLayout()
       if (prev) {
         writePrevLayout(null)
-        changeLayout(prev)
+        if (prev === 'sideBySide') changeLayout('sideBySide')
+        else changeLayout('flat', 'editor')
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -4,7 +4,7 @@
  * section), line and column, a rough word count, and the save state.
  *
  * Mounted by one marked line in ide-react/components/layout/main-layout.tsx.
- * Hidden in focus mode / Zen, which drops all chrome.
+ * In Zen it shrinks to one centred line (zen-chrome.tsx).
  */
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -15,6 +15,7 @@ import { useUnsavedDocsContext } from '@/features/ide-react/context/unsaved-docs
 import { useLayoutContext } from '@/shared/context/layout-context'
 import { useProjectContext } from '@/shared/context/project-context'
 import { useFileTreeOpenContext } from '@/features/ide-react/context/file-tree-open-context'
+import { ZenStatus } from './zen-chrome'
 
 // A rough count for the open file: drops comments, \commands and braces and
 // counts what's left. The stock Word count (File menu) counts the whole
@@ -84,7 +85,15 @@ export default function StatusBar() {
   const position = useCursorPosition()
   const words = useWordCount(isDoc ? openEntity.entity._id : undefined)
 
-  if (focusMode) return null
+  if (focusMode) {
+    return (
+      <ZenStatus
+        fileName={isDoc ? openEntity.entity.name : undefined}
+        line={position?.line}
+        words={isDoc ? words : null}
+      />
+    )
+  }
 
   return (
     <footer className="sx-status-bar" aria-label="Status bar">

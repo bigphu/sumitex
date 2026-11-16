@@ -27,6 +27,7 @@ import ShowHistoryButton from '@/features/ide-react/components/toolbar/show-hist
 import OfflineIndicator from '@/features/ide-react/components/toolbar/offline-indicator'
 import useIsNetworkStalled from '@/features/ide-react/hooks/use-is-network-stalled'
 import { useLayoutContext } from '@/shared/context/layout-context'
+import { ZenBar } from './zen-chrome'
 import { useEditorContext } from '@/shared/context/editor-context'
 import { useFeatureFlag } from '@/shared/context/split-test-context'
 import OLTooltip from '@/shared/components/ol/ol-tooltip'
@@ -154,9 +155,9 @@ export default function TitleBar() {
   )
   const isOfflineDueToNetworkStall = useIsNetworkStalled()
 
-  if (focusMode || view === 'history') {
-    return <Toolbar />
-  }
+  // Zen has its own two buttons; History keeps the stock toolbar
+  if (focusMode) return <ZenBar />
+  if (view === 'history') return <Toolbar />
 
   return (
     <nav

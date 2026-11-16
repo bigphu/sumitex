@@ -21,6 +21,10 @@
  * - Ctrl+G               go to line (focuses the editor first)
  * - F8 / Shift+F8        next / previous problem
  *
+ * In Zen: Ctrl+\ shows the PDF or the source again, and Esc leaves Zen
+ * when the focus is outside the editor (inside it, the editor's own Esc
+ * does, after closing any search or autocomplete).
+ *
  * Cmd instead of Ctrl on a Mac. Read from the physical key (event.code), so
  * keyboard layouts don't matter. Letters a browser keeps for itself (N, T,
  * W, Q, I, J, C, R with Ctrl+Shift) are left alone.
@@ -125,6 +129,28 @@ export function useGlobalShortcuts(narrow: boolean) {
         event.preventDefault()
         inEditorView(event.shiftKey ? previousDiagnostic : nextDiagnostic)()
         return
+      }
+
+      const { layout: current } = latest.current
+      if (current.focusMode) {
+        const noDialog = !document.querySelector('.modal.show')
+        if (
+          event.key === 'Escape' &&
+          !inEditor(event) &&
+          !inTextBox(event) &&
+          noDialog
+        ) {
+          event.preventDefault()
+          current.setFocusMode(false)
+          return
+        }
+        const zenMod = isMac ? event.metaKey : event.ctrlKey
+        if (zenMod && event.code === 'Backslash' && !event.shiftKey && !event.altKey) {
+          event.preventDefault()
+          event.stopPropagation()
+          current.setView(current.view === 'pdf' ? 'editor' : 'pdf')
+          return
+        }
       }
 
       // Shift+F5 stops a compile, as it stops a run in VS Code
