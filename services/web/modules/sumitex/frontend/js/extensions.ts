@@ -6,9 +6,11 @@ import type { Extension } from '@codemirror/state'
 import { zenMode } from './editor/zen-mode'
 import { inlineProblems } from './editor/inline-problems'
 import { overviewRuler } from './editor/overview-ruler'
+import { trackChangesBanner } from './editor/track-changes-banner'
 
 export const extension = (): Extension => [
   zenMode(),
   inlineProblems(),
   overviewRuler(),
+  trackChangesBanner(),
 ]

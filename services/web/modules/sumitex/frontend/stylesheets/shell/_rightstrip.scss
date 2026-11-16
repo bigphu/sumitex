@@ -216,3 +216,75 @@
   color: var(--sx-fg);
   font-size: var(--font-size-01);
 }
+
+// Track changes switch in the Review header (review/track-changes.tsx)
+.sx-track-switch {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-03);
+  height: 24px;
+  padding: 0 var(--spacing-02);
+  border: 0;
+  border-radius: var(--border-radius-base);
+  background: transparent;
+  color: var(--sx-muted);
+  font-size: var(--font-size-01);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    color: var(--sx-fg);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.sx-track-switch-track {
+  position: relative;
+  width: 26px;
+  height: 16px;
+  border-radius: var(--border-radius-full);
+  background: var(--sx-border);
+  transition: background-color 0.12s ease-out;
+}
+
+.sx-track-switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left 0.12s ease-out;
+}
+
+.sx-track-switch[aria-checked='true'] {
+  color: var(--sx-fg);
+
+  .sx-track-switch-track {
+    background: var(--sx-accent-fill);
+  }
+
+  .sx-track-switch-knob {
+    left: 12px;
+  }
+}
+
+// The stock mode menu, shrunk to its icon next to the switch
+.sx-review-mode .review-mode-switcher-toggle-label {
+  display: none !important;
+}
+
+.sx-review-mode .review-mode-switcher-toggle-button {
+  width: 26px;
+  padding: 0;
+  justify-content: center;
+  border: 0;
+}
+
+.sx-review-header .sx-review-title {
+  flex: 1 1 auto;
+}

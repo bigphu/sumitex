@@ -30,6 +30,7 @@ import { useRailContext } from '@/features/ide-react/context/rail-context'
 import { usePermissionsContext } from '@/features/ide-react/context/permissions-context'
 import OLIconButton from '@/shared/components/ol/ol-icon-button'
 import ReviewModeSwitcher from '@/features/review-panel/components/review-mode-switcher'
+import { TrackChangesSwitch } from './track-changes'
 import {
   getReviewIslandHost,
   subscribeReviewIslandHost,
@@ -51,8 +52,9 @@ function ReviewList() {
     <div className="sx-review-island">
       <div className="sx-review-header">
         <h4 className="sx-review-title">{t('review')}</h4>
-        {/* Editing / Reviewing / Viewing, moved here from the editor's
-            corner: the mockup keeps the track-changes control in Review */}
+        <TrackChangesSwitch />
+        {/* The stock Editing / Reviewing / Viewing menu, kept as a small
+            icon so "Viewing" stays reachable */}
         <div className="sx-review-mode">
           <ReviewModeSwitcher />
         </div>
