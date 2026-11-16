@@ -221,7 +221,10 @@ export const LayoutProvider: FC<React.PropsWithChildren> = ({ children }) => {
         setProjectSearchIsOpen(true)
       }
       // Cmd/Ctrl+Shift+M for focus mode
+      // SumiTeX: Ctrl+Shift+M opens Problems (as in VS Code); focus mode
+      // (Zen) is Ctrl+K Z
       if (
+        false &&
         focusModeEnabled &&
         (isMac ? event.metaKey : event.ctrlKey) &&
         event.shiftKey &&

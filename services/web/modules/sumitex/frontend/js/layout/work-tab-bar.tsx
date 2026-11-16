@@ -15,10 +15,14 @@ import { useAreTabsEnabled } from '@/features/ide-react/hooks/use-are-tabs-enabl
 import { useLayoutContext } from '@/shared/context/layout-context'
 import { useEditorOpenDocContext } from '@/features/ide-react/context/editor-open-doc-context'
 import { useIsNarrow, useNarrowLayout } from './use-narrow-layout'
+import { useGlobalShortcuts } from './use-global-shortcuts'
+import { isMac } from '@/shared/utils/os'
 import PdfPillExtras from './pdf-pill-extras'
 import FileTreeExtras from '../files/file-tree-extras'
 
 type LayoutChoice = 'source' | 'split' | 'pdf'
+
+const MOD = isMac ? 'Cmd' : 'Ctrl'
 
 // Icon buttons, as in the mockup: source only, split, PDF only
 const SourceIcon = () => (
@@ -46,9 +50,9 @@ const CHOICES: {
   title: string
   Icon: () => JSX.Element
 }[] = [
-  { key: 'source', label: 'Source', title: 'Source only', Icon: SourceIcon },
-  { key: 'split', label: 'Split', title: 'Source and PDF side by side', Icon: SplitIcon },
-  { key: 'pdf', label: 'PDF', title: 'PDF only', Icon: PdfIcon },
+  { key: 'source', label: 'Source', title: `Source only (${MOD}+1)`, Icon: SourceIcon },
+  { key: 'split', label: 'Split', title: `Source and PDF side by side (${MOD}+2)`, Icon: SplitIcon },
+  { key: 'pdf', label: 'PDF', title: `PDF only (${MOD}+3)`, Icon: PdfIcon },
 ]
 
 function LayoutSwitch() {
@@ -92,7 +96,8 @@ function LayoutSwitch() {
 export default function WorkTabBar() {
   const tabsEnabled = useAreTabsEnabled()
   const { openDocName } = useEditorOpenDocContext()
-  useNarrowLayout() // below 900px: no Split, side panels as drawers
+  const narrow = useNarrowLayout() // below 900px: no Split, side panels as drawers
+  useGlobalShortcuts(narrow) // Ctrl+1/2/3, Ctrl+Shift+E/H/M, Ctrl+, …
 
   return (
     <div className="sx-work-tabbar">

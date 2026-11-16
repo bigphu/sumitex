@@ -1,0 +1,193 @@
+// The keyboard shortcuts sheet (palette/shortcut-sheet.tsx): the mockup's
+// rows (frame 7), widened, with an index on the left like the Settings
+// dialog (frame 23). The surface, close button and scrollbar are every
+// dialog's (shell/_dialogs.scss, shell/_scrollbars.scss). Sizes are px so
+// the sheet reads the same whatever the app's base font size.
+
+.sx-shortcut-sheet {
+  .modal-dialog {
+    width: calc(100vw - 48px);
+    max-width: 1040px;
+  }
+
+  .modal-header {
+    align-items: baseline;
+    gap: 16px;
+    padding: 18px 20px 14px 24px;
+  }
+
+  .modal-title {
+    flex: none;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 20px;
+  }
+
+  .modal-body {
+    padding: 0;
+  }
+}
+
+.sx-sheet-sub {
+  flex: 1;
+  margin: 0;
+  color: var(--sx-muted);
+  font-size: 12.5px;
+  line-height: 17px;
+}
+
+// Index on the left, the groups on the right; only the groups scroll
+.sx-sheet {
+  display: grid;
+  grid-template-columns: 224px 1fr;
+  height: min(620px, calc(100vh - 160px));
+}
+
+.sx-sheet-index {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 12px;
+  border-right: 1px solid var(--sx-border);
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  button {
+    @include sx-index-item;
+
+    justify-content: space-between;
+  }
+}
+
+.sx-sheet-count {
+  color: var(--sx-muted);
+  font-size: 11px;
+}
+
+.sx-sheet-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 4px 8px;
+  border: 1px solid var(--sx-border);
+  border-radius: 5px;
+  color: var(--sx-muted);
+  font-weight: 400;
+
+  .material-symbols {
+    font-size: 16px;
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--sx-fg);
+    font-size: 12.5px;
+    line-height: 18px;
+
+    &::placeholder {
+      color: var(--sx-muted);
+    }
+  }
+
+  &:focus-within {
+    border-color: var(--sx-accent);
+  }
+}
+
+.sx-sheet-list {
+  position: relative;
+  overflow-y: auto;
+  padding: 2px 24px 24px;
+}
+
+.sx-sheet-empty {
+  margin: 24px 0;
+  color: var(--sx-muted);
+  font-size: 13px;
+}
+
+.sx-sheet-group {
+  margin: 8px -12px 0;
+  padding: 8px 12px 6px;
+  border-radius: 8px;
+  transition: background-color 0.15s;
+
+  // The group picked in the index, or being read: set into the dialog,
+  // like its entry in the index
+  .sx-sheet-list &.current {
+    background: var(--sx-sunken);
+  }
+
+  h3 {
+    margin: 0 0 2px;
+    color: var(--sx-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    line-height: 16px;
+    text-transform: uppercase;
+  }
+
+  // Rows in two columns, each a name and its keys on a hairline
+  ul {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 32px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 32px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--sx-border);
+    font-size: 13px;
+    line-height: 18px;
+  }
+}
+
+.sx-sheet-label {
+  color: var(--sx-fg);
+}
+
+// Narrow windows: the index sits above, one row column
+@media (width <= 760px) {
+  .sx-sheet {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .sx-sheet-index {
+    border-right: 0;
+    border-bottom: 1px solid var(--sx-border);
+
+    ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    button {
+      width: auto;
+      gap: 6px;
+    }
+  }
+
+  .sx-sheet-group ul {
+    grid-template-columns: 1fr;
+  }
+}

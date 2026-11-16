@@ -33,6 +33,7 @@ import { useProjectSettingsContext } from '@/features/ide-settings/context/proje
 import { useFileTreeOpenContext } from '@/features/ide-react/context/file-tree-open-context'
 import { useFileTreePathContext } from '@/features/file-tree/contexts/file-tree-path'
 import { useCommandRegistry } from '@/features/ide-react/context/command-registry-context'
+import { useCommandProvider } from '@/features/ide-react/hooks/use-command-provider'
 import getMeta from '@/utils/meta'
 import {
   CompileProfile,
@@ -128,6 +129,30 @@ export default function RunWidget() {
     setProfile(next)
     setDraft(next === 'draft')
   }
+
+  // The profiles in the palette too (guide Phase 2c)
+  useCommandProvider(
+    () => [
+      {
+        id: 'sumitex-profile-full',
+        label: 'Compile profile: Full build',
+        handler: () => pickProfile('full'),
+      },
+      {
+        id: 'sumitex-profile-draft',
+        label: 'Compile profile: Draft (no images, faster)',
+        handler: () => pickProfile('draft'),
+      },
+      {
+        id: 'sumitex-profile-chapter',
+        label: 'Compile profile: Current chapter only',
+        handler: () => pickProfile('chapter'),
+        disabled: !chapter,
+      },
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [chapter, setDraft]
+  )
 
   const errors = logEntries?.errors?.length ?? 0
   const warnings = logEntries?.warnings?.length ?? 0

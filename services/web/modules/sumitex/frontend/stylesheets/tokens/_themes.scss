@@ -7,6 +7,7 @@
   --sx-island-raised: var(--sx-ink-800);
   --sx-border: var(--sx-ink-700);
   --sx-row-active: var(--sx-ink-750); // active row in lists and trees
+  --sx-sunken: rgb(0 0 0 / 22%); // a block set into a dialog: the group being read
   --sx-tabbar-bg: var(--sx-ink-900); // tab bar: same as the island, so it doesn't stand out
   --sx-tab-active-bg: var(--sx-ink-800); // the open tab
   --sx-pdf-bg: var(--sx-ink-900); // behind the PDF pages: the island
@@ -30,6 +31,7 @@
   --sx-island-raised: var(--sx-paper-50);
   --sx-border: var(--sx-paper-200);
   --sx-row-active: var(--sx-paper-75);
+  --sx-sunken: rgb(0 0 0 / 4.5%);
   --sx-tabbar-bg: var(--sx-paper-0);
   --sx-tab-active-bg: var(--sx-paper-50);
   --sx-pdf-bg: var(--sx-paper-100); // grey, so the white pages keep their edges

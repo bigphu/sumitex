@@ -16,6 +16,18 @@ import { debugConsole } from '@/utils/debugging'
 import SplitTestBadge from '@/shared/components/split-test-badge'
 import { useTranslation } from 'react-i18next'
 import { useEditorAnalytics } from '@/shared/hooks/use-editor-analytics'
+import {
+  initialPaletteQuery,
+  usePaletteMode,
+} from '@modules/sumitex/frontend/js/palette/palette-mode' // SumiTeX
+import {
+  PaletteChips,
+  PaletteEsc,
+  PaletteGroupHeader,
+  PaletteResultContent,
+  PaletteSearchIcon,
+} from '@modules/sumitex/frontend/js/palette/palette-row' // SumiTeX
+import { recordPaletteUse } from '@modules/sumitex/frontend/js/palette/suggestions' // SumiTeX
 
 type CommandPaletteBodyProps = {
   show: boolean
@@ -23,11 +35,12 @@ type CommandPaletteBodyProps = {
 }
 
 const CommandPaletteBody: FC<CommandPaletteBodyProps> = ({ show, onHide }) => {
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useState(initialPaletteQuery) // SumiTeX
   const [selectedIndex, setSelectedIndex] = useState(0)
   const resultsRef = useRef<HTMLUListElement>(null)
   const results = useCommandPaletteResults(query)
   const { t } = useTranslation()
+  const placeholder = usePaletteMode(setQuery, t('type_a_command')) // SumiTeX
   const { sendEvent } = useEditorAnalytics()
   const selectedResultRef = useRef(false)
 
@@ -54,6 +67,7 @@ const CommandPaletteBody: FC<CommandPaletteBodyProps> = ({ show, onHide }) => {
   const runResult = (result: CommandPaletteSearchResult) => {
     selectedResultRef.current = true
     sendEvent('command-palette-select', result.eventSegmentation)
+    recordPaletteUse(result) // SumiTeX: "Recently used"
     try {
       const res = result.onSelect(result)
       if (res instanceof Promise) {
@@ -109,19 +123,22 @@ const CommandPaletteBody: FC<CommandPaletteBodyProps> = ({ show, onHide }) => {
     >
       <OLModalBody>
         <div className="command-palette-input">
+          <PaletteSearchIcon /> {/* SumiTeX */}
           <input
             type="text"
             value={query}
             onChange={e => setQuery(e.target.value)}
             onKeyDown={onKeyDown}
-            placeholder={t('type_a_command')}
+            placeholder={placeholder} // SumiTeX
             aria-label={t('command_palette_search')}
           />
           <SplitTestBadge
             displayOnVariants={['enabled']}
             splitTestName="command-palette"
           />
+          <PaletteEsc onHide={onHide} /> {/* SumiTeX */}
         </div>
+        <PaletteChips query={query} setQuery={setQuery} /> {/* SumiTeX */}
         <ul ref={resultsRef} className="command-palette-results">
           {results.length === 0 && (
             <li role="none" className="command-palette-result">
@@ -138,19 +155,14 @@ const CommandPaletteBody: FC<CommandPaletteBodyProps> = ({ show, onHide }) => {
                 'command-palette-result-selected': index === selectedIndex,
               })}
             >
+              <PaletteGroupHeader results={results} index={index} /> {/* SumiTeX */}
               <button
                 role="menuitem"
                 onMouseMove={() => setSelectedIndex(index)}
                 onClick={() => runResult(result)}
               >
-                <div className="command-palette-result-title">
-                  {result.title}
-                  {result.description && (
-                    <span className="command-palette-result-description">
-                      {result.description}
-                    </span>
-                  )}
-                </div>
+                {/* SumiTeX: icon, highlighted title, keys or file:line */}
+                <PaletteResultContent result={result} query={query} />
               </button>
             </li>
           ))}

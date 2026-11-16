@@ -83,6 +83,17 @@ const useCommandRegistrySource = (): CommandPaletteSource => {
         }
       }
     }
+    // SumiTeX: every other sumitex-* command, without listing each one here
+    for (const command of registry.values()) {
+      if (
+        command.id.startsWith('sumitex-') &&
+        command.handler &&
+        !command.disabled &&
+        !ret.some(listed => listed.id === command.id)
+      ) {
+        ret.push(command)
+      }
+    }
     return ret
   }, [registry, elements])
 

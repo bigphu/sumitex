@@ -12,6 +12,7 @@ import OLButton from '@/shared/components/ol/ol-button'
 import OLRow from '@/shared/components/ol/ol-row'
 import OLCol from '@/shared/components/ol/ol-col'
 import { useFeatureFlag } from '@/shared/context/split-test-context'
+import ShortcutSheet from '@modules/sumitex/frontend/js/palette/shortcut-sheet' // SumiTeX
 
 export default memo(function HotkeysModal({
   animation = true,
@@ -28,8 +29,22 @@ export default memo(function HotkeysModal({
 }) {
   const { t } = useTranslation()
   const themed = useFeatureFlag('themed-modals')
+  // SumiTeX: the regrouped sheet, with the stock keys in it, goes with the
+  // SumiTeX shell
+  const sumitexSheet = useFeatureFlag('sumitex-title-bar')
 
   const ctrl = isMac ? 'Cmd' : 'Ctrl'
+
+  if (sumitexSheet) {
+    return (
+      <ShortcutSheet
+        show={show}
+        handleHide={handleHide}
+        animation={animation}
+        trackChangesVisible={trackChangesVisible}
+      />
+    )
+  }
 
   return (
     <OLModal

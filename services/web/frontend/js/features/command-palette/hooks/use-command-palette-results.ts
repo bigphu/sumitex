@@ -2,6 +2,7 @@ import useDebounce from '@/shared/hooks/use-debounce'
 import useCommandPaletteSources from './use-command-palette-sources'
 import { useEffect, useState } from 'react'
 import { CommandPaletteSearchResult, CommandPaletteSource } from '../types'
+import { sortPaletteResults } from '@modules/sumitex/frontend/js/palette/palette-mode' // SumiTeX
 
 const useCommandPaletteResults = (query: string) => {
   const debouncedQuery = useDebounce(query, 25)
@@ -13,7 +14,7 @@ const useCommandPaletteResults = (query: string) => {
       ({ source, query }) =>
         query ? source.search(query) : (source.defaults?.() ?? [])
     )
-    setResults(res.flat().sort((a, b) => b.score - a.score))
+    setResults(sortPaletteResults(res.flat(), debouncedQuery)) // SumiTeX: files first for Ctrl+P
   }, [debouncedQuery, sources])
   return results
 }

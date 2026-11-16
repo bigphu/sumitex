@@ -1,0 +1,74 @@
+// One surface for every themed dialog (Settings, Word count, the shortcut
+// sheet, the palette, file and project dialogs…), so features look alike:
+// the raised island colour, a hairline border, the islands' radius, and
+// hairline header and footer rules. Colours come only from the --sx-
+// tokens, so both themes follow.
+//
+// Only .modal-themed: the stock dialogs without a themed version (Share,
+// some admin ones) are built light on purpose, with dark text and light
+// inputs, and stay as they are. The stock 'themed-modals' flag
+// (settings.defaults.js) gives most dialogs their themed version.
+.modal-themed .modal-content {
+  border: 1px solid var(--sx-border);
+  border-radius: 10px;
+  background: var(--sx-island-raised);
+  color: var(--sx-fg);
+  box-shadow: 0 16px 48px rgb(0 0 0 / 35%);
+}
+
+.modal-themed .modal-header,
+.modal-themed .modal-footer {
+  border-color: var(--sx-border);
+}
+
+// The close × of every dialog: plain, ringed only when reached by keyboard
+.modal-themed .modal-header .btn-close {
+  opacity: 0.6;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &:focus:not(:focus-visible) {
+    box-shadow: none;
+  }
+}
+
+// An entry in a dialog's index on the left (the shortcut sheet's groups,
+// the Settings sections): one line, never wrapped, and the open one set
+// into the dialog on a darker block. Shared so both read the same.
+@mixin sx-index-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--sx-muted);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 18px;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+
+  > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: transparent;
+    color: var(--sx-fg);
+  }
+
+  &.active {
+    background: var(--sx-sunken);
+    color: var(--sx-fg);
+    font-weight: 600;
+  }
+}

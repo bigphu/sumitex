@@ -1,13 +1,24 @@
-// Scrollbars on the editor page: thin and faint, on a transparent track, so
-// they take as little room and attention as the browser allows.
-.ide-redesign-main,
-.ide-redesign-main * {
+// Scrollbars: thin and faint, on a transparent track, so they take as
+// little room and attention as the browser allows. One look everywhere:
+// the editor page, and the dialogs, menus and pop-ups that open above it
+// (they are mounted outside the editor page, so they are listed here too).
+@mixin sx-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--sx-fg) 22%, transparent)
     transparent;
+
+  &:hover {
+    scrollbar-color: color-mix(in srgb, var(--sx-fg) 38%, transparent)
+      transparent;
+  }
 }
 
-.ide-redesign-main *:hover {
-  scrollbar-color: color-mix(in srgb, var(--sx-fg) 38%, transparent)
-    transparent;
+.ide-redesign-main,
+.ide-redesign-main *,
+.modal,
+.modal *,
+.dropdown-menu,
+.popover,
+.popover * {
+  @include sx-scrollbar;
 }

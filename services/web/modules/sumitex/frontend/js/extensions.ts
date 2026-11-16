@@ -7,10 +7,12 @@ import { zenMode } from './editor/zen-mode'
 import { inlineProblems } from './editor/inline-problems'
 import { overviewRuler } from './editor/overview-ruler'
 import { trackChangesBanner } from './editor/track-changes-banner'
+import { vscodeKeymap } from './editor/vscode-keymap'
 
 export const extension = (): Extension => [
   zenMode(),
   inlineProblems(),
   overviewRuler(),
   trackChangesBanner(),
+  vscodeKeymap(),
 ]

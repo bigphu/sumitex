@@ -1435,6 +1435,8 @@ module.exports.splitTestOverrides = {
   'command-palette': 'enabled',
   'focus-mode': 'enabled',
   'sumitex-title-bar': 'enabled',
+  // Dialogs that follow the light or dark theme (stock, built but off)
+  'themed-modals': 'enabled',
 }
 
 module.exports.oauthProviders = {

@@ -10,6 +10,11 @@ import type { IdeLayout } from '@/shared/context/layout-context'
 import { setZen } from '../editor/zen-mode'
 import { useEditorPropertiesContext } from '@/features/ide-react/context/editor-properties-context'
 import { applyCodeToolbarClass } from '../settings/prefs'
+import { useUserSettingsContext } from '@/shared/context/user-settings-context'
+import { useRailContext } from '@/features/ide-react/context/rail-context'
+import { SHOW_SHORTCUTS_EVENT, setVscodeKeys } from '../editor/vscode-keymap'
+import { useRecordRecentFile } from '../palette/recent-files'
+import { gotoLine } from '@codemirror/search'
 
 // The layout to go back to when Zen ends. Kept in localStorage so that
 // leaving Zen after a reload still brings the PDF back.
@@ -41,7 +46,7 @@ export default function SumitexBridge() {
   const pdfLayoutRef = useRef(pdfLayout)
   pdfLayoutRef.current = pdfLayout
 
-  // Zen follows the stock focus mode (Ctrl+Shift+M, the palette, or Ctrl+K Z)
+  // Zen follows the stock focus mode (Ctrl+K Z, or the palette)
   useEffect(() => {
     setZen(view, focusMode)
 
@@ -71,16 +76,50 @@ export default function SumitexBridge() {
     applyCodeToolbarClass()
   }, [])
 
-  // A palette entry under View, next to the stock "Toggle focus mode"
+  // VS Code keys (editor/vscode-keymap.ts) step aside for Vim and Emacs
+  const { userSettings } = useUserSettingsContext()
+  useEffect(() => {
+    setVscodeKeys(userSettings.mode !== 'vim' && userSettings.mode !== 'emacs')
+  }, [userSettings.mode])
+
+  // Ctrl+K Ctrl+S, from the editor keymap: the keyboard shortcuts sheet
+  const { setActiveModal } = useRailContext()
+  useEffect(() => {
+    const show = () => setActiveModal('keyboard-shortcuts')
+    window.addEventListener(SHOW_SHORTCUTS_EVENT, show)
+    return () => window.removeEventListener(SHOW_SHORTCUTS_EVENT, show)
+  }, [setActiveModal])
+
+  // The palette's "Recent files"
+  useRecordRecentFile()
+
+  // Palette entries. Zen sits under View, next to the stock "Toggle focus
+  // mode"; every other sumitex-* command is listed by its own label. Their
+  // keys show on the right of the row (palette/keys.ts).
   useCommandProvider(
     () => [
       {
         id: 'sumitex-toggle-zen-mode',
-        label: 'Toggle Zen mode (Ctrl+K Z)',
+        label: 'Toggle Zen mode',
         handler: () => setFocusMode(mode => !mode),
       },
+      {
+        id: 'sumitex-go-to-line',
+        label: 'Go to line…',
+        // After the palette has closed and handed the focus back
+        handler: () =>
+          window.setTimeout(() => {
+            view.focus()
+            gotoLine(view)
+          }, 60),
+      },
+      {
+        id: 'sumitex-keyboard-shortcuts',
+        label: 'Keyboard shortcuts',
+        handler: () => setActiveModal('keyboard-shortcuts'),
+      },
     ],
-    [setFocusMode]
+    [setFocusMode, setActiveModal, view]
   )
 
   return null

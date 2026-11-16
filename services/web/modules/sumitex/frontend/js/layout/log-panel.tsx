@@ -15,6 +15,7 @@
  */
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { createPortal } from 'react-dom'
+import { useCommandProvider } from '@/features/ide-react/hooks/use-command-provider'
 import classNames from 'classnames'
 import MaterialIcon from '@/shared/components/material-icon'
 import LogProblems from './log-problems'
@@ -113,6 +114,30 @@ export default function LogPanel() {
       setLogPanel({ tab: 'problems' })
     }
   }, [showLogs, setShowLogs, error])
+  // In the palette (guide Phase 2c)
+  useCommandProvider(
+    () => [
+      {
+        id: 'sumitex-toggle-problems',
+        label: 'Show or hide problems and the log',
+        handler: () => setLogPanel({ open: !getLogPanelOpen() }),
+      },
+      {
+        id: 'sumitex-show-log',
+        label: 'Show the raw compile log',
+        handler: () => setLogPanel({ open: true, tab: 'log' }),
+      },
+      {
+        id: 'sumitex-hide-accepted',
+        label: hideAccepted
+          ? 'Show accepted warnings again'
+          : 'Hide accepted warnings',
+        handler: () => setHideAccepted(!hideAccepted),
+      },
+    ],
+    [hideAccepted]
+  )
+
   // Opened or closed by hand: no longer this effect's to close
   useEffect(() => {
     if (!open) openedByCompile.current = false
