@@ -1,9 +1,14 @@
 /**
  * The compile log as a bottom panel under the editor (mockup frame 4),
- * opened from the problems widget. Two tabs: PROBLEMS, the stock list of
- * log entries with their plain-language hints and actions, and LOG, the raw
- * output. Clear cached files and close on the right. Its top edge drags to
- * resize.
+ * opened from the problems widget. Two tabs: PROBLEMS (log-problems.tsx),
+ * one collapsed line per problem with filter chips, and LOG (log-raw.tsx),
+ * the raw output with file-loading noise folded away and a search box.
+ * Clear cached files and close on the right. Its top edge drags to resize.
+ *
+ * It opens by itself when a compile ends with errors, and closes again
+ * after the next clean compile if it opened by itself. It also stands in for
+ * the stock logs pane in the PDF column: whatever would open that (a compile
+ * failure, the logs shortcut) opens this panel instead, so the PDF stays.
  *
  * Mounted inside the source editor (sourceEditorComponents slot) and
  * portaled to the bottom of the editor column.
@@ -12,7 +17,8 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from '
 import { createPortal } from 'react-dom'
 import classNames from 'classnames'
 import MaterialIcon from '@/shared/components/material-icon'
-import PdfLogsEntries from '@/features/pdf-preview/components/pdf-logs-entries'
+import LogProblems from './log-problems'
+import LogRaw from './log-raw'
 import PdfClearCacheButton from '@/features/pdf-preview/components/pdf-clear-cache-button'
 import { useDetachCompileContext as useCompileContext } from '@/shared/context/detach-compile-context'
 import { useCodeMirrorViewContext } from '@/features/source-editor/components/codemirror-context'
@@ -26,10 +32,14 @@ import {
   subscribeLogPanel,
 } from './log-panel-store'
 
+// Compile results that leave the last PDF in place and need no action
+const QUIET_ERRORS = new Set(['too-recently-compiled', 'compile-in-progress'])
+
 export default function LogPanel() {
   const view = useCodeMirrorViewContext()
   const { focusMode } = useLayoutContext()
-  const { logEntries, rawLog } = useCompileContext()
+  const { compiling, error, logEntries, rawLog, setShowLogs, showLogs } =
+    useCompileContext()
   const open = useSyncExternalStore(subscribeLogPanel, getLogPanelOpen)
   const tab = useSyncExternalStore(subscribeLogPanel, getLogPanelTab)
   const [height, setHeight] = useState(getLogPanelHeight)
@@ -39,6 +49,58 @@ export default function LogPanel() {
   useEffect(() => {
     setHost(view.dom.closest('.ide-redesign-editor-container'))
   }, [view])
+
+  // Open by itself when a compile ends with errors; close again after a
+  // clean compile, but only if it was this that opened it.
+  // "compiling" can clear while the previous compile's log entries are still
+  // set, and the new ones arrive later, so act on the first entries that
+  // differ from those the compile started with.
+  const entriesAtStart = useRef<typeof logEntries | null>(null)
+  const openedByCompile = useRef(false)
+  useEffect(() => {
+    if (compiling && entriesAtStart.current === null) {
+      entriesAtStart.current = logEntries
+    }
+  }, [compiling, logEntries])
+  useEffect(() => {
+    if (
+      compiling ||
+      entriesAtStart.current === null ||
+      !logEntries ||
+      logEntries === entriesAtStart.current
+    ) {
+      return
+    }
+    entriesAtStart.current = null
+    const errorCount = logEntries.errors?.length ?? 0
+    if (errorCount > 0 && !getLogPanelOpen()) {
+      openedByCompile.current = true
+      setLogPanel({ open: true, tab: 'problems' })
+    } else if (errorCount === 0 && !error && openedByCompile.current) {
+      openedByCompile.current = false
+      setLogPanel({ open: false })
+    }
+  }, [compiling, logEntries, error])
+  // The stock logs pane is replaced by this panel. Compile notices that
+  // only mean "nothing new to show" don't open it; the PDF already on screen
+  // is still right.
+  useEffect(() => {
+    if (!showLogs) return
+    setShowLogs(false)
+    if (error && QUIET_ERRORS.has(error)) return
+    if (!getLogPanelOpen()) {
+      // a compile's result (an error, or stopped on first error) rather
+      // than the logs shortcut: close again after the next clean compile
+      openedByCompile.current = Boolean(error) || entriesAtStart.current !== null
+      setLogPanel({ open: true, tab: 'problems' })
+    } else {
+      setLogPanel({ tab: 'problems' })
+    }
+  }, [showLogs, setShowLogs, error])
+  // Opened or closed by hand: no longer this effect's to close
+  useEffect(() => {
+    if (!open) openedByCompile.current = false
+  }, [open])
 
   const onPointerDown = useCallback(
     (event: React.PointerEvent) => {
@@ -60,7 +122,6 @@ export default function LogPanel() {
   if (!open || !host || focusMode) return null
 
   const all = logEntries?.all ?? []
-  const errors = logEntries?.errors?.length ?? 0
 
   return createPortal(
     <section className="sx-log-panel" style={{ height }} aria-label="Problems">
@@ -105,17 +166,11 @@ export default function LogPanel() {
       </div>
       <div className="sx-log-panel-body">
         {tab === 'problems' ? (
-          all.length > 0 ? (
-            <div className="sx-log-entries">
-              <PdfLogsEntries entries={all} hasErrors={errors > 0} />
-            </div>
-          ) : (
-            <p className="sx-log-empty">
-              No problems in the last compile.
-            </p>
-          )
+          <LogProblems />
+        ) : rawLog ? (
+          <LogRaw rawLog={rawLog} />
         ) : (
-          <pre className="sx-log-raw">{rawLog || 'No log yet: compile first.'}</pre>
+          <p className="sx-log-empty">No log yet: compile first.</p>
         )}
       </div>
     </section>,

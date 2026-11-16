@@ -222,6 +222,14 @@
   gap: var(--spacing-02);
 }
 
+// Compile failures that aren't log entries (layout/log-problems.tsx)
+.sx-log-notices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-02);
+  margin-bottom: var(--spacing-03);
+}
+
 .sx-log-empty {
   padding: var(--spacing-05);
   color: var(--sx-muted);
@@ -235,4 +243,165 @@
   font-family: var(--source-font-family, monospace);
   font-size: 12px;
   white-space: pre-wrap;
+}
+
+// PROBLEMS: filter chips and compact entries (layout/log-problems.tsx)
+.sx-chips {
+  display: flex;
+  gap: var(--spacing-02);
+  padding: var(--spacing-02) 0 var(--spacing-03);
+}
+
+// Filter toggles: severity icon, label, count badge. On, they sit raised
+// with a coloured icon; off, they fade back into the panel.
+.sx-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 var(--spacing-02) 0 6px;
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-base);
+  background: transparent;
+  color: var(--sx-muted);
+  font-size: var(--font-size-01);
+  cursor: pointer;
+  transition:
+    background-color 0.12s ease-out,
+    color 0.12s ease-out;
+
+  &:hover {
+    background: var(--sx-island-raised);
+    color: var(--sx-fg);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--sx-accent);
+    outline-offset: 1px;
+  }
+}
+
+.sx-chip-icon.material-symbols {
+  font-size: 15px;
+  opacity: 0.5;
+}
+
+.sx-chip-on {
+  border-color: var(--sx-border);
+  background: var(--sx-island-raised);
+  color: var(--sx-fg);
+
+  .sx-chip-icon {
+    opacity: 1;
+  }
+
+  &.sx-chip-error .sx-chip-icon {
+    color: var(--content-danger-themed);
+  }
+
+  &.sx-chip-warning .sx-chip-icon {
+    color: var(--content-warning-themed);
+  }
+
+  &.sx-chip-layout .sx-chip-icon {
+    color: var(--sx-accent);
+  }
+}
+
+.sx-chip-count {
+  min-width: 18px;
+  height: 16px;
+  padding: 0 5px;
+  border-radius: var(--border-radius-full);
+  background: var(--sx-border);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  line-height: 16px;
+  text-align: center;
+
+  .sx-chip:not(.sx-chip-on) & {
+    background: transparent;
+  }
+}
+
+.sx-chip-count-zero {
+  opacity: 0.6;
+}
+
+// LOG: raw output with folds, search and jump (layout/log-raw.tsx)
+.sx-raw {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.sx-raw-tools {
+  display: flex;
+  gap: var(--spacing-03);
+  padding: var(--spacing-02) 0 var(--spacing-03);
+}
+
+.sx-raw-search {
+  flex: 0 1 280px;
+  height: 24px;
+  padding: 0 var(--spacing-03);
+  border: 1px solid var(--sx-border);
+  border-radius: var(--border-radius-base);
+  background: var(--sx-island);
+  color: var(--sx-fg);
+  font-size: var(--font-size-01);
+}
+
+.sx-raw-jump {
+  height: 24px;
+  padding: 0 var(--spacing-03);
+  border: 0;
+  border-radius: var(--border-radius-base);
+  background: transparent;
+  color: var(--sx-accent);
+  font-size: var(--font-size-01);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--sx-island-raised);
+  }
+}
+
+.sx-raw-body {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: auto;
+  font-family: var(--source-font-family, monospace);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.sx-raw-line {
+  white-space: pre-wrap;
+  color: var(--sx-fg);
+}
+
+.sx-raw-noise {
+  color: var(--sx-muted);
+}
+
+.sx-raw-error {
+  color: var(--content-danger-themed);
+  font-weight: 600;
+}
+
+.sx-raw-fold {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--sx-muted);
+  font: inherit;
+  font-style: italic;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--sx-fg);
+  }
 }
