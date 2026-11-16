@@ -35,6 +35,7 @@ import { useFileTreePathContext } from '@/features/file-tree/contexts/file-tree-
 import { useCommandRegistry } from '@/features/ide-react/context/command-registry-context'
 import { useCommandProvider } from '@/features/ide-react/hooks/use-command-provider'
 import getMeta from '@/utils/meta'
+import { keyLabel } from '../palette/keys'
 import {
   CompileProfile,
   getCurrentChapter,
@@ -64,6 +65,26 @@ const PROFILE_LABELS: Record<CompileProfile, string> = {
 }
 
 // A switch drawn inside a menu item, as in the mockup
+// The menu's icon column: every row keeps it, so the labels line up
+function MenuIcon({
+  type,
+  tone,
+}: {
+  type: string | null
+  tone?: 'go' | 'on'
+}) {
+  return (
+    <span className={classNames('sx-menu-icon', tone && `sx-menu-icon-${tone}`)}>
+      {type && <MaterialIcon type={type} />}
+    </span>
+  )
+}
+
+// A key on the right of a row, as plain muted text (mockup frame 6)
+function MenuKey({ keys }: { keys: string }) {
+  return <span className="sx-menu-key">{keyLabel(keys)}</span>
+}
+
 function MenuSwitch({ on }: { on: boolean }) {
   return (
     <span
@@ -186,7 +207,7 @@ export default function RunWidget() {
         >
           {profileLabel}
         </OLDropdownToggle>
-        <OLDropdownMenu className="sx-run-menu">
+        <OLDropdownMenu className="sx-run-menu sx-menu">
           <OLDropdownHeader>Profile</OLDropdownHeader>
           {(
             [
@@ -205,8 +226,11 @@ export default function RunWidget() {
                 role="menuitemradio"
                 aria-checked={profile === id}
                 onClick={() => pickProfile(id)}
-                leadingIcon={profile === id ? 'check' : <span className="sx-menu-icon-space" />}
-                description={sub}
+                disabled={id === 'chapter' && !chapter}
+                leadingIcon={
+                  <MenuIcon type={profile === id ? 'check' : null} tone="on" />
+                }
+                trailingIcon={<span className="sx-menu-value">{sub}</span>}
               >
                 {label}
               </OLDropdownItem>
@@ -218,7 +242,8 @@ export default function RunWidget() {
               as="button"
               onClick={() => startCompile()}
               disabled={compiling || isNetworkStalled}
-              trailingIcon={<kbd className="sx-menu-kbd">{modifierKey}+Enter</kbd>}
+              leadingIcon={<MenuIcon type="play_arrow" tone="go" />}
+              trailingIcon={<MenuKey keys="Mod+S" />}
             >
               {t('recompile')}
             </OLDropdownItem>
@@ -228,6 +253,7 @@ export default function RunWidget() {
               as="button"
               onClick={() => recompileFromScratch()}
               disabled={compiling || isNetworkStalled}
+              leadingIcon={<MenuIcon type="refresh" />}
             >
               {t('recompile_from_scratch')}
             </OLDropdownItem>
@@ -237,6 +263,8 @@ export default function RunWidget() {
               as="button"
               onClick={() => stopCompile()}
               disabled={!compiling}
+              leadingIcon={<MenuIcon type="stop" />}
+              trailingIcon={<MenuKey keys="Shift+F5" />}
             >
               {t('stop_compile')}
             </OLDropdownItem>
@@ -263,6 +291,7 @@ export default function RunWidget() {
                 role="menuitemcheckbox"
                 aria-checked={on}
                 onClick={toggle}
+                leadingIcon={<MenuIcon type={null} />}
                 trailingIcon={<MenuSwitch on={on} />}
               >
                 {label}
@@ -274,7 +303,7 @@ export default function RunWidget() {
             [
               ['Compiler', compilerLabel(compiler)],
               ['TeX Live', imageDesc],
-              ['Main document', mainDocument],
+              ['Main document', mainDocument?.split('/').pop()],
             ] as [string, string | null | undefined][]
           )
             .filter(([, value]) => value)
@@ -283,7 +312,13 @@ export default function RunWidget() {
                 <OLDropdownItem
                   as="button"
                   onClick={openSettings}
-                  trailingIcon={<span className="sx-menu-value">{value}</span>}
+                  leadingIcon={<MenuIcon type={null} />}
+                  trailingIcon={
+                    <span className="sx-menu-value">
+                      {value}
+                      <MaterialIcon type="chevron_right" className="sx-menu-chevron" />
+                    </span>
+                  }
                 >
                   {label}
                 </OLDropdownItem>
@@ -291,7 +326,12 @@ export default function RunWidget() {
             ))}
           <OLDropdownDivider />
           <li role="none">
-            <OLDropdownItem as="button" onClick={openSettings}>
+            <OLDropdownItem
+              as="button"
+              onClick={openSettings}
+              leadingIcon={<MenuIcon type={null} />}
+              trailingIcon={<MenuKey keys="Mod+," />}
+            >
               Edit compile settings…
             </OLDropdownItem>
           </li>

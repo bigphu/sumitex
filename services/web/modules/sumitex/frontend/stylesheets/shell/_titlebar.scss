@@ -277,35 +277,7 @@ body:has(.sx-titlebar) .ide-redesign-pdf-container .toolbar-pdf .compile-button-
   }
 }
 
-// The run widget's menu (mockup frame 6)
-.sx-run-menu {
-  min-width: 300px;
-
-  .dropdown-item-description {
-    font-size: 11.5px;
-  }
-}
-
-.sx-menu-icon-space {
-  display: inline-block;
-  width: 20px;
-}
-
-.sx-menu-kbd {
-  padding: 0 var(--spacing-02);
-  border-radius: 3px;
-  background: var(--sx-island-raised);
-  color: var(--sx-muted);
-  font-family: inherit;
-  font-size: 11px;
-  box-shadow: none;
-}
-
-.sx-menu-value {
-  color: var(--sx-muted);
-  font-size: var(--font-size-01);
-}
-
+// The run widget's menu is a .sx-menu (shell/_dialogs.scss); its switches:
 .sx-menu-switch {
   position: relative;
   display: inline-block;
