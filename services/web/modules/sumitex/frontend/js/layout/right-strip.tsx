@@ -10,6 +10,7 @@
  *   of opening Review (shortcut, a click on a comment marker) opens it here.
  * - Chat opens here too (the stock ChatPane).
  * - The AI assistant docks on the right through its own module.
+ * - Notifications sit at the foot of the strip (notifications-bell.tsx).
  * One panel at a time: they take turns in the same island.
  * The three buttons leave the left strip (overrides/components/_rail.scss).
  */
@@ -31,6 +32,7 @@ import usePersistedState from '@/shared/hooks/use-persisted-state'
 import getMeta from '@/utils/meta'
 import { useAssistantDock } from '@modules/workbench/frontend/js/assistant-dock-context'
 import { setReviewIslandHost } from '../review/review-island-host'
+import NotificationsBell from './notifications-bell'
 
 type RightTab = 'chat'
 
@@ -183,6 +185,8 @@ export default function RightStrip({ order }: { order: number }) {
             onClick={toggleAi}
           />
         )}
+        <div className="sx-right-strip-spacer" />
+        <NotificationsBell />
       </nav>
     </>
   )

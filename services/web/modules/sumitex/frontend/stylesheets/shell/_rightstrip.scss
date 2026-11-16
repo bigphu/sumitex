@@ -294,3 +294,137 @@
 .sx-review-list .review-panel-empty-state-comment-icon {
   background-color: var(--sx-island-raised);
 }
+
+// Notifications at the foot of the strip (layout/notifications-bell.tsx)
+.sx-right-strip-spacer {
+  flex: 1 1 auto;
+}
+
+.sx-notifications {
+  position: relative;
+}
+
+.sx-notifications-badge {
+  position: absolute;
+  top: 2px;
+  right: 1px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 4px;
+  border-radius: var(--border-radius-full);
+  background: var(--sx-accent-fill);
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 600;
+  line-height: 15px;
+  text-align: center;
+}
+
+// The list opens to the left of the strip, its foot level with the bell
+.sx-notifications-list {
+  position: absolute;
+  right: calc(100% + var(--spacing-04));
+  bottom: 0;
+  z-index: 400;
+  width: 320px;
+  max-height: min(480px, 70vh);
+  overflow-y: auto;
+  background: var(--sx-island-raised);
+  border: 1px solid var(--sx-border);
+  border-radius: var(--sx-island-radius);
+  box-shadow: 0 8px 28px rgb(0 0 0 / 35%);
+  color: var(--sx-fg);
+  font-size: var(--font-size-02);
+
+  ul {
+    margin: 0;
+    padding: 0 0 var(--spacing-02);
+    list-style: none;
+  }
+}
+
+.sx-notifications-head {
+  padding: var(--spacing-04) var(--spacing-05) var(--spacing-03);
+  color: var(--sx-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sx-notifications-empty {
+  margin: 0;
+  padding: 0 var(--spacing-05) var(--spacing-05);
+  color: var(--sx-muted);
+}
+
+.sx-notice {
+  display: flex;
+  gap: var(--spacing-03);
+  padding: var(--spacing-03) var(--spacing-03) var(--spacing-03)
+    var(--spacing-05);
+  border-top: 1px solid var(--sx-border);
+}
+
+.sx-notice-body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sx-notice-text {
+  margin: 0 0 var(--spacing-02);
+  overflow-wrap: anywhere;
+}
+
+.sx-notice-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-03);
+}
+
+.sx-notice-action.sx-notice-action {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--sx-accent);
+  font-size: var(--font-size-01);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+}
+
+.sx-notice-error {
+  color: var(--content-danger-themed);
+  font-size: var(--font-size-01);
+}
+
+.sx-notice-dismiss {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: var(--border-radius-base);
+  background: transparent;
+  color: var(--sx-muted);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--sx-border);
+    color: var(--sx-fg);
+  }
+
+  .material-symbols {
+    font-size: 16px;
+  }
+}
