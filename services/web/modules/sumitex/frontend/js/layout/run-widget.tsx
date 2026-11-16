@@ -53,6 +53,9 @@ const COMPILER_LABELS: Record<string, string> = {
   lualatex: 'LuaLaTeX',
 }
 
+const compilerLabel = (compiler?: string) =>
+  compiler ? (COMPILER_LABELS[compiler] ?? compiler) : ''
+
 const PROFILE_LABELS: Record<CompileProfile, string> = {
   full: 'Full build',
   draft: 'Draft',
@@ -162,7 +165,7 @@ export default function RunWidget() {
           <OLDropdownHeader>Profile</OLDropdownHeader>
           {(
             [
-              ['full', 'Full build', COMPILER_LABELS[compiler] ?? compiler],
+              ['full', 'Full build', compilerLabel(compiler)],
               ['draft', 'Draft', 'no images, faster'],
               [
                 'chapter',
@@ -244,7 +247,7 @@ export default function RunWidget() {
           <OLDropdownDivider />
           {(
             [
-              ['Compiler', COMPILER_LABELS[compiler] ?? compiler],
+              ['Compiler', compilerLabel(compiler)],
               ['TeX Live', imageDesc],
               ['Main document', mainDocument],
             ] as [string, string | null | undefined][]

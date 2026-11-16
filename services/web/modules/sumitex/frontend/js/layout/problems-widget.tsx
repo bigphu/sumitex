@@ -4,8 +4,8 @@
  * compile, arrows to jump to the previous or next problem marked in the
  * open file, and a click on the counts opens the log.
  *
- * The log opens as a panel under the editor (log-panel.tsx, mockup frame 4).
- * The stock log view in the PDF pane stays available from the palette.
+ * The log opens as a panel under the editor (log-panel.tsx, mockup frame 4),
+ * which also stands in for the stock log view in the PDF pane.
  */
 import { useSyncExternalStore } from 'react'
 import { useTranslation } from 'react-i18next'

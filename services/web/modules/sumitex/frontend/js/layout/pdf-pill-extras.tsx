@@ -5,33 +5,16 @@
  * 'synctex-sync-to-pdf' command, and is portaled into the stock pill.
  * Going the other way, double-click in the PDF jumps to the source as before.
  */
-import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import MaterialIcon from '@/shared/components/material-icon'
 import OLTooltip from '@/shared/components/ol/ol-tooltip'
 import { useCommandRegistry } from '@/features/ide-react/context/command-registry-context'
+import { usePortalTarget } from './use-portal-target'
 
 const TARGET = '.ide-redesign-pdf-container .toolbar-pdf-right'
 
-function useTarget() {
-  const [target, setTarget] = useState<Element | null>(() =>
-    document.querySelector(TARGET)
-  )
-  useEffect(() => {
-    const find = () => {
-      const element = document.querySelector(TARGET)
-      setTarget(current => (current === element ? current : element))
-    }
-    find()
-    const observer = new MutationObserver(find)
-    observer.observe(document.body, { childList: true, subtree: true })
-    return () => observer.disconnect()
-  }, [])
-  return target
-}
-
 export default function PdfPillExtras() {
-  const target = useTarget()
+  const target = usePortalTarget(TARGET)
   const { registry } = useCommandRegistry()
   const command = registry.get('synctex-sync-to-pdf')
 

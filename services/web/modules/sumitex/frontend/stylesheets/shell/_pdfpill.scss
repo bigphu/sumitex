@@ -1,10 +1,7 @@
 // The PDF has no toolbar row (guide 1d, step 5): its controls float as one
 // pill at the bottom of the PDF, and the page fills the whole pane.
-//
-// For now the pill keeps every stock control (Recompile, logs, download,
-// page, zoom). Recompile moves to the run widget in step 3 and logs to the
-// problems widget in step 6; then the pill keeps only page, zoom and
-// download.
+// The pill holds page · zoom · ⌖ · download; Recompile lives in the run
+// widget and the log in the problems widget.
 $sx-pdf-pane: '.ide-redesign-pdf-container';
 
 #{$sx-pdf-pane} {
@@ -55,12 +52,20 @@ $sx-pdf-pane: '.ide-redesign-pdf-container';
 // The stock controls show page and zoom in full only when their box is at
 // least 320px wide; below that they collapse into a "View options" (⋯) menu
 // that only repeats the page box and zoom − +. Keep the full controls
-// always: give the box 320px, and since the page arrows, zoom − + and dark
-// PDF are hidden (about 135px of content), pull it left over its own empty
-// start so the pill doesn't show the gap.
+// always: 320px of empty padding on the left makes the box measure wide
+// enough, and an equal negative margin cancels it in the pill, so the pill
+// fits the controls exactly, whatever the page count. The padding hangs
+// outside the pill, so it lets clicks through to the PDF.
 .ide-redesign-pdf-container .pdfjs-viewer-controls {
-  min-width: 320px;
-  margin-left: -185px;
+  box-sizing: content-box;
+  min-width: 0;
+  padding-left: 320px;
+  margin-left: -320px;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
 }
 
 // The log, opened from the problems widget, also starts at the top of the

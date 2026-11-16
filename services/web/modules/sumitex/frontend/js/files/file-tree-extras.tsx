@@ -7,13 +7,14 @@
  * so writing the keys and announcing them updates the open folders.
  * Portaled into the stock Files header, after its action buttons.
  */
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import OLTooltip from '@/shared/components/ol/ol-tooltip'
 import { useFileTreeData } from '@/shared/context/file-tree-data-context'
 import { useFileTreeOpenContext } from '@/features/ide-react/context/file-tree-open-context'
 import localStorage from '@/infrastructure/local-storage'
 import type { Folder } from '../../../../../types/folder'
+import { usePortalTarget } from '../layout/use-portal-target'
 
 // The header itself, after the stock action buttons: the mockup puts
 // Collapse all last
@@ -31,21 +32,6 @@ const setAllFolders = (root: Folder, expanded: boolean) => {
   }
 }
 
-function useTarget() {
-  const [target, setTarget] = useState<Element | null>(null)
-  useEffect(() => {
-    const find = () => {
-      const element = document.querySelector(TARGET)
-      setTarget(current => (current === element ? current : element))
-    }
-    find()
-    const observer = new MutationObserver(find)
-    observer.observe(document.body, { childList: true, subtree: true })
-    return () => observer.disconnect()
-  }, [])
-  return target
-}
-
 const CollapseIcon = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <path d="m7 20 5-5 5 5" />
@@ -54,7 +40,7 @@ const CollapseIcon = () => (
 )
 
 export default function FileTreeExtras() {
-  const target = useTarget()
+  const target = usePortalTarget(TARGET)
   const { fileTreeData } = useFileTreeData()
   const { fileTreeExpanded, expandFileTree } = useFileTreeOpenContext()
 
