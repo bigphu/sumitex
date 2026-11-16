@@ -76,6 +76,7 @@ const compileOptionsSchema = z.strictObject({
   // schema itself.
   imageName: z.string().optional(),
   draft: z.boolean().optional(),
+  includeOnly: z.string().optional(), // SumiTeX: "Current chapter only"
   png2pdf: z.boolean().optional(),
   stopOnFirstError: z.boolean().optional(),
   check: z.string().optional(),

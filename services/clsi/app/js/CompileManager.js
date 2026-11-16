@@ -12,6 +12,7 @@ import OutputFileFinder from './OutputFileFinder.js'
 import OutputCacheManager from './OutputCacheManager.js'
 import ClsiMetrics from './Metrics.js'
 import DraftModeManager from './DraftModeManager.js'
+import IncludeOnlyManager from './IncludeOnlyManager.js' // SumiTeX
 import TikzManager from './TikzManager.js'
 import LockManager from './LockManager.js'
 import Errors from './Errors.js'
@@ -130,6 +131,14 @@ async function doCompile(request, stats, timings) {
       if (request.draft) {
         await DraftModeManager.promises.injectDraftMode(
           Path.join(compileDir, request.rootResourcePath)
+        )
+      }
+
+      // SumiTeX: "Current chapter only"
+      if (request.includeOnly) {
+        await IncludeOnlyManager.promises.injectIncludeOnly(
+          Path.join(compileDir, request.rootResourcePath),
+          request.includeOnly
         )
       }
 

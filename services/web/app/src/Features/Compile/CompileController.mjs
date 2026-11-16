@@ -169,6 +169,8 @@ const compileSchema = z.object({
     rootDoc_id: zz.objectId().nullish(),
     compiler: z.string().optional(),
     draft: z.boolean().optional(),
+    // SumiTeX: "Current chapter only" (the compile server checks the value)
+    includeOnly: z.string().max(200).optional(),
     png2pdf: z.boolean().optional(),
     // silently ignored (not rejected) when not one of these three, to
     // match the existing .includes() check below
@@ -437,6 +439,9 @@ const _CompileController = {
     }
     if (body.draft) {
       options.draft = body.draft
+    }
+    if (body.includeOnly) {
+      options.includeOnly = body.includeOnly // SumiTeX
     }
     if (['validate', 'error', 'silent'].includes(body.check)) {
       options.check = body.check

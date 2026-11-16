@@ -276,3 +276,60 @@ body:has(.sx-titlebar) .ide-redesign-pdf-container .toolbar-pdf .compile-button-
     }
   }
 }
+
+// The run widget's menu (mockup frame 6)
+.sx-run-menu {
+  min-width: 300px;
+
+  .dropdown-item-description {
+    font-size: 11.5px;
+  }
+}
+
+.sx-menu-icon-space {
+  display: inline-block;
+  width: 20px;
+}
+
+.sx-menu-kbd {
+  padding: 0 var(--spacing-02);
+  border-radius: 3px;
+  background: var(--sx-island-raised);
+  color: var(--sx-muted);
+  font-family: inherit;
+  font-size: 11px;
+  box-shadow: none;
+}
+
+.sx-menu-value {
+  color: var(--sx-muted);
+  font-size: var(--font-size-01);
+}
+
+.sx-menu-switch {
+  position: relative;
+  display: inline-block;
+  width: 26px;
+  height: 16px;
+  border-radius: var(--border-radius-full);
+  background: var(--sx-border);
+}
+
+.sx-menu-switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left 0.12s ease-out;
+}
+
+.sx-menu-switch-on {
+  background: var(--sx-accent-fill);
+
+  .sx-menu-switch-knob {
+    left: 12px;
+  }
+}

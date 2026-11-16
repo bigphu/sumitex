@@ -10,6 +10,7 @@ import { OpenDocuments } from '@/features/ide-react/editor/open-documents'
 import { CompileOptions, CompileResponseData } from '@ol-types/compile'
 import { DeliveryLatencies } from './types'
 import { RootDocInfo } from '@/shared/hooks/use-root-doc'
+import { getIncludeOnly } from '@modules/sumitex/frontend/js/compile/profile' // SumiTeX
 
 const AUTO_COMPILE_MAX_WAIT = 5000
 // We add a 2 second debounce to sending user changes to server if they aren't
@@ -140,6 +141,7 @@ export default class DocumentCompiler {
         rootDoc_id: rootDocId,
         rootResourcePath,
         draft: options.draft,
+        includeOnly: getIncludeOnly(), // SumiTeX: "Current chapter only"
         png2pdf: options.png2pdf,
         check: 'silent', // NOTE: 'error' and 'validate' are possible, but unused
         // use incremental compile for all users but revert to a full compile

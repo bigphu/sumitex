@@ -104,6 +104,14 @@ function parse(body, callback) {
     response.check = _parseAttribute('check', compile.options.check, {
       type: 'string',
     })
+    // SumiTeX: "Current chapter only" compiles with \includeonly{<file>}.
+    // A project path without .tex: letters, digits, - _ . / and spaces only,
+    // so it can't break out of the \includeonly argument.
+    response.includeOnly = _parseAttribute(
+      'includeOnly',
+      compile.options.includeOnly,
+      { type: 'string', regex: /^[\w\-./ ]{1,200}$/ }
+    )
     response.flags = _parseAttribute('flags', compile.options.flags, {
       default: [],
       type: 'object',
