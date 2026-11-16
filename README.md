@@ -1,139 +1,82 @@
 <h1 align="center">
-  <br>
-  <a href="https://ayakaleaf-pro.ayaka.space"><picture><source media="(prefers-color-scheme: dark)" srcset="doc/logo-dark.png"><img src="doc/logo.png" alt="Ayakaleaf Pro" width="300"></picture></a>
+  <img src="doc/sumitex/icon.png" alt="" width="96"><br>
+  SumiTeX
 </h1>
 
-<h4 align="center">Overleaf Community Edition enhanced with all Pro features <br/>(open source, free to use, self-hostable).</h4>
+<p align="center">A calm, minimalist LaTeX editor you host yourself.</p>
 
 <p align="center">
-  <a href="https://ayakaleaf-pro.ayaka.space">Documents</a> •
-  <a href="https://github.com/ayaka-notes/ayakaleaf-pro-playground">Playground</a> •
-  <a href="https://ayakaleaf-pro.ayaka.space/blog">Blog</a> •
-  <a href="https://github.com/orgs/ayaka-notes/packages/container/package/overleaf-pro">Docker Image</a> •
-  <a href="https://github.com/ayaka-notes/texlive-full">TeXLive</a> •
-  <a href="https://ayakaleaf-pro.ayaka.space/dev">Developer</a> •
-  <a href="#authors">Authors</a> •
-  <a href="#license">License</a>
+  <a href="https://github.com/bigphu/sumitex/releases">Releases</a> •
+  <a href="#run-it">Run it</a> •
+  <a href="#roadmap">Roadmap</a> •
+  <a href="SUMITEX-FEATURES.md">Features</a> •
+  <a href="#built-on">Built on</a> •
+  <a href="#licence">Licence</a>
 </p>
 
-<p align="center">
-  <b>English</b> ·
-  <a href="doc/README-CS.md">Čeština</a> ·
-  <a href="doc/README-DA.md">Dansk</a> ·
-  <a href="doc/README-DE.md">Deutsch</a> ·
-  <a href="doc/README-ES.md">Español</a> ·
-  <a href="doc/README-FI.md">Suomi</a> ·
-  <a href="doc/README-FR.md">Français</a> ·
-  <a href="doc/README-IT.md">Italiano</a> ·
-  <a href="doc/README-JP.md">日本語</a> ·
-  <a href="doc/README-KR.md">한국어</a> ·
-  <a href="doc/README-NL.md">Nederlands</a> ·
-  <a href="doc/README-NO.md">Norsk</a> ·
-  <a href="doc/README-PL.md">Polski</a> ·
-  <a href="doc/README-PT.md">Português</a> ·
-  <a href="doc/README-RU.md">Русский</a> ·
-  <a href="doc/README-SV.md">Svenska</a> ·
-  <a href="doc/README-TR.md">Türkçe</a> ·
-  <a href="doc/README-ZH.md">简体中文</a>
-</p>
+![SumiTeX: the editor and the PDF in one island, with the file tree on the left](doc/sumitex/screenshot.jpg)
 
-<img src="doc/screenshot-pro.png" alt="A screenshot of a project being edited in Overleaf Community Edition">
-<p align="center">
-  Figure 1: A screenshot of a project being edited in Ayakaleaf Pro Edition.
-</p>
+SumiTeX (墨, *sumi*: the ink of brush calligraphy) is a LaTeX editor for writing in peace. The document fills the window; everything else stays quiet until you need it. It is built on [AyakaLeaf Pro](https://github.com/ayaka-notes/ayakaleaf-pro), itself built on [Overleaf](https://github.com/overleaf/overleaf), so real-time collaboration, track changes, history, Git and Dropbox sync and the rest are all still there.
 
-## Ayakaleaf Pro Edition
-Ayakaleaf Pro is an enhanced version of Overleaf with almost all features and capabilities. For details, please check [Ayakaleaf Pro](https://ayakaleaf-pro.ayaka.space) page. Features in Ayakaleaf Pro include: 
+## What's different
 
-- 2-way Dropbox Sync (Keep All Your Projects in Sync with Dropbox)
-- MCP Server (Let AI Agents Edit, Compile and Comment)
-- AI Chat Assistant (Chat, Edit and Fix with AI)
-- Error Assistant (Explain and Fix Compile Errors)
-- Pandoc Import/Export (Convert Word, Markdown and LaTeX)
-- Python Script Runner (Run Python in Your Project)
-- 2-way GitHub(Enterprise) Sync (Push and Pull with GitHub)
-- 2-way GitLab Sync (GitLab.com or Self-hosted GitLab)
-- 2-way Gitea Sync (Gitea.com or Self-hosted Gitea)
-- Zotero Integration(With Zotero OAuth Support)
-- Mendeley Integration(With Mendeley OAuth Support)
-- Advanced Reference Search (Search All Your Bib Entries)
-- Git-Bridge Support (Clone, Pull and Push with Git)
-- Full Admin Panel (Users, Projects and Templates, with Search, Bulk Actions, Sessions and Audit Logs)
-- SSO with LDAP and SAML or OAuth 2.0
-- Unlimited Compile Times (Adjustable in admin panel)
-- Self Register (Optional, can be limited by mail domain)
-- reCAPTCHA (Optional, on Login, Register and Password Reset)
-- Sandbox Compile (With [texlive-full](https://github.com/ayaka-notes/texlive-full) image support)
-- Template System (With Template Gallery)
-- Track Changes (With Review and Comment Panel)
-- Full Project History(With Restore and Download)
-- Symbol Palette (Insert Math Symbols in One Click)
-- Full i18n Translation (Every UI String in 18 Languages)
-- ARM Support(x86_64/arm64 on Docker)
+- **Islands.** Thin strips on a dark frame around rounded panels, after JetBrains IDEs. Dark and light themes, a vivid syntax palette and JetBrains Mono.
+- **One island for the editor and the PDF**, with Source, Split and PDF views and a floating pill for page, zoom, jump to the cursor and download.
+- **A run widget** in the title bar: Full build, Draft, or **Current chapter only**, which compiles just the chapter you're in.
+- **A compile log that stays short**: one line per problem with filters, package-loading chatter folded away, search, Jump to first error, and Accept for warnings you've decided to live with. It opens when a compile fails and gets out of the way when it's clean.
+- **Problems in the editor**: counts with next and previous, inline markers and an overview ruler.
+- **Zen mode**: a centred column, typewriter scrolling and no chrome.
+- **Back where you left off**: the file, cursor, PDF page and open folders come back when you reopen a project.
+- **Install as an app** for a window of its own, with SumiTeX's title bar as the window's.
 
-Last but not least, Ayakaleaf Pro is open-source, free to use and modify. You can self-host it and contribute to the development of Ayakaleaf Pro. For more details, please check [Developer Documentation](https://ayakaleaf-pro.ayaka.space/dev) page.
+Nothing Overleaf or AyakaLeaf offers is removed: stock parts are restyled, moved, or one setting away. [SUMITEX-FEATURES.md](SUMITEX-FEATURES.md) lists every agreed feature and how it behaves.
 
-> [!NOTE]
-> Note: Ayakaleaf Pro is not affiliated with Overleaf, Inc. or its parent company, Digital Science. It is also *not Server Pro* Edition, which is a commercial product offered by Overleaf, Inc.
-> 
-> Ayakaleaf Pro is an independent project developed and maintained by the [ayaka-notes](https://github.com/ayaka-notes).
+## Run it
 
-## Installation
+SumiTeX doesn't ship its own Docker image yet. Run it from source with the development environment in [`develop/`](develop/README.md) (Docker with Compose; on Windows, use WSL 2):
 
-If you just want to try Ayakaleaf Pro without setting up a server, you can use our [Ayakaleaf Pro Playground](https://github.com/ayaka-notes/ayakaleaf-pro-playground). It provides a preconfigured GitHub Codespaces environment that lets you launch and explore Ayakaleaf Pro directly in your browser.
+```shell
+git clone https://github.com/bigphu/sumitex.git
+cd sumitex/develop
+bin/build
+bin/up
+```
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/ayaka-notes/ayakaleaf-pro-playground)
+Then open <http://localhost/launchpad> to create the first admin account. For live reload while you work on SumiTeX itself:
 
-If you want to deploy Ayakaleaf Pro for production use,  we have detailed installation instructions on the [Documents](https://ayakaleaf-pro.ayaka.space/) page. We highly recommend installing Ayakaleaf Pro using the [ayaka-notes/Toolkit](https://github.com/ayaka-notes/toolkit/).
+```shell
+bin/dev web webpack
+```
 
-## Upgrading
+`develop/dev.rc` switches the heavier extras (LDAP, SAML, S3, Grafana, …) on or off; they're off by default to fit a small machine.
 
-If you are upgrading from a previous version of Ayakaleaf Pro, please see the [Releases page](https://github.com/ayaka-notes/ayakaleaf-pro/releases) for the changes in each version between your current version and the one you are upgrading to.
+## Roadmap
 
-## Translations
+| Phase | What | Status |
+|---|---|---|
+| 1 | Minimalist layout, run widget, Zen mode, installable app, compile log panel | Done, [v0.1.0](https://github.com/bigphu/sumitex/releases/tag/v0.1.0) |
+| 2 | VS Code keys and the command palette (Ctrl+Shift+P, Ctrl+P, Ctrl+1/2/3) | Next |
+| 3 | A live linter with one-click "add package" fixes, plain-language errors | |
+| 4 | Snippets that bring their packages, math auto-expansion | |
+| 5 | Folders for projects on the dashboard | |
+| 6 | Draggable lists and table columns, the Outline with blocks | |
+| 7 | Notion-like editing on the Visual editor | Later |
 
-We welcome contributions to translations of Ayakaleaf Pro. Generally, we use claude/codex to translate the English text into other languages. If you find any errors in the translations, please submit a pull request to fix them. Please only modify relevant files in the `services/web/locales/locales_patches` folder.
+## Built on
 
-Files under `services/web/locales/` are overleaf official translation files. Please do not modify them directly.
+SumiTeX stands on two projects, and is grateful to both:
+
+- [**AyakaLeaf Pro**](https://github.com/ayaka-notes/ayakaleaf-pro) by ayaka-notes: Overleaf Community Edition with the Pro features added (SSO, sandboxed compiles, Git and Dropbox sync, the AI assistant, …). Its README lives on in [doc/AYAKALEAF-README.md](doc/AYAKALEAF-README.md). SumiTeX follows it on the `ayakaleaf` branch.
+- [**Overleaf**](https://github.com/overleaf/overleaf), the collaborative LaTeX editor both are built from.
+
+SumiTeX's own code lives in [`services/web/modules/sumitex/`](services/web/modules/sumitex/), plus a few small upstream edits marked `// SumiTeX`, so upstream updates merge cleanly.
+
+SumiTeX does not include, copy or unlock Overleaf Server Pro.
 
 ## Contributing
 
-Please see the [CONTRIBUTING](CONTRIBUTING.md) file for information on contributing to the development of Overleaf.
+Bug reports and ideas are welcome in [Issues](https://github.com/bigphu/sumitex/issues). For pull requests, keep SumiTeX code in its module and check both themes; the pull request template has the list.
 
-## Blog
-We write about Overleaf internals, compilation performance, and self-hosted LaTeX infrastructure. Read more on our blog:
-- [2026.11 Meet the New Admin Panel in Ayakaleaf Pro](https://ayakaleaf-pro.ayaka.space/blog/2026/new-admin-panel)
-- [2026.08 Overleaf Server Pro Price and Open-Source Alternative](https://ayakaleaf-pro.ayaka.space/blog/2026/overleaf-server-pro-price-and-open-source-alternative)
-- [2026.08 Overleaf Benchmark: A Deep Research of Concurrent LaTeX Compilation in Overleaf](https://ayakaleaf-pro.ayaka.space/blog/2026/overleaf-benchmark)
+## Licence
 
-## Authors
-
-- [The Overleaf Team](https://www.overleaf.com/about)
-- [Features and Copyright](https://ayakaleaf-pro.ayaka.space/on-premises/readme/features-and-copyright)
-
-## License
-
-The code in this repository is released under the GNU AFFERO GENERAL PUBLIC LICENSE, version 3. A copy can be found in the [`LICENSE`](LICENSE) file.
-
-- Copyright (c) Overleaf, 2014-2025.
-- Copyright (c) [Pro Authors](https://ayakaleaf-pro.ayaka.space/on-premises/readme/features-and-copyright), 2026-now.
-
-## Sponsor
-
-<p align="center">
-  <a href="https://www.vultr.com/"><picture><source media="(prefers-color-scheme: dark)" srcset="doc/sponsors/vultr-dark.svg"><img src="doc/sponsors/vultr.svg" alt="Vultr" width="160"></picture></a>
-  <a href="https://linux.do"><picture><source media="(prefers-color-scheme: dark)" srcset="doc/sponsors/linux-do-dark.svg"><img src="doc/sponsors/linux-do.svg" alt="Linux Do Community" width="160"></picture></a>
-  <a href="https://openai.com/en/form/codex-for-oss/"><picture><source media="(prefers-color-scheme: dark)" srcset="doc/sponsors/openai-codex-oss-dark.svg"><img src="doc/sponsors/openai-codex-oss.svg" alt="OpenAI Codex OSS" width="160"></picture></a>
-  <a href="https://www.gitbook.com/"><picture><source media="(prefers-color-scheme: dark)" srcset="doc/sponsors/gitbook-dark.svg"><img src="doc/sponsors/gitbook.svg" alt="GitBook" width="160"></picture></a>
-  <a href="https://www.mintlify.com/"><picture><source media="(prefers-color-scheme: dark)" srcset="doc/sponsors/mintlify-dark.svg"><img src="doc/sponsors/mintlify.svg" alt="Mintlify" width="160"></picture></a>
-</p>
-
-## Star History
-
-<a href="https://www.star-history.com/?repos=ayaka-notes%2Fayakaleaf-pro&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=ayaka-notes/ayakaleaf-pro&type=date&theme=dark&legend=top-left&sealed_token=u3l5zBKFPuzl3y_xdCmqTPT_5iaimMLJchJaALvNsAR3LtSu2NrnvjlmbfGW1NdyDch3XLj-o6rfTpyk2K7s6gtgdzDvrDAsTkBnGz_m2CAkbq0IvxsFXPzEkypDT3vhHvYsvDu3qd7Dx6LcPFy_330a0kqmByAl6FKN-13QCGuo1LTv0iEUihWDTUlz" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=ayaka-notes/ayakaleaf-pro&type=date&legend=top-left&sealed_token=u3l5zBKFPuzl3y_xdCmqTPT_5iaimMLJchJaALvNsAR3LtSu2NrnvjlmbfGW1NdyDch3XLj-o6rfTpyk2K7s6gtgdzDvrDAsTkBnGz_m2CAkbq0IvxsFXPzEkypDT3vhHvYsvDu3qd7Dx6LcPFy_330a0kqmByAl6FKN-13QCGuo1LTv0iEUihWDTUlz" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=ayaka-notes/ayakaleaf-pro&type=date&legend=top-left&sealed_token=u3l5zBKFPuzl3y_xdCmqTPT_5iaimMLJchJaALvNsAR3LtSu2NrnvjlmbfGW1NdyDch3XLj-o6rfTpyk2K7s6gtgdzDvrDAsTkBnGz_m2CAkbq0IvxsFXPzEkypDT3vhHvYsvDu3qd7Dx6LcPFy_330a0kqmByAl6FKN-13QCGuo1LTv0iEUihWDTUlz" />
- </picture>
-</a>
+SumiTeX is free software under the [GNU Affero General Public License v3.0](LICENSE), like the AyakaLeaf Pro and Overleaf code it is built on. If you run a changed version for others to use over a network, the AGPL asks you to offer them its source.

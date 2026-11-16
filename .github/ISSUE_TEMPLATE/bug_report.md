@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Report a bug
+about: Report a bug in SumiTeX
 title: ''
 labels: type:bug
 assignees: ''
@@ -8,16 +8,11 @@ assignees: ''
 
 <!--
 
-Note: If you are using www.overleaf.com and have a problem,
-      or if you would like to request a new feature please contact
-      the support team at support@overleaf.com
-
-      This form should only be used to report bugs in the
-      Community Edition release of Overleaf.
+This form is for bugs in SumiTeX. If the same thing happens in stock
+AyakaLeaf Pro or Overleaf Community Edition (without SumiTeX's layout),
+it may be an upstream bug: say so under Context, it helps.
 
 -->
-
-<!-- BUG REPORT TEMPLATE -->
 
 ## Steps to Reproduce
 
@@ -45,10 +40,10 @@ Note: If you are using www.overleaf.com and have a problem,
 
 <!-- Provide any technical details that may be applicable (or N/A if not applicable). -->
 
-- URL:
-- Browser Name and version:
-- Operating System and version (desktop or mobile):
-- Signed in as:
+- SumiTeX version or commit:
+- Browser name and version (and whether installed as an app):
+- Operating system and version:
+- Theme (dark or light) and layout (Source, Split or PDF):
 - Project and/or file:
 
 ## Analysis
