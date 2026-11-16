@@ -288,3 +288,9 @@
 .sx-review-header .sx-review-title {
   flex: 1 1 auto;
 }
+
+// The empty state's icon circle (stock uses a colour that vanishes on the
+// light island)
+.sx-review-list .review-panel-empty-state-comment-icon {
+  background-color: var(--sx-island-raised);
+}

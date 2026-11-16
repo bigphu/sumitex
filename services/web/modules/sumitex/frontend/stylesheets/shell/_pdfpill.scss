@@ -8,8 +8,9 @@
 $sx-pdf-pane: '.ide-redesign-pdf-container';
 
 #{$sx-pdf-pane} {
-  // Same surface as the editor, so the editor and PDF read as one island
-  --pdf-bg: var(--sx-island);
+  // Behind the pages: the island colour in dark; a light grey in light, so
+  // white pages keep their edges
+  --pdf-bg: var(--sx-pdf-bg);
 
   .pdf .toolbar.toolbar-pdf {
     position: absolute;
