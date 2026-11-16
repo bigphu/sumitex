@@ -4,36 +4,30 @@
  * compile, arrows to jump to the previous or next problem marked in the
  * open file, and a click on the counts opens the log.
  *
- * The log still opens in the PDF pane, as the stock logs button did; the
- * mockup's bottom panel comes later.
+ * The log opens as a panel under the editor (log-panel.tsx, mockup frame 4).
+ * The stock log view in the PDF pane stays available from the palette.
  */
-import { useCallback } from 'react'
+import { useSyncExternalStore } from 'react'
 import { useTranslation } from 'react-i18next'
 import { nextDiagnostic, previousDiagnostic } from '@codemirror/lint'
 import MaterialIcon from '@/shared/components/material-icon'
 import { useDetachCompileContext as useCompileContext } from '@/shared/context/detach-compile-context'
 import { useEditorViewContext } from '@/features/ide-react/context/editor-view-context'
-import { useLayoutContext } from '@/shared/context/layout-context'
+import {
+  getLogPanelOpen,
+  subscribeLogPanel,
+  toggleLogPanel,
+} from './log-panel-store'
 
 export default function ProblemsWidget() {
   const { t } = useTranslation()
-  const { logEntries, toggleLogs, showLogs, error, stoppedOnFirstError } =
-    useCompileContext()
+  const { logEntries } = useCompileContext()
   const { view } = useEditorViewContext()
-  const { pdfLayout, view: ideView, changeLayout } = useLayoutContext()
+  const showLogs = useSyncExternalStore(subscribeLogPanel, getLogPanelOpen)
 
   const errors = logEntries?.errors?.length ?? 0
   const warnings = logEntries?.warnings?.length ?? 0
   const layout = logEntries?.typesetting?.length ?? 0
-  const logsDisabled = Boolean(error || stoppedOnFirstError)
-
-  const openLogs = useCallback(() => {
-    // The log shows in the PDF pane, so bring the pane back if it's hidden
-    if (!showLogs && pdfLayout === 'flat' && ideView === 'editor') {
-      changeLayout('sideBySide')
-    }
-    toggleLogs()
-  }, [showLogs, pdfLayout, ideView, changeLayout, toggleLogs])
 
   const jump = (direction: 'previous' | 'next') => {
     if (!view) return
@@ -49,12 +43,9 @@ export default function ProblemsWidget() {
       <button
         type="button"
         className="sx-problems-counts"
-        onClick={openLogs}
-        disabled={logsDisabled}
+        onClick={toggleLogPanel}
         aria-pressed={showLogs}
-        title={
-          showLogs ? t('back_to_pdf') : `${summary}. ${t('view_logs')}`
-        }
+        title={`${summary}. ${t('view_logs')}`}
       >
         {errors > 0 && (
           <span className="sx-problems-count sx-problems-error">

@@ -104,3 +104,135 @@
 .sx-review-mode .review-mode-switcher {
   position: static;
 }
+
+// The log as a bottom panel under the editor (mockup frame 4)
+.sx-log-panel {
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 120px;
+  background: var(--sx-island);
+  border-top: 1px solid var(--sx-border);
+}
+
+// The top edge drags to resize; only the cursor shows it
+.sx-log-panel-grip {
+  position: absolute;
+  top: -3px;
+  left: 0;
+  right: 0;
+  height: 6px;
+  cursor: ns-resize;
+  z-index: 2;
+}
+
+.sx-log-panel-head {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-02);
+  flex: 0 0 auto;
+  height: 32px;
+  padding: 0 var(--spacing-03) 0 var(--spacing-04);
+
+  // The stock clear-cache button, made a quiet text button
+  .logs-pane-actions-clear-cache {
+    height: 24px;
+    padding: 0 var(--spacing-03);
+    border: 0;
+    background: transparent !important;
+    color: var(--sx-muted) !important;
+    font-size: var(--font-size-01);
+
+    &:hover {
+      background: var(--sx-island-raised) !important;
+      color: var(--sx-fg) !important;
+    }
+
+    .material-symbols {
+      display: none;
+    }
+  }
+}
+
+.sx-log-tab {
+  height: 24px;
+  padding: 0 var(--spacing-03);
+  border: 0;
+  border-radius: var(--border-radius-base);
+  background: transparent;
+  color: var(--sx-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--sx-fg);
+  }
+}
+
+.sx-log-tab-on {
+  background: var(--sx-row-active);
+  color: var(--sx-fg);
+}
+
+.sx-log-count {
+  margin-left: var(--spacing-02);
+  color: var(--sx-muted);
+  font-weight: 400;
+}
+
+.sx-log-panel-spacer {
+  flex: 1 1 auto;
+}
+
+.sx-log-close {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: var(--border-radius-base);
+  background: transparent;
+  color: var(--sx-muted);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--sx-island-raised);
+    color: var(--sx-fg);
+  }
+
+  .material-symbols {
+    font-size: 16px;
+  }
+}
+
+.sx-log-panel-body {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: auto;
+  padding: 0 var(--spacing-03) var(--spacing-03);
+}
+
+.sx-log-entries {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-02);
+}
+
+.sx-log-empty {
+  padding: var(--spacing-05);
+  color: var(--sx-muted);
+  font-size: var(--font-size-02);
+}
+
+.sx-log-raw {
+  margin: 0;
+  padding: var(--spacing-03);
+  color: var(--sx-fg);
+  font-family: var(--source-font-family, monospace);
+  font-size: 12px;
+  white-space: pre-wrap;
+}

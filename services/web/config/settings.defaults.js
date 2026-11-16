@@ -1072,6 +1072,14 @@ module.exports = {
         __dirname,
         '../modules/sumitex/frontend/js/session/welcome-back'
       ),
+      Path.resolve(
+        __dirname,
+        '../modules/sumitex/frontend/js/review/track-changes'
+      ),
+      Path.resolve(
+        __dirname,
+        '../modules/sumitex/frontend/js/layout/log-panel'
+      ),
     ],
     pdfLogEntryHeaderActionComponents: [
       Path.resolve(
