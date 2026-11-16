@@ -1,6 +1,6 @@
 # SumiTeX — Agreed Features
 
-_Last updated: 14 Nov 2026 (synced with the design doc, roadmap and UI mockup) · branch `zen-shell` · base: AyakaLeaf Pro (AGPL-3.0)_
+_Last updated: 16 Nov 2026 (Phase 1 done; synced with the design doc, roadmap and Build Guide) · branch `zen-shell` · base: AyakaLeaf Pro (AGPL-3.0)_
 
 SumiTeX is a self-hosted LaTeX editor with a calm, minimalist interface, built as a fork of AyakaLeaf Pro. It runs locally first and on a VPS later.
 
@@ -10,7 +10,7 @@ This file lists every feature agreed so far: what it does, how it behaves, what'
 - **[Roadmap whiteboard](https://claude.ai/artifact/DNmEjYxj6KhibYYM82Vs1j):** the phases and their gates.
 - **[SumiTeX Build Guide](https://claude.ai/artifact/9o8ZBvLhzaC8w4LhEsQWkh):** step-by-step build instructions with code sketches.
 
-> **Status:** nothing below is built yet. File paths were checked against the code. Sizes are rough guesses. Trigger names and preset lists are suggestions you can change.
+> **Status (16 Nov 2026):** features 1 and 2, persistent editor state and the installable app are built (Build Guide Phase 1, committed on `zen-shell`); the command palette is switched on; the compile output rework (feature 6) has started with the log as a bottom panel. Everything else is still to build. File paths were checked against the code. Sizes are rough guesses. Trigger names and preset lists are suggestions you can change.
 
 ---
 
@@ -34,12 +34,12 @@ This file lists every feature agreed so far: what it does, how it behaves, what'
 
 | # | Feature | Status in the code today | Size |
 |---|---|---|---|
-| 1 | Minimalist IDE layout | Partial: redesigned toolbar and rail exist | Medium |
-| 2 | Zen focus mode | Built but switched off (`focus-mode` flag) | Small–medium |
-| 3 | VS Code keyboard shortcuts | Partial: editor keymaps exist | Small |
-| 4 | Command palette | Built but switched off (`command-palette` flag) | Small |
+| 1 | Minimalist IDE layout | **Done** 16 Nov 2026 | Medium |
+| 2 | Zen focus mode | **Done** 15 Nov 2026 | Small–medium |
+| 3 | VS Code keyboard shortcuts | Partial: editor keymaps exist; next (Phase 2) | Small |
+| 4 | Command palette | Switched on; VS Code triggers and SumiTeX commands next (Phase 2) | Small |
 | 5 | Project folders: nested folders on the dashboard, plus polish for folders inside a project | Partial: dashboard tags exist (no nesting yet); folders inside a project already work | About 1 week (dashboard) + small polish |
-| 6 | Better linter and compile output | Partial: log hints and command→package map exist | Medium |
+| 6 | Better linter and compile output | Started: the log is a bottom panel (Problems with filters, Log with folds and search); linter and plain-language rules still to do | Medium |
 | 7 | Snippets that bring their packages | Partial: snippet completions exist | Medium |
 | 8 | Math auto-expansion | New | Medium |
 | 9 | Draggable lists | Partial: Visual-mode list markers exist | Large |
@@ -114,9 +114,9 @@ Nothing is removed. Every stock command also stays in the palette.
 
 **Smoke checks:** every stock action is reachable from the palette; every stock panel opens from a strip or the main menu; slots used by stock add-ons (such as the error assistant's log button) still render.
 
-**Persistent editor state** (P0, from the design doc): reopening a project brings back where you left off, with a "Back where you left off" toast.
+**Persistent editor state** (P0, from the design doc): reopening a project brings back where you left off, with a "Back where you left off" toast. **Done** 16 Nov 2026: open file, cursor, PDF position and expanded folders.
 
-**Done already:** a "SumiTeX" wordmark next to the home logo (`toolbar/logos.tsx`). It proved the live-reload loop works.
+**Built (Phase 1, 16 Nov 2026):** the islands frame and tokens, title bar with the ensō menu and run widget (Full build, Draft, Current chapter only), left and right strips, the editor-and-PDF tab bar, PDF pill, problems widget, compile log as a bottom panel, status bar, narrow-window drawer, Track changes switch, and the installable app. Light and dark themes both checked. A polishing pass added the **Notifications bell** at the foot of the right strip (your invitations and Dropbox notices, with Join and Dismiss) and **Accept / "Hide accepted"** for warnings in the Problems panel.
 
 ## 2 · Zen focus mode (optional)
 
@@ -576,7 +576,7 @@ The design doc's priorities table holds more ideas than the twelve above. Each f
 
 This follows the roadmap whiteboard's phases. A phase starts when the gate before it passes.
 
-1. **P0, foundation:** dev setup and backups; turn on the command palette and focus mode; create the `sumitex` module and rename the site; run one existing test; then features 1 (layout and run widget) → 3 → 4 → 2, persistent editor state, and the installable app. *Gate 1: staging runs and a backup restore is tested.*
+1. **P0, foundation:** dev setup and backups; turn on the command palette and focus mode; create the `sumitex` module and rename the site; run one existing test; then features 1 (layout and run widget) → 3 → 4 → 2, persistent editor state, and the installable app. Progress 16 Nov 2026: 1, 2, persistent state and the app are done; 3 and 4 (Build Guide Phase 2) are next. *Gate 1: staging runs and a backup restore is tested.*
 2. **P1, core:** the steps below up to math, plus dashboard project folders (feature 5), inline math preview, and image paste and drag. *Gate 2: the smoke suite passes after an upstream rebase.*
 3. **Errors:** feature 6, whose "add package" helper feature 7 reuses.
 4. **Presets and Outline:** feature 7 (start with the 10–15 most used presets), then Outline v1 (feature 11, block rows and toggle), then Outline v2 (`@` search and edit pop-ups).
@@ -601,7 +601,7 @@ This follows the roadmap whiteboard's phases. A phase starts when the gate befor
 ## Related documents
 
 - [SumiTeX Build Guide](https://claude.ai/artifact/9o8ZBvLhzaC8w4LhEsQWkh): phases, code sketches, preset data shape
-- [Software design document](https://claude.ai/artifact/PsxQCmzRWnZWmSBmRmRJNR): updated 14 Nov 2026 to the minimalist layout, Outline with blocks and the new phases
-- [Roadmap whiteboard](https://claude.ai/artifact/DNmEjYxj6KhibYYM82Vs1j): updated 14 Nov 2026, same phases as the design doc
+- [Software design document](https://claude.ai/artifact/PsxQCmzRWnZWmSBmRmRJNR): updated 16 Nov 2026 with Phase 1 progress
+- [Roadmap whiteboard](https://claude.ai/artifact/DNmEjYxj6KhibYYM82Vs1j): updated 16 Nov 2026: done items in green, started in yellow
 - [UI mockup](https://claude.ai/artifact/Kx8PqyQTSJpgtaSjGJixmW): every screen of the minimalist layout
 - The old interactive demo (JynpJoQBtQSjfxL6dPhfV5) no longer opens from this account; the UI mockup replaces it.
