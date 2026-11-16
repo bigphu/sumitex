@@ -100,6 +100,12 @@ function OLTooltip({
           {description}
         </UpdatingTooltip>
       }
+      // SumiTeX: flip a tooltip that would run off the window, keeping clear
+      // of the status bar, so the PDF pill's tooltips open upward
+      flip
+      popperConfig={{
+        modifiers: [{ name: 'flip', options: { padding: { bottom: 40 } } }],
+      }}
       {...overlayProps}
       delay={{ show: delayShow, hide: delayHide }}
       placement={overlayProps?.placement || 'top'}
