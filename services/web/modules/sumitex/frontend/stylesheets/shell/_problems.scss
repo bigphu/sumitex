@@ -1,5 +1,6 @@
-// The problems widget in the island's tab bar (guide 1d, step 6):
-// ⓧ 1 ⚠ 2 ⓘ 1 ˄ ˅, quiet until there's something to see.
+// The problems widget in the editor's top-right corner (guide 1d, step 6):
+// ⓧ 1 ⚠ 2 ⓘ 1 ˄ ˅, quiet until there's something to see. Below it, the
+// log as a bottom panel with PROBLEMS and LOG tabs.
 .sx-problems {
   display: inline-flex;
   align-items: center;
@@ -236,15 +237,6 @@
   font-size: var(--font-size-02);
 }
 
-.sx-log-raw {
-  margin: 0;
-  padding: var(--spacing-03);
-  color: var(--sx-fg);
-  font-family: var(--source-font-family, monospace);
-  font-size: 12px;
-  white-space: pre-wrap;
-}
-
 // PROBLEMS: filter chips and compact entries (layout/log-problems.tsx)
 .sx-chips {
   display: flex;
@@ -404,4 +396,136 @@
   &:hover {
     color: var(--sx-fg);
   }
+}
+
+// "Hide accepted" in the panel header (mockup frame 4)
+.sx-log-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 var(--spacing-03);
+  border: 0;
+  border-radius: var(--border-radius-base);
+  background: transparent;
+  color: var(--sx-muted);
+  font-size: var(--font-size-01);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--sx-fg);
+  }
+
+  &[aria-pressed='true'] {
+    background: var(--sx-island-raised);
+    color: var(--sx-fg);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--sx-accent);
+    outline-offset: 1px;
+  }
+}
+
+// Rows in the Problems list: the whole card lights up on hover (not a box
+// around the title), and the actions are small fixed-size icon buttons, so
+// ⌖ and ✓ line up from row to row
+.sx-log-entries {
+  .log-entry {
+    padding: var(--spacing-03) var(--spacing-03) var(--spacing-03)
+      var(--spacing-04);
+    transition: background-color 0.12s ease-out;
+
+    &:hover {
+      background-color: var(--sx-row-active);
+    }
+  }
+
+  .log-entry-header-button {
+    padding: 0;
+
+    &:hover,
+    &:focus-visible,
+    &:active {
+      background-color: transparent;
+    }
+  }
+
+  .log-entry-header-actions {
+    align-items: center;
+    gap: 2px;
+    align-self: flex-start;
+
+    // The stock "go to code" button: a quiet square, not a filled circle
+    .btn {
+      display: grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      min-width: 0;
+      padding: 0;
+      border: 0;
+      border-radius: var(--border-radius-base);
+      background: transparent;
+      color: var(--sx-muted);
+
+      &:hover {
+        background: var(--sx-island-raised);
+        color: var(--sx-fg);
+      }
+
+      .material-symbols {
+        font-size: 17px;
+      }
+    }
+  }
+}
+
+// ✓ Accept on a warning (accept-problem-button.tsx): muted until the row is
+// hovered, accent once accepted
+.sx-accept-button {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: var(--border-radius-base);
+  background: transparent;
+  color: var(--sx-muted);
+  cursor: pointer;
+  opacity: 0;
+
+  .log-entry:hover &,
+  &:focus-visible,
+  &[aria-pressed='true'] {
+    opacity: 1;
+  }
+
+  &[aria-pressed='true'] {
+    color: var(--sx-accent);
+  }
+
+  &:hover {
+    background: var(--sx-island-raised);
+    color: var(--sx-fg);
+  }
+
+  .material-symbols {
+    font-size: 17px;
+  }
+}
+
+// "accepted" after the message
+.sx-accepted-pill {
+  display: inline-block;
+  margin-left: var(--spacing-03);
+  padding: 0 7px;
+  border: 1px solid var(--sx-border);
+  border-radius: var(--border-radius-full);
+  color: var(--sx-muted);
+  font-size: 10.5px;
+  font-weight: 400;
+  line-height: 16px;
+  vertical-align: 1px;
+  white-space: nowrap;
 }

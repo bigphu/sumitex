@@ -1086,6 +1086,11 @@ module.exports = {
         __dirname,
         '../modules/error-assistant/frontend/js/fix-button'
       ),
+      // SumiTeX: "Accept" on a warning
+      Path.resolve(
+        __dirname,
+        '../modules/sumitex/frontend/js/layout/accept-problem-button'
+      ),
     ],
     pdfLogEntryComponents: [
       Path.resolve(

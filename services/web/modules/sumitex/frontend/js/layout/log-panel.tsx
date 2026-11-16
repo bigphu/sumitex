@@ -31,6 +31,20 @@ import {
   setLogPanel,
   subscribeLogPanel,
 } from './log-panel-store'
+import {
+  getAccepted,
+  getHideAccepted,
+  problemKey,
+  setHideAccepted,
+  subscribeAccepted,
+} from './accepted-problems'
+
+// The funnel of the mockup's filter buttons
+const FilterIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M4 5h16l-6 7.5V19l-4-2v-4.5z" />
+  </svg>
+)
 
 // Compile results that leave the last PDF in place and need no action
 const QUIET_ERRORS = new Set(['too-recently-compiled', 'compile-in-progress'])
@@ -42,6 +56,8 @@ export default function LogPanel() {
     useCompileContext()
   const open = useSyncExternalStore(subscribeLogPanel, getLogPanelOpen)
   const tab = useSyncExternalStore(subscribeLogPanel, getLogPanelTab)
+  const accepted = useSyncExternalStore(subscribeAccepted, getAccepted)
+  const hideAccepted = useSyncExternalStore(subscribeAccepted, getHideAccepted)
   const [height, setHeight] = useState(getLogPanelHeight)
   const [host, setHost] = useState<Element | null>(null)
   const dragStart = useRef<{ y: number; height: number } | null>(null)
@@ -122,6 +138,9 @@ export default function LogPanel() {
   if (!open || !host || focusMode) return null
 
   const all = logEntries?.all ?? []
+  const listed = hideAccepted
+    ? all.filter(entry => !accepted.has(problemKey(entry)))
+    : all
 
   return createPortal(
     <section className="sx-log-panel" style={{ height }} aria-label="Problems">
@@ -142,7 +161,7 @@ export default function LogPanel() {
           className={classNames('sx-log-tab', { 'sx-log-tab-on': tab === 'problems' })}
           onClick={() => setLogPanel({ tab: 'problems' })}
         >
-          Problems <span className="sx-log-count">{all.length}</span>
+          Problems <span className="sx-log-count">{listed.length}</span>
         </button>
         <button
           type="button"
@@ -154,6 +173,18 @@ export default function LogPanel() {
           Log
         </button>
         <div className="sx-log-panel-spacer" />
+        {tab === 'problems' && (
+          <button
+            type="button"
+            className="sx-log-filter"
+            aria-pressed={hideAccepted}
+            onClick={() => setHideAccepted(!hideAccepted)}
+            title="Leave out the warnings you've accepted"
+          >
+            <FilterIcon />
+            Hide accepted
+          </button>
+        )}
         <PdfClearCacheButton />
         <button
           type="button"

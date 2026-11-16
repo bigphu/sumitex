@@ -5,11 +5,13 @@
  * - filter chips for Errors, Warnings and Layout (overfull / underfull
  *   boxes). Layout is off by default: in a long document it's most of the
  *   noise. The choice is remembered.
+ * - warnings you've accepted (accept-problem-button.tsx) stay out of the
+ *   list while "Hide accepted" is on in the panel's header.
  * Compile failures that aren't log entries (server errors, timeouts,
  * "compiled too recently", syntax-check issues, stopped on first error) show
  * above the list with the stock notices, as the old logs pane did.
  */
-import { ElementType, useState } from 'react'
+import { ElementType, useEffect, useState, useSyncExternalStore } from 'react'
 import { useTranslation } from 'react-i18next'
 import classNames from 'classnames'
 import MaterialIcon from '@/shared/components/material-icon'
@@ -21,6 +23,14 @@ import PdfValidationIssue from '@/features/pdf-preview/components/pdf-validation
 import StopOnFirstErrorPrompt from '@/features/pdf-preview/components/stop-on-first-error-prompt'
 import TimeoutUpgradePromptNew from '@/features/pdf-preview/components/timeout-upgrade-prompt-new'
 import getMeta from '@/utils/meta'
+import { useProjectContext } from '@/shared/context/project-context'
+import {
+  getAccepted,
+  getHideAccepted,
+  loadAccepted,
+  problemKey,
+  subscribeAccepted,
+} from './accepted-problems'
 import importOverleafModules from '../../../../../frontend/macros/import-overleaf-module.macro'
 
 // Module entries shown above the list in the stock view (for example the
@@ -56,6 +66,12 @@ export default function LogProblems() {
     useCompileContext()
   const { compileTimeout } = getMeta('ol-compileSettings')
   const [filters, setFilters] = useState(readFilters)
+  const { projectId } = useProjectContext()
+  const accepted = useSyncExternalStore(subscribeAccepted, getAccepted)
+  const hideAccepted = useSyncExternalStore(subscribeAccepted, getHideAccepted)
+  useEffect(() => {
+    loadAccepted(projectId)
+  }, [projectId])
   const hasNotice = Boolean(
     error ||
       stoppedOnFirstError ||
@@ -65,7 +81,12 @@ export default function LogProblems() {
   const all = logEntries?.all ?? []
   const counts = { error: 0, warning: 0, layout: 0 }
   for (const entry of all) counts[kindOf(entry)]++
-  const shown = all.filter(entry => filters[kindOf(entry)])
+  const isHiddenAccepted = (entry: LogEntry) =>
+    hideAccepted && accepted.has(problemKey(entry))
+  const acceptedHidden = all.filter(isHiddenAccepted).length
+  const shown = all.filter(
+    entry => filters[kindOf(entry)] && !isHiddenAccepted(entry)
+  )
 
   const toggle = (filter: Filter) =>
     setFilters(current => {
@@ -136,7 +157,8 @@ export default function LogProblems() {
         )
       ) : shown.length === 0 ? (
         <p className="sx-log-empty">
-          Nothing to show with these filters ({all.length} hidden).
+          Nothing to show with these filters ({all.length} hidden
+          {acceptedHidden > 0 ? `, ${acceptedHidden} of them accepted` : ''}).
         </p>
       ) : (
         <div className="sx-log-entries">
@@ -148,9 +170,18 @@ export default function LogProblems() {
               id={entry.key}
               logEntry={entry}
               ruleId={entry.ruleId}
-              headerTitle={entry.messageComponent ?? entry.message}
+              // The type goes in front here rather than through logType,
+              // which would turn a non-text title into "[object Object]"
+              headerTitle={
+                <>
+                  {entry.type ? `${entry.type} ` : ''}
+                  {entry.messageComponent ?? entry.message}
+                  {accepted.has(problemKey(entry)) && (
+                    <span className="sx-accepted-pill">accepted</span>
+                  )}
+                </>
+              }
               rawContent={entry.content}
-              logType={entry.type}
               level={entry.level}
               contentDetails={entry.contentDetails}
               entryAriaLabel={t('log_entry_description', { level: entry.level })}
