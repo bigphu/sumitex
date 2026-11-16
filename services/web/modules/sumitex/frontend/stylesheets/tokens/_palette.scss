@@ -22,6 +22,8 @@
 
   // Aizome indigo: the one accent
   --sx-ai-300: #7aa2ff;
+  --sx-ai-550: #1f5cf2; // light theme accent: as vivid as ai-300 is on dark
+  --sx-ai-650-light: #1a4cd8;
   --sx-ai-600: #2f5bd3;
   --sx-ai-650: #3b63d6;
   --sx-ai-700: #3354b8;
@@ -30,4 +32,13 @@
   --sx-ai-tint-dark: #24345a;
   --sx-ai-tint-light: #e6edfd;
   --sx-ai-on-tint: #dbe6ff;
+
+  // Status colours. The dark ones are upstream's; the light ones replace
+  // upstream's light set, which is darkened to brown and brick.
+  --sx-red-400: #e36d66;
+  --sx-red-600: #d92d20;
+  --sx-amber-400: #de8014;
+  --sx-amber-700: #b45309;
+  --sx-green-400: #53b57f;
+  --sx-green-700: #098842;
 }

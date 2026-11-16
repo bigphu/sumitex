@@ -50,6 +50,11 @@ body[data-theme] {
   --outline-item-highlight-bg: var(--sx-row-active);
   --outline-item-highlight-color: var(--sx-fg);
 
+  // Error, warning and success colours (text and icons)
+  --content-danger-themed: var(--sx-danger);
+  --content-warning-themed: var(--sx-warning);
+  --content-positive-themed: var(--sx-positive);
+
   // Highlighted row in the command palette
   --command-palette-selected-bg: var(--sx-selected-bg);
   --command-palette-selected-color: var(--sx-selected-fg);
