@@ -108,7 +108,14 @@ const DockerRunner = {
       volumes,
       timeout,
       (error, output) => {
-        if (error && error.statusCode === 500) {
+        // SumiTeX: also retry when the container's bind mount went stale
+        // (Docker Desktop answers 400 "error mounting" after "Clear cached
+        // files" deletes and recreates the compile directory)
+        if (
+          error &&
+          (error.statusCode === 500 ||
+            /error mounting/.test(error.message || ''))
+        ) {
           logger.debug(
             { err: error, projectId },
             'error running container so destroying and retrying'
