@@ -2,7 +2,7 @@
 // taking room from the editor and slide over it as drawers instead. The
 // body gets .sx-narrow from layout/use-narrow-layout.ts.
 $sx-left-drawer: "[data-panel-id^='ide-redesign-sidebar-panel-']";
-$sx-right-drawer: "[data-panel-id='sx-right-panel']";
+$sx-right-drawer: '.sx-right-dock';
 
 body.sx-narrow {
   .ide-redesign-inner {
@@ -15,7 +15,7 @@ body.sx-narrow {
     top: 0;
     bottom: var(--sx-island-gap);
     z-index: 400; // above the editor's own top bar (cm-panels-top, z-index 300)
-    width: min(320px, 80vw);
+    width: min(320px, 80vw) !important; // over the dock's own width
     box-shadow: 0 12px 40px rgb(0 0 0 / 45%);
   }
 
@@ -26,6 +26,11 @@ body.sx-narrow {
 
   #{$sx-right-drawer} {
     right: calc(40px + var(--sx-island-gap));
+    margin-left: 0;
+  }
+
+  .sx-right-dock-handle {
+    display: none;
   }
 
   // A closed (collapsed) panel has no size; don't draw the drawer then
@@ -35,8 +40,7 @@ body.sx-narrow {
   }
 
   // The resize handles next to the drawers have nothing to resize
-  #{$sx-left-drawer} + [data-panel-resize-handle-id],
-  [data-panel-resize-handle-id]:has(+ #{$sx-right-drawer}) {
+  #{$sx-left-drawer} + [data-panel-resize-handle-id] {
     display: none;
   }
 }

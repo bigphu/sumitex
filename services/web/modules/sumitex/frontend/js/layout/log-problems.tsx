@@ -7,6 +7,12 @@
  *   noise. The choice is remembered.
  * - warnings you've accepted (accept-problem-button.tsx) stay out of the
  *   list while "Hide accepted" is on in the panel's header.
+ * - errors come first, in log order, with a note to start with the first
+ *   one (the rest often follow from it); repeats of a problem on one line
+ *   collapse into one row with a count; with problems in several files,
+ *   they are grouped under each file's name.
+ * - opening a problem shows SumiTeX's plain-language explanation when there
+ *   is one (diagnostics/explanations.tsx), otherwise Overleaf's hint.
  * Compile failures that aren't log entries (server errors, timeouts,
  * "compiled too recently", syntax-check issues, stopped on first error) show
  * above the list with the stock notices, as the old logs pane did.
@@ -31,6 +37,7 @@ import {
   problemKey,
   subscribeAccepted,
 } from './accepted-problems'
+import { explain } from '../diagnostics/explanations'
 import importOverleafModules from '../../../../../frontend/macros/import-overleaf-module.macro'
 
 // Module entries shown above the list in the stock view (for example the
@@ -87,6 +94,38 @@ export default function LogProblems() {
   const shown = all.filter(
     entry => filters[kindOf(entry)] && !isHiddenAccepted(entry)
   )
+
+  // Repeats of the same problem on the same line become one row with a
+  // count; then errors first (in log order), warnings, layout
+  const items: { entry: LogEntry; count: number }[] = []
+  const repeats = new Map<string, { entry: LogEntry; count: number }>()
+  for (const entry of shown) {
+    const key = `${entry.level}|${entry.message}|${entry.file}|${entry.line}`
+    const seen = repeats.get(key)
+    if (seen) seen.count++
+    else {
+      const item = { entry, count: 1 }
+      repeats.set(key, item)
+      items.push(item)
+    }
+  }
+  const rank: Record<Filter, number> = { error: 0, warning: 1, layout: 2 }
+  items.sort((a, b) => rank[kindOf(a.entry)] - rank[kindOf(b.entry)])
+  const firstError = items.find(item => item.entry.level === 'error')
+
+  // Grouped by file, in the order their first problem appears
+  const files: string[] = []
+  const byFile = new Map<string, { entry: LogEntry; count: number }[]>()
+  const indexOf = new Map<LogEntry, number>()
+  items.slice(0, SHOW_AT_MOST).forEach((item, index) => {
+    indexOf.set(item.entry, index)
+    const file = item.entry.file?.replace(/^\.\//, '') || 'Other'
+    if (!byFile.has(file)) {
+      byFile.set(file, [])
+      files.push(file)
+    }
+    byFile.get(file)!.push(item)
+  })
 
   const toggle = (filter: Filter) =>
     setFilters(current => {
@@ -162,36 +201,78 @@ export default function LogProblems() {
         </p>
       ) : (
         <div className="sx-log-entries">
-          {shown.slice(0, SHOW_AT_MOST).map((entry, index) => (
-            <PdfLogEntry
-              key={entry.key}
-              autoExpand={false}
-              index={index}
-              id={entry.key}
-              logEntry={entry}
-              ruleId={entry.ruleId}
-              // The type goes in front here rather than through logType,
-              // which would turn a non-text title into "[object Object]"
-              headerTitle={
-                <>
-                  {entry.type ? `${entry.type} ` : ''}
-                  {entry.messageComponent ?? entry.message}
-                  {accepted.has(problemKey(entry)) && (
-                    <span className="sx-accepted-pill">accepted</span>
-                  )}
-                </>
-              }
-              rawContent={entry.content}
-              level={entry.level}
-              contentDetails={entry.contentDetails}
-              entryAriaLabel={t('log_entry_description', { level: entry.level })}
-              sourceLocation={{ file: entry.file, line: entry.line, column: entry.column }}
-              onSourceLocationClick={syncToEntry}
-            />
+          {firstError && counts.error > 1 && filters.error && (
+            <div className="sx-first-error-note">
+              <MaterialIcon type="flag" />
+              <span>
+                Start with the first error. The {counts.error - 1} after it
+                often follow from it: fix it, recompile, and most of them go.
+              </span>
+              <button type="button" onClick={() => syncToEntry(firstError.entry)}>
+                Go to it
+              </button>
+            </div>
+          )}
+          {files.map(file => (
+            <div key={file} className="sx-log-file-group">
+              {files.length > 1 && (
+                <div className="sx-log-file">
+                  <MaterialIcon type="description" unfilled />
+                  {file}
+                  <span className="sx-log-file-count">{byFile.get(file)!.length}</span>
+                </div>
+              )}
+              {byFile.get(file)!.map(({ entry, count }) => {
+                const ours = explain(entry)
+                return (
+                  <div
+                    key={entry.key}
+                    className={classNames({
+                      'sx-first-error': entry === firstError?.entry && counts.error > 1,
+                    })}
+                  >
+                    <PdfLogEntry
+                      autoExpand={false}
+                      index={indexOf.get(entry) ?? 0}
+                      id={entry.key}
+                      logEntry={entry}
+                      // SumiTeX's plain-language explanation when there is
+                      // one (diagnostics/explanations.tsx), else Overleaf's
+                      ruleId={ours ? undefined : entry.ruleId}
+                      formattedContent={ours?.text}
+                      extraInfoURL={ours?.link}
+                      // The type goes in front here rather than through
+                      // logType, which would turn a non-text title into
+                      // "[object Object]"
+                      headerTitle={
+                        <>
+                          {entry.type ? `${entry.type} ` : ''}
+                          {entry.messageComponent ?? entry.message}
+                          {count > 1 && (
+                            <span className="sx-repeat-pill" title={`${count} times on this line`}>
+                              ×{count}
+                            </span>
+                          )}
+                          {accepted.has(problemKey(entry)) && (
+                            <span className="sx-accepted-pill">accepted</span>
+                          )}
+                        </>
+                      }
+                      rawContent={entry.content}
+                      level={entry.level}
+                      contentDetails={entry.contentDetails}
+                      entryAriaLabel={t('log_entry_description', { level: entry.level })}
+                      sourceLocation={{ file: entry.file, line: entry.line, column: entry.column }}
+                      onSourceLocationClick={syncToEntry}
+                    />
+                  </div>
+                )
+              })}
+            </div>
           ))}
-          {shown.length > SHOW_AT_MOST && (
+          {items.length > SHOW_AT_MOST && (
             <p className="sx-log-empty">
-              Showing the first {SHOW_AT_MOST} of {shown.length}. The LOG tab has the rest.
+              Showing the first {SHOW_AT_MOST} of {items.length}. The LOG tab has the rest.
             </p>
           )}
         </div>

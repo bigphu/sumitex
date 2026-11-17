@@ -54,11 +54,34 @@
   color: var(--sx-accent);
 }
 
-// The Chat panel is an island like the left side panel
-[data-panel-id='sx-right-panel'] {
+// Review and Chat: an island like the left side panel, but a column of its
+// own beside the panel group (layout/right-strip.tsx), with a fixed width
+.sx-right-dock {
+  position: relative;
+  flex: 0 0 auto;
+  min-width: 0;
+  height: 100%;
+  margin-left: var(--sx-island-gap);
   background-color: var(--sx-island);
   border-radius: var(--sx-island-radius);
   overflow: hidden;
+}
+
+// The resize grip: the island's left edge
+.sx-right-dock-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  width: 6px;
+  cursor: col-resize;
+  touch-action: none;
+
+  &:hover,
+  &:active {
+    background: var(--sx-border);
+  }
 }
 
 .sx-right-panel {

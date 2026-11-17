@@ -1086,6 +1086,11 @@ module.exports = {
         __dirname,
         '../modules/error-assistant/frontend/js/fix-button'
       ),
+      // SumiTeX: "Add amssymb" on a missing-package error
+      Path.resolve(
+        __dirname,
+        '../modules/sumitex/frontend/js/diagnostics/add-package-button'
+      ),
       // SumiTeX: "Accept" on a warning
       Path.resolve(
         __dirname,

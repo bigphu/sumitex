@@ -103,41 +103,47 @@ const DockerRunner = {
     // logOptions = _.clone(options)
     // logOptions?.HostConfig?.SecurityOpt = "secomp used, removed in logging"
     logger.debug({ projectId }, 'running docker container')
-    DockerRunner._runAndWaitForContainer(
-      options,
-      volumes,
-      timeout,
-      (error, output) => {
-        // SumiTeX: also retry when the container's bind mount went stale
-        // (Docker Desktop answers 400 "error mounting" after "Clear cached
-        // files" deletes and recreates the compile directory)
-        if (
-          error &&
-          (error.statusCode === 500 ||
-            /error mounting/.test(error.message || ''))
-        ) {
+    // SumiTeX: also retry when the container's bind mount went stale.
+    // Docker Desktop (WSL) answers 400 "error mounting" after "Clear cached
+    // files" deletes and recreates the compile directory. It frees the old
+    // mount only a moment after the container is gone, so a container
+    // recreated at once gets the stale mount again: wait before each retry,
+    // longer the second time.
+    const MOUNT_RETRY_DELAYS_MS = [1500, 4000]
+    const isStaleMount = error => /error mounting/.test(error?.message || '')
+
+    const run = attempt =>
+      DockerRunner._runAndWaitForContainer(
+        options,
+        volumes,
+        timeout,
+        (error, output) => {
+          const staleMount = error && isStaleMount(error)
+          const retryable =
+            error &&
+            ((error.statusCode === 500 && attempt === 0) ||
+              (staleMount && attempt < MOUNT_RETRY_DELAYS_MS.length))
+          if (!retryable) {
+            return callback(error, output)
+          }
           logger.debug(
-            { err: error, projectId },
+            { err: error, projectId, attempt },
             'error running container so destroying and retrying'
           )
           DockerRunner.destroyContainer(name, null, true, error => {
             if (error != null) {
               return callback(error)
             }
-            DockerRunner._runAndWaitForContainer(
-              options,
-              volumes,
-              timeout,
-              callback,
-              compileGroup
-            )
+            if (staleMount) {
+              setTimeout(() => run(attempt + 1), MOUNT_RETRY_DELAYS_MS[attempt])
+            } else {
+              run(attempt + 1)
+            }
           })
-        } else {
-          callback(error, output)
-        }
-      },
-      compileGroup
-    )
+        },
+        compileGroup
+      )
+    run(0)
 
     // pass back the container name to allow it to be killed
     return name

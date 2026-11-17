@@ -1,0 +1,236 @@
+// One look for every menu in the editor (mockup frames 6 and 18).
+//
+// Overleaf's menus came in several colour schemes: Bootstrap dropdowns
+// (green active row, their own dark grey), popovers, and CodeMirror's
+// pop-ups (autocomplete with a green selection in dark mode, lint and
+// hover tooltips). In the editor (body.sx-editor, set by the title bar)
+// they all follow the same rules:
+//
+// - surface: the raised island, a hairline border, 8px radius, one shadow
+// - rows: 13px text, compact height, 5px radius, inset from the edge
+// - hover and keyboard focus: --sx-row-active (neutral, never a colour)
+// - selected or current: --sx-selected-bg / --sx-selected-fg (indigo)
+// - secondary text and headers: --sx-muted; headers small caps
+// - destructive rows: --sx-danger
+// - dividers: --sx-border
+//
+// Only tokens are used, so both themes follow without extra rules.
+
+$sx-menu-shadow: 0 12px 32px rgb(0 0 0 / 35%);
+
+@mixin sx-menu-surface {
+  border: 1px solid var(--sx-border);
+  border-radius: 8px;
+  background: var(--sx-island-raised);
+  box-shadow: $sx-menu-shadow;
+  color: var(--sx-fg);
+}
+
+// Bootstrap dropdowns: stock menus read --dropdown-*, react-bootstrap's
+// read --bs-dropdown-*; both are pointed at the tokens
+body.sx-editor .dropdown-menu {
+  --dropdown-text-color: var(--sx-fg);
+  --dropdown-text-hover: var(--sx-fg);
+  --dropdown-text-secondary: var(--sx-muted);
+  --dropdown-header-text-color: var(--sx-muted);
+  --dropdown-text-active: var(--sx-selected-fg);
+  --dropdown-text-danger: var(--sx-danger);
+  --dropdown-text-danger-hover: var(--sx-danger);
+  --dropdown-background: transparent;
+  --dropdown-background-hover: var(--sx-row-active);
+  --dropdown-background-active: var(--sx-selected-bg);
+  --dropdown-background-danger-hover: var(--sx-row-active);
+  --dropdown-border-divider: var(--sx-border);
+  --dropdown-border-width: 1px;
+  --dropdown-border-color: var(--sx-border);
+  --bs-dropdown-bg: var(--sx-island-raised);
+  --bs-dropdown-border-color: var(--sx-border);
+  --bs-dropdown-link-color: var(--sx-fg);
+  --bs-dropdown-link-hover-color: var(--sx-fg);
+  --bs-dropdown-link-hover-bg: var(--sx-row-active);
+  --bs-dropdown-link-active-color: var(--sx-selected-fg);
+  --bs-dropdown-link-active-bg: var(--sx-selected-bg);
+  --bs-dropdown-divider-bg: var(--sx-border);
+  --bs-dropdown-header-color: var(--sx-muted);
+
+  @include sx-menu-surface;
+
+  padding: 6px;
+
+  .dropdown-header {
+    padding: 6px 10px 4px;
+    color: var(--sx-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .dropdown-divider {
+    margin: 5px 4px;
+    border-color: var(--sx-border);
+    opacity: 1;
+  }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 29px;
+    padding: 4px 10px;
+    border-radius: 5px;
+    color: var(--sx-fg);
+    font-size: 13px;
+    line-height: 18px;
+
+    &:hover:not(.active),
+    &:focus-visible:not(.active),
+    &.nested-dropdown-toggle-shown {
+      background: var(--sx-row-active);
+      color: var(--sx-fg);
+    }
+
+    &.active,
+    &:active {
+      background: var(--sx-selected-bg);
+      color: var(--sx-selected-fg);
+    }
+
+    &[variant='danger'] {
+      color: var(--sx-danger);
+    }
+
+    &:disabled,
+    &.disabled,
+    &[aria-disabled='true'] {
+      background: transparent;
+      color: var(--sx-muted);
+      opacity: 0.7;
+    }
+  }
+
+  .dropdown-item-description {
+    color: var(--sx-muted);
+    font-size: 12px;
+  }
+
+  .dropdown-item-leading-icon {
+    display: inline-flex;
+    margin: 0;
+    padding: 0;
+  }
+
+  .dropdown-item-trailing-icon {
+    display: inline-flex;
+    margin-left: auto;
+    padding-left: 16px;
+  }
+}
+
+// Popovers (word count, hints, onboarding): same surface
+body.sx-editor .popover {
+  --bs-popover-bg: var(--sx-island-raised);
+  --bs-popover-border-color: var(--sx-border);
+  --bs-popover-body-color: var(--sx-fg);
+  --bs-popover-header-bg: var(--sx-island-raised);
+  --bs-popover-header-color: var(--sx-fg);
+  --bs-popover-border-radius: 8px;
+  --bs-popover-inner-border-radius: 7px;
+  --bs-popover-box-shadow: #{$sx-menu-shadow};
+
+  box-shadow: $sx-menu-shadow;
+  color: var(--sx-fg);
+  font-size: 13px;
+
+  .popover-header {
+    border-bottom-color: var(--sx-border);
+  }
+}
+
+// CodeMirror's pop-ups: autocomplete, its info panel, lint and hover
+// tooltips. Their theme is a baseTheme, so these selectors only need to be
+// a little more specific
+body.sx-editor .cm-editor {
+  .cm-tooltip.cm-tooltip-autocomplete,
+  .cm-tooltip.cm-completionInfo,
+  .cm-tooltip.cm-tooltip-lint,
+  .cm-tooltip.cm-tooltip-hover {
+    @include sx-menu-surface;
+
+    overflow: hidden;
+  }
+
+  .cm-tooltip.cm-tooltip-autocomplete > ul {
+    padding: 4px;
+  }
+
+  .cm-tooltip.cm-tooltip-autocomplete ul li[role='option'] {
+    border-radius: 5px;
+    outline: none;
+    color: var(--sx-fg);
+
+    &:hover {
+      background: var(--sx-row-active);
+    }
+
+    &[aria-selected] {
+      background: var(--sx-selected-bg);
+      color: var(--sx-selected-fg);
+    }
+  }
+
+  .cm-completionMatchedText {
+    color: var(--sx-accent);
+    font-weight: 600;
+  }
+
+  li[aria-selected] .cm-completionMatchedText {
+    color: inherit;
+  }
+
+  .cm-completionDetail,
+  .ol-cm-completionType {
+    color: var(--sx-muted);
+  }
+
+  .cm-tooltip.cm-completionInfo {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+}
+
+// Small helpers for SumiTeX's own menus (the run widget, the title bar)
+
+// The icon column: kept on every row, so the labels line up
+.sx-menu-icon {
+  display: inline-flex;
+  justify-content: center;
+  width: 18px;
+  color: var(--sx-muted);
+
+  .material-symbols {
+    font-size: 17px;
+  }
+}
+
+.sx-menu-icon-on {
+  color: var(--sx-accent);
+}
+
+.sx-menu-icon-go {
+  color: var(--sx-positive);
+}
+
+.sx-menu-value,
+.sx-menu-key {
+  display: inline-flex;
+  align-items: center;
+  color: var(--sx-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.sx-menu-chevron.material-symbols {
+  margin-right: -4px;
+  font-size: 16px;
+}

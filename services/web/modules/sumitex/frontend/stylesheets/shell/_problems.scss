@@ -529,3 +529,184 @@
   vertical-align: 1px;
   white-space: nowrap;
 }
+
+// "Add amssymb" and "CTAN ↗" on a compile error
+// (diagnostics/add-package-button.tsx; mockup frame 4)
+.sx-add-package {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 4px;
+}
+
+.sx-add-package-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 10px 0 6px;
+  border: 0;
+  border-radius: 5px;
+  background: var(--sx-accent-fill);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--sx-accent-fill-hover);
+  }
+
+  &:disabled {
+    background: transparent;
+    color: var(--sx-positive);
+    cursor: default;
+  }
+
+  .material-symbols {
+    font-size: 15px;
+  }
+}
+
+.sx-add-package-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--sx-accent);
+  font-size: 12px;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  .material-symbols {
+    font-size: 13px;
+  }
+}
+
+// The linter's hover card (editor/missing-package-linter.ts): the first
+// fix is the main button, the CTAN link plain
+.cm-tooltip-lint .cm-diagnostic[class*='cm-diagnostic-'] {
+  .cm-diagnosticAction {
+    margin: 8px 8px 0 0;
+    padding: 3px 10px;
+    border-radius: 5px;
+    background: var(--sx-accent-fill);
+    color: #fff;
+    font: 600 12px/18px var(--font-sans);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--sx-accent-fill-hover);
+    }
+
+    + .cm-diagnosticAction {
+      padding: 3px 2px;
+      background: transparent;
+      color: var(--sx-accent);
+      font-weight: 500;
+
+      &:hover {
+        background: transparent;
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .cm-diagnosticSource {
+    display: none;
+  }
+}
+
+.sx-add-package-button[data-outcome='already'] {
+  color: var(--sx-muted);
+}
+
+.sx-add-package-button[data-outcome='failed'] {
+  color: var(--sx-danger);
+}
+
+// "Start with the first error" above the list (log-problems.tsx)
+.sx-first-error-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--sx-sunken);
+  color: var(--sx-fg);
+  font-size: 12.5px;
+  line-height: 17px;
+
+  .material-symbols {
+    flex: none;
+    color: var(--sx-danger);
+    font-size: 16px;
+  }
+
+  span {
+    flex: 1;
+  }
+
+  button {
+    flex: none;
+    padding: 2px 8px;
+    border: 1px solid var(--sx-border);
+    border-radius: 5px;
+    background: transparent;
+    color: var(--sx-fg);
+    font-size: 12px;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--sx-row-active);
+    }
+  }
+}
+
+// The first error itself, outlined so it is found at a glance
+.sx-first-error > .log-entry {
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--sx-danger) 55%, transparent);
+}
+
+// A file's name above its problems, when several files have some
+.sx-log-file {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 4px;
+  color: var(--sx-muted);
+  font-size: 12px;
+  font-weight: 600;
+
+  .material-symbols {
+    font-size: 15px;
+  }
+}
+
+.sx-log-file-group:first-of-type .sx-log-file {
+  margin-top: 0;
+}
+
+.sx-log-file-count {
+  font-weight: 400;
+}
+
+// "×3": the same problem repeated on one line
+.sx-repeat-pill {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--sx-sunken);
+  color: var(--sx-muted);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  vertical-align: 1px;
+}
