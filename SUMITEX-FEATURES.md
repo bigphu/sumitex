@@ -444,6 +444,14 @@ A project can have snippets of its own in `.sxs` files (for example `snippets.sx
 
 **How it's built.** A CodeMirror input handler checks the syntax tree to see whether you're inside a `Math` node (the grammar already uses that name), then matches the last typed characters against the rules.
 
+**Built (Phase 4, 17 Nov 2026)** in `editor/math-auto-expand.ts`, with the math check shared with the snippets (`editor/math-context.ts`):
+- **Rules:** the table above, plus the whole Greek alphabet (`@z` `\zeta`, `@w`… see Settings), `<->` `\leftrightarrow`, and `QQ` `CC`. Placeholders work as in snippets: `//` gives `\frac{▮}{}`, and Tab moves to the denominator.
+- **Typing on:** a letter straight after `\alpha` gets a space first (`\alpha b`), and `<=` followed by `>` becomes `\iff`.
+- **Word triggers** (`sq`, `sum`, `int`, `RR`…) fire only at the start of a word, so `\sqrt`, `\sum` and `\int` typed in full stay as they are.
+- **Packages:** `\mathbb` from `RR` adds `amssymb` in the same step (one Ctrl+Z removes both) when the open file holds the preamble; in a chapter, the missing-package linter offers the fix instead of switching files mid-formula.
+- **Also math:** an empty `equation` or `align`. **Not math:** `\text{}`, `\mathrm{}`, `\operatorname{}`, `\label{}`, `\ref{}` and the like.
+- **Settings → Editor → SumiTeX:** the switch, and "Your math shortcuts": one rule per line (`@w \omega`, `hat \hat{#{}}#{}`), a trigger on its own to switch a built-in one off, with the built-in list shown below. Saved per browser for now.
+
 ## 9 · Draggable lists
 
 **What you see**

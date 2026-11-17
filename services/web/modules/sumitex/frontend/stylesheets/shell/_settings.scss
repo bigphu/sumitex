@@ -100,3 +100,65 @@
     line-height: 20px;
   }
 }
+
+// "Your math shortcuts" (settings/editor-settings-section.tsx): the rule
+// list opens under its row, full width. No ligatures: -> must read as the
+// two keys to type, not as an arrow.
+.sx-math-rules {
+  padding: 4px 0 14px;
+  font-variant-ligatures: none;
+
+  code,
+  textarea {
+    font-variant-ligatures: none;
+  }
+
+  border-bottom: 1px solid var(--sx-border);
+
+  code {
+    color: var(--sx-fg);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+}
+
+.sx-math-rules-help {
+  margin: 6px 0;
+  color: var(--sx-muted);
+  font-size: 13px;
+}
+
+.sx-math-rules-input {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  color: var(--sx-fg);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  background: var(--sx-sunken);
+  border: 1px solid var(--sx-border);
+  border-radius: 6px;
+  resize: vertical;
+
+  &:focus {
+    outline: 2px solid var(--sx-accent);
+    outline-offset: -1px;
+  }
+}
+
+.sx-math-rules-builtin {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 2px 12px;
+  margin: 0;
+  padding: 0;
+  color: var(--sx-muted);
+  font-size: 12px;
+  list-style: none;
+
+  .sx-off {
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+}

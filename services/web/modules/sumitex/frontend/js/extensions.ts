@@ -12,6 +12,7 @@ import { missingPackageLinter } from './editor/missing-package-linter'
 import { projectChecks } from './editor/project-checks'
 import { snippetsWithPackagesExtension } from './completions/snippets-with-packages'
 import { snippetFileLint } from './completions/snippet-file-lint'
+import { mathAutoExpand } from './editor/math-auto-expand'
 
 export const extension = (): Extension => [
   zenMode(),
@@ -23,4 +24,5 @@ export const extension = (): Extension => [
   projectChecks(),
   snippetsWithPackagesExtension(),
   snippetFileLint(),
+  mathAutoExpand(),
 ]

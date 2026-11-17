@@ -32,3 +32,44 @@ export const subscribePrefs = (listener: () => void) => {
     listeners.delete(listener)
   }
 }
+
+// Math auto-expansion (editor/math-auto-expand.ts): on unless switched off,
+// and the user's own rules, one per line
+const MATH_EXPAND_KEY = 'sumitex.math-auto-expand'
+const MATH_RULES_KEY = 'sumitex.math-auto-expand-rules'
+
+const read = (key: string) => {
+  try {
+    return localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+const write = (key: string, value: string) => {
+  try {
+    localStorage.setItem(key, value)
+  } catch {
+    // storage blocked: the choice lasts until the page reloads
+  }
+  listeners.forEach(listener => listener())
+}
+
+let mathExpandNow: boolean | null = null
+let mathRulesNow: string | null = null
+
+export const getMathExpand = () =>
+  mathExpandNow ?? (mathExpandNow = read(MATH_EXPAND_KEY) !== 'false')
+
+export const setMathExpand = (on: boolean) => {
+  mathExpandNow = on
+  write(MATH_EXPAND_KEY, String(on))
+}
+
+export const getMathRules = () =>
+  mathRulesNow ?? (mathRulesNow = read(MATH_RULES_KEY) ?? '')
+
+export const setMathRules = (text: string) => {
+  mathRulesNow = text
+  write(MATH_RULES_KEY, text)
+}

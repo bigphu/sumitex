@@ -21,8 +21,7 @@ import {
   TransactionSpec,
 } from '@codemirror/state'
 import { EditorView } from '@codemirror/view'
-import { syntaxTree } from '@codemirror/language'
-import type { SyntaxNode } from '@lezer/common'
+import { mathContextAt } from '../editor/math-context'
 import {
   Completion,
   CompletionContext,
@@ -59,23 +58,8 @@ const SNIPPET_SKELETON =
 const RETURN_TIMEOUT_MS = 5000
 
 /** Inside math, but not in \text{…} and the like */
-function contextAt(state: EditorState, pos: number): PresetContext {
-  for (
-    let node: SyntaxNode | null = syntaxTree(state).resolveInner(pos, -1);
-    node;
-    node = node.parent
-  ) {
-    if (node.type.is('MathTextCommand')) return 'text'
-    if (
-      node.type.is('Math') ||
-      node.type.is('InlineMath') ||
-      node.type.is('DisplayMath')
-    ) {
-      return 'math'
-    }
-  }
-  return 'text'
-}
+const contextAt = (state: EditorState, pos: number): PresetContext =>
+  mathContextAt(state, pos) === 'math' ? 'math' : 'text'
 
 type Needs = {
   /** The open file holds the preamble */
