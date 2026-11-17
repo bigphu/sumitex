@@ -12,13 +12,15 @@
  * - The AI assistant docks on the right through its own module.
  * - Notifications sit at the foot of the strip (notifications-bell.tsx).
  * One panel at a time: they take turns in the same island.
- * The panel stays in the layout while closed, collapsed to nothing. Adding
- * and removing it made the panel group restore a saved layout, which
- * re-opened the left side panel along with Review or Chat.
+ * The panel is not one of the panel group's panels: it is a plain column
+ * with a width of its own (dragged from its left edge). As a group panel,
+ * opening either side made the group restore a saved layout, which opened
+ * or sized the other side too. Now the two sides never affect each other.
  * The three buttons leave the left strip (overrides/components/_rail.scss).
  */
 import {
   forwardRef,
+  PointerEvent as ReactPointerEvent,
   ReactNode,
   useEffect,
   useLayoutEffect,
@@ -26,13 +28,11 @@ import {
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import classNames from 'classnames'
-import { ImperativePanelHandle, Panel } from 'react-resizable-panels'
 import MaterialIcon from '@/shared/components/material-icon'
 import OLTooltip from '@/shared/components/ol/ol-tooltip'
 import ChatPane from '@/features/chat/components/chat-pane'
 import ChatIndicator from '@/features/chat/components/chat-indicator'
 import { useChatContext } from '@/features/chat/context/chat-context'
-import { HorizontalResizeHandle } from '@/features/ide-react/components/resize/horizontal-resize-handle'
 import { useRailContext } from '@/features/ide-react/context/rail-context'
 import { useLayoutContext } from '@/shared/context/layout-context'
 import { useEditorContext } from '@/shared/context/editor-context'
@@ -44,6 +44,20 @@ import { setReviewIslandHost } from '../review/review-island-host'
 import NotificationsBell from './notifications-bell'
 
 type RightTab = 'chat'
+
+const WIDTH_KEY = 'sumitex.right-panel-width'
+const MIN_WIDTH = 260
+const DEFAULT_WIDTH = 340
+// Leave the editor at least this much of the window
+const MIN_REST = 420
+
+const clampWidth = (width: number) =>
+  Math.round(
+    Math.max(
+      MIN_WIDTH,
+      Math.min(width, window.innerWidth - MIN_REST, window.innerWidth * 0.5)
+    )
+  )
 
 const StripButton = forwardRef<
   HTMLButtonElement,
@@ -79,13 +93,17 @@ const StripButton = forwardRef<
 ))
 StripButton.displayName = 'StripButton'
 
-export default function RightStrip({ order }: { order: number }) {
+export default function RightStrip() {
   const { t } = useTranslation()
   const { view, focusMode } = useLayoutContext()
   const { isRestrictedTokenMember } = useEditorContext()
   const { features } = useProjectContext()
-  const { setResizing, reviewPanelOpen, setReviewPanelOpen } =
-    useRailContext()
+  const {
+    setResizing,
+    reviewPanelOpen,
+    setReviewPanelOpen,
+    panelRef: leftPanelRef,
+  } = useRailContext()
   const { markMessagesAsRead } = useChatContext()
   const dock = useAssistantDock()
   const [tab, setTab] = usePersistedState<RightTab | null>(
@@ -106,19 +124,67 @@ export default function RightStrip({ order }: { order: number }) {
   const chatOpen = showChat && tab === 'chat' && !reviewOpen
   const panelOpen = chatOpen || reviewOpen
 
-  // Open and close by collapsing, so the other panels keep their sizes
-  // (only on a change: on mount the panel group hasn't measured the panel
-  // yet, and its default size is already right)
-  const panelRef = useRef<ImperativePanelHandle>(null)
-  const wasOpen = useRef(panelOpen)
+  const [width, setWidth] = usePersistedState<number>(
+    WIDTH_KEY,
+    DEFAULT_WIDTH
+  )
+
+  // Drag the left edge to resize; the strip is on the right, so moving
+  // left makes the panel wider
+  const startResize = (event: ReactPointerEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    const startX = event.clientX
+    const startWidth = width
+    const handle = event.currentTarget
+    handle.setPointerCapture(event.pointerId)
+    setResizing(true)
+    const onMove = (move: PointerEvent) =>
+      setWidth(clampWidth(startWidth + startX - move.clientX))
+    const onUp = () => {
+      handle.removeEventListener('pointermove', onMove)
+      handle.removeEventListener('pointerup', onUp)
+      handle.removeEventListener('pointercancel', onUp)
+      setResizing(false)
+    }
+    handle.addEventListener('pointermove', onMove)
+    handle.addEventListener('pointerup', onUp)
+    handle.addEventListener('pointercancel', onUp)
+  }
+
+  // The group's panels share what the dock leaves them, in percentages, so
+  // the dock opening, closing or resizing would also resize the left side
+  // panel. Rescale the left panel to keep its width in pixels.
+  const dockRef = useRef<HTMLDivElement>(null)
+  const stripRef = useRef<HTMLElement>(null)
+  // null until the first run: on mount the saved layout already fits
+  const dockSpace = useRef<number | null>(null)
   useLayoutEffect(() => {
-    if (wasOpen.current === panelOpen) return
-    wasOpen.current = panelOpen
-    const panel = panelRef.current
-    if (!panel) return
-    if (panelOpen) panel.expand()
-    else panel.collapse()
-  }, [panelOpen])
+    // Zen and History hide the dock and lay the page out their own way; it
+    // comes back as it was, so there is nothing to make up for
+    if (focusMode || view === 'history') return
+    const dockEl = dockRef.current
+    let space = 0
+    if (dockEl) {
+      const style = getComputedStyle(dockEl)
+      // A drawer (narrow windows) floats over the editor and takes no room
+      if (style.position !== 'absolute' && style.position !== 'fixed') {
+        space =
+          dockEl.getBoundingClientRect().width + parseFloat(style.marginLeft)
+      }
+    }
+    const delta = space - (dockSpace.current ?? space)
+    dockSpace.current = space
+    if (Math.abs(delta) < 0.5) return
+    const left = leftPanelRef.current
+    const group = (dockEl ?? stripRef.current)?.parentElement
+    if (!left || !group || left.isCollapsed()) return
+    let free = 0
+    for (const el of group.children) {
+      if (el.hasAttribute('data-panel')) free += el.getBoundingClientRect().width
+    }
+    if (free <= 0) return
+    left.resize(Math.min(80, (left.getSize() * (free + delta)) / free))
+  })
 
   // Review can also open from elsewhere (the shortcut, a comment marker);
   // it then takes the island over from Chat and the AI assistant
@@ -157,34 +223,35 @@ export default function RightStrip({ order }: { order: number }) {
 
   return (
     <>
-      <HorizontalResizeHandle
-        onDragging={setResizing}
-        resizable={panelOpen}
-        className={classNames({ hidden: !panelOpen })}
-      />
-      <Panel
-        id="sx-right-panel"
-        order={order}
-        ref={panelRef}
-        defaultSize={panelOpen ? 22 : 0}
-        minSize={15}
-        maxSize={50}
-        collapsible
-        collapsedSize={0}
-      >
-        {reviewOpen ? (
+      {panelOpen && (
+        <div
+          className="sx-right-dock"
+          ref={dockRef}
+          style={{ width: clampWidth(width) }}
+          data-sx-right-dock
+        >
           <div
-            className="sx-right-panel sx-review-host"
-            ref={setReviewIslandHost}
-            data-empty-label="Open a file to review it"
+            className="sx-right-dock-handle"
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize panel"
+            onPointerDown={startResize}
+            onDoubleClick={() => setWidth(DEFAULT_WIDTH)}
           />
-        ) : chatOpen ? (
-          <div className="sx-right-panel">
-            <ChatPane />
-          </div>
-        ) : null}
-      </Panel>
-      <nav className="sx-right-strip" aria-label="Right strip">
+          {reviewOpen ? (
+            <div
+              className="sx-right-panel sx-review-host"
+              ref={setReviewIslandHost}
+              data-empty-label="Open a file to review it"
+            />
+          ) : (
+            <div className="sx-right-panel">
+              <ChatPane />
+            </div>
+          )}
+        </div>
+      )}
+      <nav className="sx-right-strip" aria-label="Right strip" ref={stripRef}>
         {showReview && (
           <StripButton
             icon="rate_review"
