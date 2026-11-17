@@ -16,6 +16,7 @@ import { SHOW_SHORTCUTS_EVENT, setVscodeKeys } from '../editor/vscode-keymap'
 import { useRecordRecentFile } from '../palette/recent-files'
 import { useProjectPreamble } from '../diagnostics/use-project-preamble'
 import { gotoLine } from '@codemirror/search'
+import { useSnippetCommands } from '../completions/use-snippet-commands'
 
 // The layout Zen came from ('sideBySide' or 'flat'), to go back to when it
 // ends. Kept in localStorage so that leaving Zen after a reload still
@@ -103,6 +104,7 @@ export default function SumitexBridge() {
 
   // The live linter's view of main.tex, and "Add package"
   useProjectPreamble(view)
+  useSnippetCommands(view)
 
   // Palette entries. Zen sits under View, next to the stock "Toggle focus
   // mode"; every other sumitex-* command is listed by its own label. Their

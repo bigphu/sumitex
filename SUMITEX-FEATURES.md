@@ -227,6 +227,33 @@ There are two kinds of folders. The design doc's main feature is the first.
 
 **How it's built.** A completion source in the `sourceEditorCompletionSources` slot. Presets are kept in a data file. It shares the "add package" helper with feature 6.
 
+**Built (Phase 4, 17 Nov 2026):** 19 presets from the catalogue below (`completions/presets.ts`): `\fig` `\subfig` `\herefig`, `\table` `\booktab` `\widetab`, `\ilist` `\elist` `\alist`, `\eq` `\align` `\cases` `\bmat`, `\thm` `\proof`, `\cref`, `\code` `\algo` `\tikz`. The menu says what a snippet will add ("Clean table with rules · adds booktabs"), and nothing that is already loaded. In a file with its own preamble, one Ctrl+Z takes back the snippet and its package lines. In a chapter, the packages go into the main file in one visit, then the snippet goes in; undo is then per file.
+
+### Project snippets (decided 17 Nov 2026)
+
+A project can have snippets of its own in `.sxs` files (for example `snippets.sxs`). They are shared with collaborators, kept in history and synced like any file. They sit with the built-in ones in the menu, and replace a built-in one with the same trigger.
+
+```latex
+% snippets.sxs
+\snippet{\mytab}{Results table}[booktabs,siunitx]
+\begin{table}[htbp]
+  #{Quantity} & #{Value} \\
+\end{table}
+\endsnippet
+
+\snippet[math]{\nrm}{Norm}
+\left\lVert #{} \right\rVert
+\endsnippet
+```
+
+- **Header:** `\snippet[math]{\trigger}{Label}[packages]`. `[math]` offers it only inside math (the default, `[text]`, only outside); the packages are comma-separated.
+- **Body:** inserted as written. `#{name}` is a placeholder and `#{}` an empty one; nothing else is special, so `\{`, `$` and `%` stay as they are.
+- **Files:** `.sxs` is a text type (`textExtensions`) highlighted as LaTeX. The stock syntax check skips these files (they hold fragments), and labels in them don't count in the project checks.
+- **Palette:** "Snippets: Open project snippets" opens `snippets.sxs`, creating it with a short guide, the list of built-in triggers and an example. "Snippets: New snippet from selection" adds the selected text to it as a new snippet, with the trigger, label and packages (guessed from the text) as placeholders to type over.
+- **In the file:** typing `\snippet` inserts an empty snippet to fill in; other snippets go in as plain text and add no packages. Problems show as you type: a header SumiTeX can't read, a missing `\endsnippet`, a trigger used twice, and a note where a snippet replaces a built-in one.
+- **In the menu:** project snippets carry a `project-snippet` tag.
+- **Later:** preamble lines (`\newtheorem`) for project snippets, and personal snippets kept with your account for every project.
+
 ### Preset catalogue
 
 **Document starters** (palette → New file from template)

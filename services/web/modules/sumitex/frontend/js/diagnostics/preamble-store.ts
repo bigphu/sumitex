@@ -23,6 +23,8 @@ type State = {
   index: ProjectIndex | null
   /** The open file's project path, left out of the index (it is read live) */
   currentPath: string | null
+  /** The project's .sxs snippet files, one after another (root ones first) */
+  snippets?: string | null
 }
 
 let state: State = {

@@ -10,6 +10,8 @@ import { trackChangesBanner } from './editor/track-changes-banner'
 import { vscodeKeymap } from './editor/vscode-keymap'
 import { missingPackageLinter } from './editor/missing-package-linter'
 import { projectChecks } from './editor/project-checks'
+import { snippetsWithPackagesExtension } from './completions/snippets-with-packages'
+import { snippetFileLint } from './completions/snippet-file-lint'
 
 export const extension = (): Extension => [
   zenMode(),
@@ -19,4 +21,6 @@ export const extension = (): Extension => [
   vscodeKeymap(),
   missingPackageLinter(),
   projectChecks(),
+  snippetsWithPackagesExtension(),
+  snippetFileLint(),
 ]

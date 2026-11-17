@@ -875,6 +875,7 @@ module.exports = {
   // The defaults come from overleaf-editor-core so that every service that
   // classifies a file as a doc or as a binary file works from the same list.
   textExtensions: DEFAULT_TEXT_EXTENSIONS.concat(
+    ['sxs'], // SumiTeX: project snippet files
     parseTextExtensions(process.env.ADDITIONAL_TEXT_EXTENSIONS)
   ),
 
@@ -1111,7 +1112,13 @@ module.exports = {
     ],
     pdfPreviewPromotions: [],
     diagnosticActions: [],
-    sourceEditorCompletionSources: [],
+    sourceEditorCompletionSources: [
+      // SumiTeX: snippets that bring their packages
+      Path.resolve(
+        __dirname,
+        '../modules/sumitex/frontend/js/completions/snippets-with-packages'
+      ),
+    ],
     sourceEditorSymbolPalette: [
       Path.resolve(
         __dirname,

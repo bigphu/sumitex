@@ -25,11 +25,15 @@ import { buildIndex } from './project-index'
 import { markPackageAdded, setProjectPreamble } from './preamble-store'
 import {
   addPackageInView,
+  addPreambleLinesInView,
   setAddPackageHandler,
 } from '../editor/add-package'
 
 // Re-read at most this often, however many triggers arrive
 const MIN_GAP_MS = 5000
+
+// After leaving a snippet file, when its edits have reached the server
+const SNIPPET_REREAD_MS = 2500
 
 const hasPreamble = (view: EditorView) =>
   /\\documentclass/.test(stripComments(preambleOf(view.state.doc.toString())))
@@ -79,6 +83,11 @@ export function useProjectPreamble(view: EditorView) {
         docs.set(path, text)
         if (/\.(cls|sty)$/.test(path)) projectFiles.set(path.split('/').pop()!, text)
       }
+      // Project snippets (completions/project-snippets.ts): root files first
+      const snippetPaths = [...docs.keys()]
+        .filter(path => path.endsWith('.sxs'))
+        .sort((a, b) => a.split('/').length - b.split('/').length || a.localeCompare(b))
+      const snippets = snippetPaths.map(path => docs.get(path)).join('\n')
       const binaryPaths = projectSnapshot
         .getBinaryFilePathsWithHash()
         .map(file => file.path)
@@ -89,16 +98,32 @@ export function useProjectPreamble(view: EditorView) {
         mainName: mainPath?.split('/').pop() ?? null,
         mainPath,
         projectFiles,
-        index: buildIndex(docs, binaryPaths, mainPath, mainText),
+        // Snippet files hold templates, not labels and citations in use
+        index: buildIndex(
+          new Map([...docs].filter(([path]) => !path.endsWith('.sxs'))),
+          binaryPaths,
+          mainPath,
+          mainText
+        ),
         currentPath: currentDocumentId ? pathInFolder(currentDocumentId) : null,
+        snippets: snippetPaths.length ? snippets : null,
       })
     },
     [projectSnapshot, mainPath, pathInFolder]
   )
 
   // On open and on every file switch
+  const leftPath = useRef<string | null>(null)
   useEffect(() => {
     read(true)
+    // Leaving a snippet file: its last edits reach the server a moment
+    // later, so read again then (completions/project-snippets.ts)
+    const left = leftPath.current
+    leftPath.current = currentDocumentId ? pathInFolder(currentDocumentId) : null
+    if (!left?.endsWith('.sxs')) return
+    const timer = window.setTimeout(() => read(true), SNIPPET_REREAD_MS)
+    return () => window.clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [read, currentDocumentId])
 
   // After every compile (the preamble may have changed in another file)
@@ -125,6 +150,14 @@ export function useProjectPreamble(view: EditorView) {
       const apply = () => {
         const result = addPackageInView(view, name, usedAt())
         if (result === 'added' || result === 'moved') markPackageAdded(name)
+        for (const more of options.alsoAdd ?? []) {
+          if (result === 'failed') break
+          const added = addPackageInView(view, more)
+          if (added === 'added') markPackageAdded(more)
+        }
+        if (options.preambleLines && result !== 'failed') {
+          addPreambleLinesInView(view, options.preambleLines)
+        }
         return result
       }
 

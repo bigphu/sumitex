@@ -72,6 +72,34 @@ export function packageInsertion(
   return null
 }
 
+/**
+ * Whether a preamble line such as \newtheorem{theorem}{Theorem} is needed:
+ * a line that defines something is needed while that isn't defined yet;
+ * any other line while the preamble doesn't hold it.
+ */
+export function preambleLineNeeded(
+  line: string,
+  preamble: string,
+  defined: Set<string> = parseFile(preamble).defined
+) {
+  const defines = [...parseFile(line).defined]
+  if (defines.length > 0) return defines.some(name => !defined.has(name))
+  const squash = (text: string) => text.replace(/\s+/g, '')
+  return !squash(stripComments(preamble)).includes(squash(line))
+}
+
+/** Where to add a preamble line: just before \begin{document} */
+export function preambleLineInsertion(
+  text: string,
+  line: string
+): { from: number; insert: string } | null {
+  const begin = text.search(/\\begin\s*\{document\}/)
+  if (begin === -1 || !preambleLineNeeded(line, text.slice(0, begin))) {
+    return null
+  }
+  return { from: text.lastIndexOf('\n', begin - 1) + 1, insert: `${line}\n` }
+}
+
 /** The first \usepackage that loads `name` (directly), in the preamble */
 export function packageLoadAt(text: string, name: string) {
   const preamble = preambleOf(text)
@@ -141,7 +169,24 @@ export function addPackageInView(
     : 'failed'
 }
 
+/** Add the preamble lines that are missing, in an editor that holds it */
+export function addPreambleLinesInView(view: EditorView, lines: string[]) {
+  for (const line of lines) {
+    const insertion = preambleLineInsertion(view.state.doc.toString(), line)
+    if (insertion) {
+      view.dispatch({
+        changes: insertion,
+        userEvent: 'input.sumitex-add-package',
+      })
+    }
+  }
+}
+
 export type AddOptions = {
+  /** More packages to load in the same visit to the main file */
+  alsoAdd?: string[]
+  /** Preamble lines to add with the package (\newtheorem…), when missing */
+  preambleLines?: string[]
   /** In the file that holds the preamble: where the package is needed */
   usedAt?: number
   /** In the main file: the line (1-based) where the package is needed */
