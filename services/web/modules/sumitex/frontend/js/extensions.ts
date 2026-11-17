@@ -9,6 +9,7 @@ import { overviewRuler } from './editor/overview-ruler'
 import { trackChangesBanner } from './editor/track-changes-banner'
 import { vscodeKeymap } from './editor/vscode-keymap'
 import { missingPackageLinter } from './editor/missing-package-linter'
+import { projectChecks } from './editor/project-checks'
 
 export const extension = (): Extension => [
   zenMode(),
@@ -17,4 +18,5 @@ export const extension = (): Extension => [
   trackChangesBanner(),
   vscodeKeymap(),
   missingPackageLinter(),
+  projectChecks(),
 ]

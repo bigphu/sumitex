@@ -40,28 +40,10 @@ import {
   wasJustAdded,
 } from '../diagnostics/preamble-store'
 import { packageLoadAt, requestAddPackage } from './add-package'
+import { codeOnly, escaped } from '../diagnostics/latex-text'
 
 // Enough to be useful, few enough to stay readable
 const MAX_DIAGNOSTICS = 100
-
-// Environments whose content is not LaTeX
-const VERBATIM = /\\begin\s*\{(verbatim\*?|lstlisting|minted|comment|Verbatim)\}[\s\S]*?\\end\s*\{\1\}/g
-
-/** The text with comments and verbatim blanked out, offsets kept */
-function codeOnly(text: string) {
-  const blank = (match: string) => match.replace(/[^\n]/g, ' ')
-  return text
-    .replace(/(^|[^\\])(%.*)$/gm, (_, before, comment) => before + blank(comment))
-    .replace(VERBATIM, blank)
-}
-
-// A command written after an odd number of backslashes is escaped text
-// (\\text is a line break, then the word "text")
-const escaped = (text: string, at: number) => {
-  let count = 0
-  for (let i = at - 1; i >= 0 && text[i] === '\\'; i--) count++
-  return count % 2 === 1
-}
 
 function isLoaded(preamble: Preamble, provider: Provider) {
   return [provider.suggest, ...(provider.alsoFrom ?? [])].some(

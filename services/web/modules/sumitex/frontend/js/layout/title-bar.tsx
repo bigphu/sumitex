@@ -155,6 +155,14 @@ export default function TitleBar() {
   )
   const isOfflineDueToNetworkStall = useIsNetworkStalled()
 
+  // Marks the page as SumiTeX's editor, so menus, popovers and editor
+  // pop-ups get one look (shell/_menus.scss), including the ones rendered
+  // outside the editor's own container
+  useEffect(() => {
+    document.body.classList.add('sx-editor')
+    return () => document.body.classList.remove('sx-editor')
+  }, [])
+
   // Zen has its own two buttons; History keeps the stock toolbar
   if (focusMode) return <ZenBar />
   if (view === 'history') return <Toolbar />

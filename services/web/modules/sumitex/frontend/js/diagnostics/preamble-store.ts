@@ -1,5 +1,5 @@
 /**
- * The project's main preamble, shared with the linter (a CodeMirror
+ * The project's main preamble and index, shared with the linters (a CodeMirror
  * extension, outside React). The bridge fills it from the project snapshot
  * (diagnostics/use-project-preamble.ts) and the linter reads it, so a
  * chapter file is checked against the packages main.tex loads.
@@ -8,6 +8,7 @@
  * the snapshot catches up, so the underline goes as soon as you click.
  */
 import type { Preamble } from './preamble'
+import type { ProjectIndex } from './project-index'
 
 type State = {
   /** null until the main file has been read */
@@ -18,6 +19,10 @@ type State = {
   mainPath: string | null
   /** The project's own .cls and .sty files, by base name */
   projectFiles: Map<string, string>
+  /** Labels, citation keys and files across the project */
+  index: ProjectIndex | null
+  /** The open file's project path, left out of the index (it is read live) */
+  currentPath: string | null
 }
 
 let state: State = {
@@ -25,6 +30,8 @@ let state: State = {
   mainName: null,
   mainPath: null,
   projectFiles: new Map(),
+  index: null,
+  currentPath: null,
 }
 const justAdded = new Set<string>()
 const listeners = new Set<() => void>()

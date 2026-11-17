@@ -628,3 +628,85 @@
 .sx-add-package-button[data-outcome='failed'] {
   color: var(--sx-danger);
 }
+
+// "Start with the first error" above the list (log-problems.tsx)
+.sx-first-error-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--sx-sunken);
+  color: var(--sx-fg);
+  font-size: 12.5px;
+  line-height: 17px;
+
+  .material-symbols {
+    flex: none;
+    color: var(--sx-danger);
+    font-size: 16px;
+  }
+
+  span {
+    flex: 1;
+  }
+
+  button {
+    flex: none;
+    padding: 2px 8px;
+    border: 1px solid var(--sx-border);
+    border-radius: 5px;
+    background: transparent;
+    color: var(--sx-fg);
+    font-size: 12px;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--sx-row-active);
+    }
+  }
+}
+
+// The first error itself, outlined so it is found at a glance
+.sx-first-error > .log-entry {
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--sx-danger) 55%, transparent);
+}
+
+// A file's name above its problems, when several files have some
+.sx-log-file {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 4px;
+  color: var(--sx-muted);
+  font-size: 12px;
+  font-weight: 600;
+
+  .material-symbols {
+    font-size: 15px;
+  }
+}
+
+.sx-log-file-group:first-of-type .sx-log-file {
+  margin-top: 0;
+}
+
+.sx-log-file-count {
+  font-weight: 400;
+}
+
+// "×3": the same problem repeated on one line
+.sx-repeat-pill {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--sx-sunken);
+  color: var(--sx-muted);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  vertical-align: 1px;
+}

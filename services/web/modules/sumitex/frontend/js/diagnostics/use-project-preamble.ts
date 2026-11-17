@@ -2,9 +2,10 @@
  * Mounted by the bridge: connects the linter and the "Add package" fixes
  * to the project.
  *
- * - Reads the main file's preamble and the project's own .cls and .sty
- *   files from the project snapshot, into preamble-store.ts: when the
- *   editor opens, when you switch files and after every compile.
+ * - Reads the main file's preamble, the project's own .cls and .sty files
+ *   and an index of labels, citation keys and files from the project
+ *   snapshot, into preamble-store.ts: when the editor opens, when you
+ *   switch files and after every compile.
  * - Handles "Add package" (and "Load it earlier"): when the open file holds
  *   the preamble, the change goes straight in. When you are in a chapter, SumiTeX opens the main
  *   file, adds the line there, and takes you back to where you were, so
@@ -20,6 +21,7 @@ import { useEditorManagerContext } from '@/features/ide-react/context/editor-man
 import { useDetachCompileContext as useCompileContext } from '@/shared/context/detach-compile-context'
 import { debugConsole } from '@/utils/debugging'
 import { readPreamble, preambleOf, stripComments } from './preamble'
+import { buildIndex } from './project-index'
 import { markPackageAdded, setProjectPreamble } from './preamble-store'
 import {
   addPackageInView,
@@ -52,6 +54,13 @@ export function useProjectPreamble(view: EditorView) {
 
   const mainPath = rootDocId ? pathInFolder(rootDocId) : null
   const lastRead = useRef(0)
+  // The latest values, for callbacks that outlive a render
+  const latest = useRef({
+    rootDocId,
+    currentDocumentId,
+    openDocWithId,
+    read: async (_force?: boolean) => {},
+  })
 
   const read = useCallback(
     async (force = false) => {
@@ -64,23 +73,27 @@ export function useProjectPreamble(view: EditorView) {
         return
       }
       const projectFiles = new Map<string, string>()
+      const docs = new Map<string, string>()
       for (const path of projectSnapshot.getDocPaths()) {
-        if (/\.(cls|sty)$/.test(path)) {
-          projectFiles.set(
-            path.split('/').pop()!,
-            projectSnapshot.getDocContents(path) ?? ''
-          )
-        }
+        const text = projectSnapshot.getDocContents(path) ?? ''
+        docs.set(path, text)
+        if (/\.(cls|sty)$/.test(path)) projectFiles.set(path.split('/').pop()!, text)
       }
-      const mainText = mainPath ? projectSnapshot.getDocContents(mainPath) : null
+      const binaryPaths = projectSnapshot
+        .getBinaryFilePathsWithHash()
+        .map(file => file.path)
+      const mainText = mainPath ? (docs.get(mainPath) ?? null) : null
+      const { currentDocumentId } = latest.current
       setProjectPreamble({
         preamble: mainText ? readPreamble(mainText, projectFiles) : null,
         mainName: mainPath?.split('/').pop() ?? null,
         mainPath,
         projectFiles,
+        index: buildIndex(docs, binaryPaths, mainPath, mainText),
+        currentPath: currentDocumentId ? pathInFolder(currentDocumentId) : null,
       })
     },
-    [projectSnapshot, mainPath]
+    [projectSnapshot, mainPath, pathInFolder]
   )
 
   // On open and on every file switch
@@ -96,7 +109,6 @@ export function useProjectPreamble(view: EditorView) {
   }, [compiling, read])
 
   // "Add package"
-  const latest = useRef({ rootDocId, currentDocumentId, openDocWithId, read })
   latest.current = { rootDocId, currentDocumentId, openDocWithId, read }
 
   useEffect(() => {
