@@ -149,8 +149,9 @@ body.sx-editor .popover {
 
 // CodeMirror's pop-ups: autocomplete, its info panel, lint and hover
 // tooltips. Their theme is a baseTheme, so these selectors only need to be
-// a little more specific
-body.sx-editor .cm-editor {
+// a little more specific. The editor puts its pop-ups outside .cm-editor,
+// so they are matched from the body.
+body.sx-editor {
   .cm-tooltip.cm-tooltip-autocomplete,
   .cm-tooltip.cm-completionInfo,
   .cm-tooltip.cm-tooltip-lint,
@@ -233,4 +234,25 @@ body.sx-editor .cm-editor {
 .sx-menu-chevron.material-symbols {
   margin-right: -4px;
   font-size: 16px;
+}
+
+// What a snippet inserts and adds (completions/snippets-with-packages.ts).
+// The menu sits outside .cm-editor, and Overleaf gives this slot the math
+// font for its symbol previews, so only snippet rows change.
+body.sx-editor .cm-tooltip-autocomplete
+  :is(
+    li.ol-cm-completion-snippet,
+    li.ol-cm-completion-project-snippet,
+    li.ol-cm-completion-personal-snippet
+  ) {
+  .cm-completionDetail {
+    margin-left: 0.75em;
+    color: var(--sx-muted);
+    font-family: var(--font-sans);
+    font-size: 12px;
+  }
+
+  &[aria-selected] .cm-completionDetail {
+    color: inherit;
+  }
 }

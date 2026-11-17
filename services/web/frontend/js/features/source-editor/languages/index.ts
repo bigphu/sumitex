@@ -28,6 +28,7 @@ export const languages = [
       'dtx',
       'hak',
       'eps_tex',
+      'sxs', // SumiTeX: project snippet files
       'brf',
       'ins',
       'hva',

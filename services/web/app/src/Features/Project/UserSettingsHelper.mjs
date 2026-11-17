@@ -68,6 +68,10 @@ async function buildUserSettings(_req, _res, user) {
     referencesSearchMode: user.ace.referencesSearchMode,
     darkModePdf: user.ace.darkModePdf ?? false,
     floatingMenu: user.ace.floatingMenu ?? true,
+    // SumiTeX: null until first saved (math shortcuts then come from the
+    // browser, where they were kept before)
+    sumitexSnippets: user.ace.sumitexSnippets ?? '',
+    sumitexMathRules: user.ace.sumitexMathRules ?? null,
     zotero: buildRefProviderSettings(user.ace.zotero),
     mendeley: buildRefProviderSettings(user.ace.mendeley),
     papers: buildRefProviderSettings(user.ace.papers),

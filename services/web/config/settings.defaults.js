@@ -875,6 +875,7 @@ module.exports = {
   // The defaults come from overleaf-editor-core so that every service that
   // classifies a file as a doc or as a binary file works from the same list.
   textExtensions: DEFAULT_TEXT_EXTENSIONS.concat(
+    ['sxs'], // SumiTeX: project snippet files
     parseTextExtensions(process.env.ADDITIONAL_TEXT_EXTENSIONS)
   ),
 
@@ -1111,7 +1112,20 @@ module.exports = {
     ],
     pdfPreviewPromotions: [],
     diagnosticActions: [],
-    sourceEditorCompletionSources: [],
+    // SumiTeX: sections on the account settings page
+    settingsPageSections: [
+      Path.resolve(
+        __dirname,
+        '../modules/sumitex/frontend/js/settings/account-section'
+      ),
+    ],
+    sourceEditorCompletionSources: [
+      // SumiTeX: snippets that bring their packages
+      Path.resolve(
+        __dirname,
+        '../modules/sumitex/frontend/js/completions/snippets-with-packages'
+      ),
+    ],
     sourceEditorSymbolPalette: [
       Path.resolve(
         __dirname,
@@ -1325,11 +1339,19 @@ module.exports = {
       ),
     ],
     referenceSearchSetting: [],
-    settingsModalEditorTabSections: [
-      // SumiTeX
+    settingsModalEditorTabSections: [],
+    // SumiTeX: a filter box above the Settings dialog's tabs
+    settingsModalFilter: [
       Path.resolve(
         __dirname,
-        '../modules/sumitex/frontend/js/settings/editor-settings-section'
+        '../modules/sumitex/frontend/js/settings/use-settings-filter'
+      ),
+    ],
+    // SumiTeX: the Settings dialog sorted by task, with SumiTeX's tabs
+    settingsModalTabs: [
+      Path.resolve(
+        __dirname,
+        '../modules/sumitex/frontend/js/settings/settings-tabs'
       ),
     ],
     settingsModalSpellcheckSections: [],

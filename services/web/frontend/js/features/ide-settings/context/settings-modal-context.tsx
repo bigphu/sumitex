@@ -65,6 +65,12 @@ const spellcheckExtraSectionHooks: SettingsSectionHook[] =
     .map((m: any) => m?.import?.default)
     .filter((h: unknown): h is SettingsSectionHook => typeof h === 'function')
 
+// SumiTeX: modules may rearrange the tabs (settingsModalTabs slot)
+const tabTransforms: ((tabs: SettingsEntry[]) => SettingsEntry[])[] =
+  importOverleafModules('settingsModalTabs')
+    .map((m: any) => m?.import?.default)
+    .filter((f: unknown) => typeof f === 'function')
+
 const useSlotSections = (hooks: SettingsSectionHook[]): SettingsSection[] =>
   hooks.map(hook => hook()).filter((s): s is SettingsSection => s != null)
 
@@ -108,7 +114,8 @@ export const SettingsModalProvider: FC<React.PropsWithChildren> = ({
   const spellcheckExtraSections = useSlotSections(spellcheckExtraSectionHooks)
 
   const allSettingsTabs: SettingsEntry[] = useMemo(
-    () => [
+    () =>
+      tabTransforms.reduce<SettingsEntry[]>((tabs, transform) => transform(tabs), [
       {
         key: 'editor',
         title: t('editor'),
@@ -334,7 +341,7 @@ export const SettingsModalProvider: FC<React.PropsWithChildren> = ({
         href: '/user/subscription',
         hidden: !isOverleaf,
       },
-    ],
+    ]), // SumiTeX: through tabTransforms
     [
       t,
       overallTheme,

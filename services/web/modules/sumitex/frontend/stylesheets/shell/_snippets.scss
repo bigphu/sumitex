@@ -1,0 +1,254 @@
+// Personal and project snippet editing: the small snippet editor
+// (completions/snippet-editor.tsx), the "Your snippets" dialog, and the
+// "Snippets and math shortcuts" section of the account settings page.
+// Colours only from the --sx- tokens, so both themes follow.
+
+// The editor: a sunken well with a hairline, like the math rules box
+.sx-snippet-editor {
+  overflow: hidden;
+  background: var(--sx-sunken);
+  border: 1px solid var(--sx-border);
+  border-radius: 8px;
+  transition: border-color 0.12s;
+
+  &:focus-within {
+    border-color: var(--sx-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--sx-accent) 18%, transparent);
+  }
+
+  .cm-editor {
+    height: 360px;
+    color: var(--sx-fg);
+    font-size: 13px;
+    background: transparent;
+
+    &.cm-focused {
+      outline: none;
+    }
+  }
+
+  .cm-scroller {
+    font-family: 'JetBrains Mono', monospace;
+    font-variant-ligatures: none; // -> must read as the two keys
+    line-height: 1.6;
+  }
+
+  .cm-content {
+    padding: 8px 0;
+    caret-color: var(--sx-accent);
+  }
+
+  .cm-line {
+    padding: 0 12px 0 10px;
+  }
+
+  .cm-cursor {
+    border-left-color: var(--sx-accent);
+  }
+
+  .cm-selectionBackground,
+  &.cm-focused .cm-selectionBackground,
+  .cm-focused .cm-selectionBackground {
+    background: color-mix(in srgb, var(--sx-accent) 28%, transparent) !important;
+  }
+
+  .cm-gutters {
+    color: var(--sx-muted);
+    background: transparent;
+    border-right: none;
+  }
+
+  .cm-lineNumbers .cm-gutterElement {
+    min-width: 32px;
+    padding: 0 8px 0 10px;
+    font-size: 11px;
+    opacity: 0.7;
+  }
+
+  .cm-activeLine {
+    background: color-mix(in srgb, var(--sx-fg) 4%, transparent);
+  }
+
+  .cm-activeLineGutter {
+    color: var(--sx-fg);
+    background: transparent;
+  }
+
+  .cm-placeholder {
+    color: var(--sx-muted);
+    font-style: italic;
+  }
+
+  // Each snippet starts on a band; \endsnippet closes it quietly
+  .sx-snippet-header {
+    background: color-mix(in srgb, var(--sx-accent) 9%, transparent);
+    border-top: 1px solid color-mix(in srgb, var(--sx-accent) 22%, transparent);
+  }
+
+  .sx-snippet-end {
+    opacity: 0.65;
+  }
+
+  // #{name} placeholders as pills
+  .sx-snippet-placeholder {
+    padding: 0 3px;
+    color: var(--sx-accent);
+    background: color-mix(in srgb, var(--sx-accent) 16%, transparent);
+    border-radius: 4px;
+  }
+
+  // The live snippet field being filled in
+  .cm-snippetField {
+    background: color-mix(in srgb, var(--sx-warning) 22%, transparent);
+    border-radius: 3px;
+  }
+
+  // Problems
+  .cm-lintRange-error {
+    background-image: none;
+    text-decoration: underline wavy var(--sx-danger);
+    text-underline-offset: 3px;
+  }
+
+  .cm-lintRange-warning {
+    background-image: none;
+    text-decoration: underline wavy var(--sx-warning);
+    text-underline-offset: 3px;
+  }
+
+  .cm-lintRange-info {
+    background-image: none;
+    text-decoration: underline dotted var(--sx-muted);
+    text-underline-offset: 3px;
+  }
+
+  // Its pop-ups: the \snippet suggestion and problem hovers
+  .cm-tooltip {
+    color: var(--sx-fg);
+    font-family: var(--font-sans);
+    background: var(--sx-island-raised);
+    border: 1px solid var(--sx-border);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 25%);
+    overflow: hidden;
+  }
+
+  .cm-tooltip-autocomplete > ul {
+    padding: 4px;
+    font-family: 'JetBrains Mono', monospace;
+
+    li {
+      padding: 2px 8px;
+      border-radius: 5px;
+    }
+
+    li[aria-selected] {
+      color: var(--sx-selected-fg);
+      background: var(--sx-selected-bg);
+    }
+  }
+
+  .cm-completionDetail {
+    margin-left: 0.75em;
+    color: var(--sx-muted);
+    font-family: var(--font-sans);
+    font-style: normal;
+  }
+
+  .cm-diagnostic {
+    padding: 6px 10px;
+    font-size: 13px;
+    border-left-width: 3px;
+  }
+}
+
+.sx-snippets-help {
+  margin: 0 0 10px;
+  color: var(--sx-muted);
+  font-size: 13px;
+
+  code {
+    color: var(--sx-fg);
+    font-variant-ligatures: none;
+  }
+}
+
+.sx-snippets-status {
+  margin-right: auto;
+  color: var(--sx-muted);
+  font-size: 13px;
+}
+
+// The dialog in the editor: a taller editor
+#sx-personal-snippets .sx-snippet-editor .cm-editor {
+  height: 52vh;
+}
+
+// The account settings page
+.sx-account-section {
+  .sx-account-intro {
+    margin-bottom: 20px;
+    color: var(--sx-muted);
+  }
+
+  code {
+    font-variant-ligatures: none;
+  }
+}
+
+.sx-account-block {
+  margin-bottom: 28px;
+  scroll-margin-top: 80px;
+
+  h4 {
+    margin: 0 0 4px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .sx-account-block-head {
+    margin-bottom: 10px;
+
+    p {
+      max-width: 62ch;
+      margin: 0;
+      color: var(--sx-muted);
+      font-size: 14px;
+    }
+  }
+
+  .sx-account-block-head-row {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
+  .sx-account-switch {
+    display: flex;
+    flex: none;
+    gap: 10px;
+    align-items: center;
+    color: var(--sx-muted);
+    font-size: 13px;
+    white-space: nowrap;
+
+    label {
+      margin: 0;
+    }
+  }
+
+  .sx-account-block-foot {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 10px;
+  }
+
+  // The math rules box keeps its own frame here, without the hairline
+  // it has under a row in the editor's Settings
+  .sx-math-rules {
+    padding: 0;
+    border-bottom: none;
+  }
+}
