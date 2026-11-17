@@ -74,11 +74,23 @@ export function parseSnippetFile(text: string): {
   return { presets, lines: headerLines, problems }
 }
 
-let cache: { text: string; presets: Preset[] } | null = null
+const caches = new Map<string, { text: string; presets: Preset[] }>()
+
+function parsed(key: string, text: string, category: Preset['category']) {
+  const cached = caches.get(key)
+  if (cached?.text === text) return cached.presets
+  const presets = parseSnippetFile(text).presets.map(preset => ({
+    ...preset,
+    category,
+  }))
+  caches.set(key, { text, presets })
+  return presets
+}
 
 /** The project's presets, parsed once per change of the files */
-export function projectPresets(text: string | null): Preset[] {
-  if (!text) return []
-  if (cache?.text !== text) cache = { text, presets: parseSnippetFile(text).presets }
-  return cache.presets
-}
+export const projectPresets = (text: string | null): Preset[] =>
+  text ? parsed('project', text, 'project') : []
+
+/** Your personal presets (Settings, kept with your account) */
+export const personalPresets = (text: string): Preset[] =>
+  text ? parsed('personal', text, 'personal') : []

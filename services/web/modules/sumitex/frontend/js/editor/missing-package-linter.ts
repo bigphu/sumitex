@@ -15,9 +15,10 @@
  *   class it doesn't know, not in the project), the linter stays quiet.
  * - It follows the editor's "code check" setting, like the stock linter.
  */
+import { needsRelint, relint } from './relint'
 import { Prec } from '@codemirror/state'
 import { Command, EditorView, ViewPlugin, keymap } from '@codemirror/view'
-import { Diagnostic, forEachDiagnostic, forceLinting } from '@codemirror/lint'
+import { Diagnostic, forEachDiagnostic } from '@codemirror/lint'
 import { createLinter } from '@/features/source-editor/extensions/linting'
 import {
   CLASSES,
@@ -41,6 +42,7 @@ import {
 } from '../diagnostics/preamble-store'
 import { packageLoadAt, requestAddPackage } from './add-package'
 import { codeOnly, escaped } from '../diagnostics/latex-text'
+import { getCheckPackages, subscribePrefs } from '../settings/prefs'
 
 // Enough to be useful, few enough to stay readable
 const MAX_DIAGNOSTICS = 100
@@ -114,6 +116,7 @@ function loadedTooLate(
 }
 
 function lint(view: EditorView): Diagnostic[] {
+  if (!getCheckPackages()) return []
   const text = view.state.doc.toString()
   const store = getProjectPreamble()
 
@@ -198,13 +201,20 @@ export const applyQuickFix: Command = view => {
 
 // Check again when the main preamble changes (a package added, the
 // snapshot refreshed), not only when this file changes
+// (and when the check is switched on or off in Settings)
 const relintOnPreambleChange = ViewPlugin.define(view => {
-  const unsubscribe = subscribeProjectPreamble(() => forceLinting(view))
-  return { destroy: unsubscribe }
+  const unsubscribe = subscribeProjectPreamble(() => relint(view))
+  const unsubscribePrefs = subscribePrefs(() => relint(view))
+  return {
+    destroy: () => {
+      unsubscribe()
+      unsubscribePrefs()
+    },
+  }
 })
 
 export const missingPackageLinter = () => [
-  createLinter(lint, { delay: 600 }),
+  createLinter(lint, { delay: 600, needsRefresh: needsRelint }),
   relintOnPreambleChange,
   Prec.high(keymap.of([{ key: 'Mod-.', run: applyQuickFix }])),
 ]

@@ -14,8 +14,10 @@
  * are left to Overleaf's own linter. Follows the editor's "code check"
  * setting, like the other linters.
  */
+import { needsRelint, relint } from './relint'
+import { getCheckProject, subscribePrefs } from '../settings/prefs'
 import { ViewPlugin, EditorView } from '@codemirror/view'
-import { Diagnostic, forceLinting } from '@codemirror/lint'
+import { Diagnostic } from '@codemirror/lint'
 import { createLinter } from '@/features/source-editor/extensions/linting'
 import {
   getProjectPreamble,
@@ -79,6 +81,7 @@ function lintBib(text: string): Diagnostic[] {
 }
 
 function lint(view: EditorView): Diagnostic[] {
+  if (!getCheckProject()) return []
   const { index, currentPath } = getProjectPreamble()
   if (!index) return []
   const text = view.state.doc.toString()
@@ -175,12 +178,19 @@ function lint(view: EditorView): Diagnostic[] {
 
 // Check again when the project index changes (after a compile, a file
 // switch), not only when this file changes
+// (and when the checks are switched on or off in Settings)
 const relintOnIndexChange = ViewPlugin.define(view => {
-  const unsubscribe = subscribeProjectPreamble(() => forceLinting(view))
-  return { destroy: unsubscribe }
+  const unsubscribe = subscribeProjectPreamble(() => relint(view))
+  const unsubscribePrefs = subscribePrefs(() => relint(view))
+  return {
+    destroy: () => {
+      unsubscribe()
+      unsubscribePrefs()
+    },
+  }
 })
 
 export const projectChecks = () => [
-  createLinter(lint, { delay: 800 }),
+  createLinter(lint, { delay: 800, needsRefresh: needsRelint }),
   relintOnIndexChange,
 ]

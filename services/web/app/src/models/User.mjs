@@ -111,6 +111,9 @@ export const UserSchema = new Schema(
       referencesSearchMode: { type: String, default: 'advanced' }, // 'advanced' or 'simple'
       darkModePdf: { type: Boolean, default: false },
       floatingMenu: { type: Boolean, default: true },
+      // SumiTeX: personal snippets (.sxs text) and math shortcuts
+      sumitexSnippets: { type: String },
+      sumitexMathRules: { type: String },
       zotero: refProviderSettingsSchema,
       mendeley: refProviderSettingsSchema,
       papers: refProviderSettingsSchema,

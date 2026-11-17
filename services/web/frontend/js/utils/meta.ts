@@ -376,6 +376,8 @@ export interface Meta {
   'ol-userEmails': UserEmailData[]
   'ol-userNotificationPreferences': UserNotificationPreferences
   'ol-userSettings': UserSettings
+  // SumiTeX: personal snippets and math shortcuts, on the account page
+  'ol-sumitexAccount': { snippets: string; mathRules: string | null }
   'ol-user_id': string | undefined
   'ol-users': ManagedUser[]
   'ol-usersBestSubscription': ProjectDashboardSubscription | undefined

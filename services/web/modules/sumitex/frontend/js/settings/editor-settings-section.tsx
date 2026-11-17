@@ -9,6 +9,8 @@
 import { useState, useSyncExternalStore } from 'react'
 import ToggleSetting from '@/features/ide-settings/components/toggle-setting'
 import ButtonSetting from '@/features/ide-settings/components/button-setting'
+import Setting from '@/features/ide-settings/components/setting'
+import OLButton from '@/shared/components/ol/ol-button'
 import type { SettingsSection } from '@/features/ide-settings/context/types'
 import {
   getCodeToolbar,
@@ -16,12 +18,20 @@ import {
   getMathRules,
   setCodeToolbar,
   setMathExpand,
-  setMathRules,
   subscribePrefs,
 } from './prefs'
-import { BUILT_IN_RULES, parseRules } from '../editor/math-auto-expand'
+import {
+  getPersonalSnippets,
+  hasAccount,
+  subscribeAccountPrefs,
+} from './account-prefs'
+import { parseRules } from '../editor/math-auto-expand'
+import { MathRulesEditor } from './math-rules-editor'
+import { parseSnippetFile } from '../completions/project-snippets'
+import { OPEN_PERSONAL_SNIPPETS_EVENT } from '../completions/personal-snippets'
+import { useSettingsModalContext } from '@/features/ide-settings/context/settings-modal-context'
 
-function CodeToolbarSetting() {
+export function CodeToolbarSetting() {
   const checked = useSyncExternalStore(subscribePrefs, getCodeToolbar)
   return (
     <ToggleSetting
@@ -34,7 +44,7 @@ function CodeToolbarSetting() {
   )
 }
 
-function MathExpandSetting() {
+export function MathExpandSetting() {
   const checked = useSyncExternalStore(subscribePrefs, getMathExpand)
   return (
     <ToggleSetting
@@ -47,20 +57,11 @@ function MathExpandSetting() {
   )
 }
 
-const shown = (replacement: string) => replacement.replace(/#\{\}/g, '▮')
-
 function MathRulesSetting() {
   const saved = useSyncExternalStore(subscribePrefs, getMathRules)
   const enabled = useSyncExternalStore(subscribePrefs, getMathExpand)
   const [open, setOpen] = useState(false)
-  const [draft, setDraft] = useState(saved)
-  const { rules, off } = parseRules(draft)
-
-  const toggle = () => {
-    if (open) setMathRules(draft)
-    else setDraft(getMathRules())
-    setOpen(!open)
-  }
+  const { rules, off } = parseRules(saved)
 
   return (
     <>
@@ -69,48 +70,58 @@ function MathRulesSetting() {
         label="Your math shortcuts"
         description={
           saved.trim()
-            ? `${parseRules(saved).rules.length} of your own, ${parseRules(saved).off.size} built-in switched off`
+            ? `${rules.length} of your own, ${off.size} built-in switched off`
             : 'Add your own triggers, or switch built-in ones off.'
         }
         buttonText={open ? 'Close' : 'Edit…'}
-        onClick={toggle}
+        onClick={() => setOpen(!open)}
         disabled={!enabled}
       />
-      {open && (
-        <div className="sx-math-rules">
-          <p className="sx-math-rules-help">
-            One per line: the trigger, a space, then what it becomes.{' '}
-            <code>#{'{}'}</code> marks where the cursor goes (Tab moves to the
-            next one). A trigger on its own switches a built-in one off;{' '}
-            <code>%</code> starts a comment. Saved in this browser.
-          </p>
-          <textarea
-            className="sx-math-rules-input"
-            aria-label="Your math shortcuts"
-            spellCheck={false}
-            rows={8}
-            value={draft}
-            placeholder={'@w \\omega\n.. \\cdot\nhat \\hat{#{}}#{}\nsq'}
-            onChange={event => setDraft(event.target.value)}
-            onBlur={() => setMathRules(draft)}
-          />
-          <p className="sx-math-rules-help">
-            {rules.length} rule{rules.length === 1 ? '' : 's'} of your own
-            {off.size ? `, ${off.size} built-in switched off` : ''}. Built in:
-          </p>
-          <ul className="sx-math-rules-builtin">
-            {BUILT_IN_RULES.map(rule => (
-              <li
-                key={rule.trigger}
-                className={off.has(rule.trigger) ? 'sx-off' : undefined}
-              >
-                <code>{rule.trigger}</code> {shown(rule.replacement)}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {open && <MathRulesEditor id="sumitex-math-rules-input" />}
     </>
+  )
+}
+
+export function PersonalSnippetsSetting() {
+  const text = useSyncExternalStore(subscribeAccountPrefs, getPersonalSnippets)
+  const { setShow } = useSettingsModalContext()
+  const count = parseSnippetFile(text).presets.length
+
+  const open = () => {
+    // Settings closes first; the snippets dialog takes its place
+    setShow(false)
+    window.setTimeout(
+      () => window.dispatchEvent(new Event(OPEN_PERSONAL_SNIPPETS_EVENT)),
+      200
+    )
+  }
+
+  return (
+    <Setting
+      controlId="sumitex-personal-snippets"
+      label="Your snippets"
+      description={
+        <>
+          {count
+            ? `Used in every project · ${count} snippet${count === 1 ? '' : 's'}`
+            : 'Used in every project · none yet'}
+          {' · '}
+          <a href="/user/settings#sx-snippets" target="_blank" rel="noreferrer">
+            Also in Account settings
+          </a>
+        </>
+      }
+    >
+      <OLButton
+        id="sumitex-personal-snippets"
+        variant="secondary"
+        size="sm"
+        onClick={open}
+        disabled={!hasAccount}
+      >
+        Edit…
+      </OLButton>
+    </Setting>
   )
 }
 
@@ -122,6 +133,7 @@ export default function useSumitexEditorSection(): SettingsSection {
       { key: 'sumitexCodeToolbar', component: <CodeToolbarSetting /> },
       { key: 'sumitexMathExpand', component: <MathExpandSetting /> },
       { key: 'sumitexMathRules', component: <MathRulesSetting /> },
+      { key: 'sumitexSnippets', component: <PersonalSnippetsSetting /> },
     ],
   }
 }

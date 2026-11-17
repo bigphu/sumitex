@@ -252,4 +252,9 @@ const inputHandler = EditorView.inputHandler.of((view, from, to, text) => {
   return true
 })
 
-export const mathAutoExpand = (): Extension => [inputHandler, expansionFilter]
+export const mathAutoExpand = (): Extension => {
+  // Read the rules now, so rules kept in this browser move to the account
+  // on the first visit, not only when a trigger is first typed
+  getMathRules()
+  return [inputHandler, expansionFilter]
+}

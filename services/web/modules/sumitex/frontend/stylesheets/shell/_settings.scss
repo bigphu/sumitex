@@ -162,3 +162,93 @@
     opacity: 0.6;
   }
 }
+
+// The filter above the tab list (settings/use-settings-filter.tsx)
+.sx-settings-filter {
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  gap: 6px;
+  align-items: center;
+  margin: 0 0 10px;
+  padding: 0 8px;
+  color: var(--sx-muted);
+  background: var(--sx-sunken);
+  border: 1px solid var(--sx-border);
+  border-radius: 6px;
+
+  &:focus-within {
+    border-color: var(--sx-accent);
+  }
+
+  .material-symbols {
+    font-size: 18px;
+  }
+
+  input {
+    flex: 1;
+    width: 0;
+    min-width: 0;
+    padding: 6px 0;
+    color: var(--sx-fg);
+    font-size: 13px;
+    background: transparent;
+    border: none;
+    outline: none;
+
+    &::placeholder {
+      color: var(--sx-muted);
+    }
+  }
+}
+
+// While filtering: every tab's matching settings, under the tab's name
+.sx-filter-results {
+  .sx-filter-tab + .sx-filter-tab {
+    margin-top: 18px;
+  }
+
+  .sx-filter-tab-title {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 4px;
+    color: var(--sx-fg);
+    font-size: 14px;
+    font-weight: 600;
+
+    .material-symbols {
+      color: var(--sx-muted);
+      font-size: 18px;
+    }
+  }
+
+  .sx-filter-none {
+    margin: 24px 0;
+    color: var(--sx-muted);
+  }
+}
+
+// A setting whose control needs the full width (the math rules box)
+.ide-setting.sx-setting-block {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+
+  &[aria-disabled='true'] .sx-math-rules {
+    opacity: 0.55;
+  }
+
+  .sx-math-rules {
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+}
+
+// While the filter has text, no tab is "the" tab: the results span them all
+.ide-settings-tab-nav:has(.sx-settings-filter input:not(:placeholder-shown))
+  .ide-settings-tab-link.active {
+  color: var(--sx-muted);
+  background: transparent;
+}

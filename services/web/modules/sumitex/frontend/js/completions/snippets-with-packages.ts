@@ -44,15 +44,16 @@ import {
 } from '../editor/add-package'
 import { debugConsole } from '@/utils/debugging'
 import { PRESETS, Preset, PresetContext } from './presets'
-import { projectPresets } from './project-snippets'
+import { personalPresets, projectPresets } from './project-snippets'
+import { getPersonalSnippets } from '../settings/account-prefs'
 import { isSnippetText } from './snippet-file'
 
 // Ahead of the stock completions (boost runs from -99 to 99)
 const BOOST = 50
 
 // A new snippet in a snippet file: trigger, label, packages, then the text
-const SNIPPET_SKELETON =
-  '\\snippet{\\#{trigger}}{#{Label}}[#{packages}]\n#{}\n\\endsnippet\n'
+export const SNIPPET_SKELETON =
+  '\\snippet{#{\\trigger}}{#{Label}}[#{packages}]\n#{}\n\\endsnippet\n#{}'
 
 // How long to wait for a chapter to come back after editing the main file
 const RETURN_TIMEOUT_MS = 5000
@@ -201,13 +202,14 @@ export default function snippetsWithPackages(
   const snippetFile =
     store.currentPath?.endsWith('.sxs') || isSnippetText(text)
   const effect = inEffect(text)
-  // The project's own snippets first; they replace built-in ones
-  const own = projectPresets(store.snippets ?? null)
-  const owned = new Set(own.map(preset => preset.trigger))
+  // The project's own snippets, then your personal ones, then the
+  // built-in ones; the first with a trigger hides the others
+  const seen = new Set<string>()
   const presets = [
-    ...own,
-    ...PRESETS.filter(preset => !owned.has(preset.trigger)),
-  ]
+    ...projectPresets(store.snippets ?? null),
+    ...personalPresets(getPersonalSnippets()),
+    ...PRESETS,
+  ].filter(preset => !seen.has(preset.trigger) && seen.add(preset.trigger))
   const options: Completion[] = presets
     .filter(preset => snippetFile || (preset.context ?? 'text') === where)
     .map(preset => ({
@@ -215,7 +217,10 @@ export default function snippetsWithPackages(
       detail: snippetFile
         ? preset.label
         : detailOf(preset, needsOf(effect, preset)),
-      type: preset.category === 'project' ? 'project-snippet' : 'snippet',
+      type:
+        preset.category === 'project' || preset.category === 'personal'
+          ? `${preset.category}-snippet`
+          : 'snippet',
       boost: BOOST,
       apply: snippetFile
         ? snippet(snippetTemplate(preset.template))

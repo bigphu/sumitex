@@ -104,7 +104,7 @@ export default function SumitexBridge() {
 
   // The live linter's view of main.tex, and "Add package"
   useProjectPreamble(view)
-  useSnippetCommands(view)
+  const snippetDialog = useSnippetCommands(view)
 
   // Palette entries. Zen sits under View, next to the stock "Toggle focus
   // mode"; every other sumitex-* command is listed by its own label. Their
@@ -135,5 +135,5 @@ export default function SumitexBridge() {
     [setFocusMode, setActiveModal, view]
   )
 
-  return null
+  return snippetDialog
 }

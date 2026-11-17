@@ -3,11 +3,16 @@
  *
  * - "Snippets: Open project snippets" opens the project's snippets.sxs,
  *   creating it (with a short guide and an example) when there is none.
- * - "Snippets: New snippet from selection" adds the selected text to it as
- *   a new snippet: the trigger, label and packages (guessed from the text)
- *   are placeholders to type over, Tab moving between them.
+ * - "Snippets: New project snippet from selection" adds the selected text
+ *   to it as a new snippet: the trigger, label and packages (guessed from
+ *   the text) are placeholders to type over, Tab moving between them.
+ * - "Snippets: Open your snippets" and "New personal snippet from
+ *   selection" do the same for your personal snippets, in every project
+ *   (personal-snippets.tsx).
+ *
+ * Returns the personal snippets dialog, for the bridge to render.
  */
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { EditorView } from '@codemirror/view'
 import { Completion, snippet } from '@codemirror/autocomplete'
 import { useCommandProvider } from '@/features/ide-react/hooks/use-command-provider'
@@ -18,7 +23,16 @@ import { useProjectContext } from '@/shared/context/project-context'
 import getMeta from '@/utils/meta'
 import type { Folder } from '../../../../../types/folder'
 import { debugConsole } from '@/utils/debugging'
-import { SNIPPET_FILE, newSnippetTemplate, starterText } from './snippet-file'
+import {
+  OPEN_PROJECT_SNIPPETS_EVENT,
+  SNIPPET_FILE,
+  newSnippetTemplate,
+  starterText,
+} from './snippet-file'
+import {
+  OPEN_PERSONAL_SNIPPETS_EVENT,
+  PersonalSnippetsDialog,
+} from './personal-snippets'
 
 const OPEN_TIMEOUT_MS = 6000
 const SETTLE_MS = 300
@@ -67,6 +81,15 @@ export function useSnippetCommands(view: EditorView) {
   const { fileTreeData } = useFileTreeData()
   const { openDocWithId } = useEditorManagerContext()
   const { currentDocumentId, currentDocument } = useEditorOpenDocContext()
+  // The personal snippets dialog, and a snippet to add when it opens
+  const [personal, setPersonal] = useState<{ newSnippet: string | null } | null>(null)
+
+  // Settings → SumiTeX → "Your snippets" opens the dialog too
+  useEffect(() => {
+    const open = () => setPersonal({ newSnippet: null })
+    window.addEventListener(OPEN_PERSONAL_SNIPPETS_EVENT, open)
+    return () => window.removeEventListener(OPEN_PERSONAL_SNIPPETS_EVENT, open)
+  }, [])
 
   // The latest values, for commands that wait across renders
   // (openDocWithId only finds files in the tree it was made with)
@@ -142,6 +165,15 @@ export function useSnippetCommands(view: EditorView) {
     return true
   }
 
+  // Settings → Snippets & shortcuts → Project snippets
+  const openRef = useRef(openSnippetFile)
+  openRef.current = openSnippetFile
+  useEffect(() => {
+    const open = () => void openRef.current()
+    window.addEventListener(OPEN_PROJECT_SNIPPETS_EVENT, open)
+    return () => window.removeEventListener(OPEN_PROJECT_SNIPPETS_EVENT, open)
+  }, [])
+
   useCommandProvider(
     () => [
       {
@@ -153,7 +185,7 @@ export function useSnippetCommands(view: EditorView) {
       },
       {
         id: 'sumitex-new-snippet-from-selection',
-        label: 'Snippets: New snippet from selection',
+        label: 'Snippets: New project snippet from selection',
         handler: () => {
           const { from, to } = view.state.selection.main
           const selected = view.state.sliceDoc(from, to)
@@ -166,8 +198,32 @@ export function useSnippetCommands(view: EditorView) {
           })()
         },
       },
+      {
+        id: 'sumitex-open-personal-snippets',
+        label: 'Snippets: Open your snippets (every project)',
+        handler: () => setPersonal({ newSnippet: null }),
+      },
+      {
+        id: 'sumitex-new-personal-snippet-from-selection',
+        label: 'Snippets: New personal snippet from selection',
+        handler: () => {
+          const { from, to } = view.state.selection.main
+          setPersonal({ newSnippet: newSnippetTemplate(view.state.sliceDoc(from, to)) })
+        },
+      },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [view, projectId]
+  )
+
+  return (
+    <PersonalSnippetsDialog
+      show={personal !== null}
+      newSnippet={personal?.newSnippet ?? null}
+      onHide={() => {
+        setPersonal(null)
+        window.setTimeout(() => view.focus(), 60)
+      }}
+    />
   )
 }

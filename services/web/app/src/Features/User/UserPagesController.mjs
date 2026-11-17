@@ -168,6 +168,11 @@ async function settingsPage(req, res) {
       },
     },
     showAiFeatures: Boolean(user.aiFeatures?.enabled),
+    // SumiTeX: personal snippets and math shortcuts
+    sumitexAccount: {
+      snippets: user.ace?.sumitexSnippets ?? '',
+      mathRules: user.ace?.sumitexMathRules ?? null,
+    },
     labsExperiments: user.labsExperiments ?? [],
     hasPassword: !!user.hashedPassword,
     shouldAllowEditingDetails,

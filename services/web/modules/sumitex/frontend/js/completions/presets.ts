@@ -25,6 +25,7 @@ export type Preset = {
     | 'code'
     | 'diagram'
     | 'project'
+    | 'personal'
   /** Where it is offered: in text (the default) or inside math */
   context?: PresetContext
   template: string

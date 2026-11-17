@@ -1112,6 +1112,13 @@ module.exports = {
     ],
     pdfPreviewPromotions: [],
     diagnosticActions: [],
+    // SumiTeX: sections on the account settings page
+    settingsPageSections: [
+      Path.resolve(
+        __dirname,
+        '../modules/sumitex/frontend/js/settings/account-section'
+      ),
+    ],
     sourceEditorCompletionSources: [
       // SumiTeX: snippets that bring their packages
       Path.resolve(
@@ -1332,11 +1339,19 @@ module.exports = {
       ),
     ],
     referenceSearchSetting: [],
-    settingsModalEditorTabSections: [
-      // SumiTeX
+    settingsModalEditorTabSections: [],
+    // SumiTeX: a filter box above the Settings dialog's tabs
+    settingsModalFilter: [
       Path.resolve(
         __dirname,
-        '../modules/sumitex/frontend/js/settings/editor-settings-section'
+        '../modules/sumitex/frontend/js/settings/use-settings-filter'
+      ),
+    ],
+    // SumiTeX: the Settings dialog sorted by task, with SumiTeX's tabs
+    settingsModalTabs: [
+      Path.resolve(
+        __dirname,
+        '../modules/sumitex/frontend/js/settings/settings-tabs'
       ),
     ],
     settingsModalSpellcheckSections: [],

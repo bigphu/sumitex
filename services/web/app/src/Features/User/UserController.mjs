@@ -408,6 +408,9 @@ const updateUserSettingsSchema = z.object({
     mathPreview: z.boolean().optional(),
     breadcrumbs: z.coerce.boolean().optional(),
     editorTabs: z.coerce.boolean().optional(),
+    // SumiTeX: personal snippets and math shortcuts, as text
+    sumitexSnippets: z.string().max(65536).optional(),
+    sumitexMathRules: z.string().max(16384).optional(),
     nonBlinkingCursor: z.coerce.boolean().optional(),
     referencesSearchMode: z.string().optional(),
     darkModePdf: z.coerce.boolean().optional(),
@@ -470,6 +473,13 @@ async function updateUserSettings(req, res, next) {
   }
   if (body.overallTheme != null) {
     user.ace.overallTheme = body.overallTheme
+  }
+  // SumiTeX
+  if (body.sumitexSnippets != null) {
+    user.ace.sumitexSnippets = body.sumitexSnippets
+  }
+  if (body.sumitexMathRules != null) {
+    user.ace.sumitexMathRules = body.sumitexMathRules
   }
   if (body.fontSize != null) {
     user.ace.fontSize = body.fontSize

@@ -9,6 +9,9 @@ import { PRESETS } from './presets'
 
 export const SNIPPET_FILE = 'snippets.sxs'
 
+/** Opens (or creates) the project's snippets.sxs, from Settings */
+export const OPEN_PROJECT_SNIPPETS_EVENT = 'sumitex:open-project-snippets'
+
 /** A snippet file: by its name, or by its \snippet … \endsnippet lines */
 export const isSnippetText = (text: string) =>
   /^[ \t]*\\endsnippet\b/m.test(text) ||

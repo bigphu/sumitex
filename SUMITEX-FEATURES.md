@@ -180,6 +180,21 @@ Esc or the exit button brings back the normal layout.
 
 **Dialogs (done with Phase 2).** The stock `themed-modals` flag is on, so most dialogs follow the theme, and every themed dialog shares one SumiTeX surface and scrollbar (`shell/_dialogs.scss`). Settings uses the sheet's look: an index on the left, small-capital headings, rows on hairlines.
 
+### The Settings dialog, by task (decided 17 Nov 2026)
+
+The dialog's tabs follow what you're doing, not where a setting came from (`settings/settings-tabs.tsx`, through a `settingsModalTabs` slot):
+
+| Tab | Holds |
+|---|---|
+| Editor | **Typing:** auto-complete, auto-close brackets, floating menu. **Display:** editor tabs, preview tabs, breadcrumbs, equation preview, non-blinking cursor, Code-mode toolbar, PDF viewer |
+| Snippets & shortcuts | **Snippets:** yours (Edit… opens the dialog) and the project's (Open, or Create… for `snippets.sxs`). **Math shortcuts:** the switch and your rules, with the built-in list. **Keys:** keybindings (Vim, Emacs) and the shortcut sheet |
+| Checks | **While you type:** code check, missing packages, project checks (the last two need the code check, and switching them re-checks at once) |
+| Spelling, Compiler, References, Appearance, Notifications | As in Overleaf |
+
+- **Filter** (`settings/use-settings-filter.tsx`, `settingsModalFilter` slot): a box above the tabs, like the shortcut sheet's. Typing lists the matching settings from every tab under the tab's name (tab and section names count, so "checks" lists the Checks tab); Esc clears it, picking a tab leaves it.
+- **Nothing lost:** an Editor setting the layout doesn't place (from another module or a later Overleaf) stays in Editor, in its own section.
+- **Upstream edits, marked `// SumiTeX`:** the two slots in `ide-settings/context/settings-modal-context.tsx` and `ide-settings/components/settings-modal-body.tsx`.
+
 ## 5 · Project folders
 
 There are two kinds of folders. The design doc's main feature is the first.
@@ -252,7 +267,17 @@ A project can have snippets of its own in `.sxs` files (for example `snippets.sx
 - **Palette:** "Snippets: Open project snippets" opens `snippets.sxs`, creating it with a short guide, the list of built-in triggers and an example. "Snippets: New snippet from selection" adds the selected text to it as a new snippet, with the trigger, label and packages (guessed from the text) as placeholders to type over.
 - **In the file:** typing `\snippet` inserts an empty snippet to fill in; other snippets go in as plain text and add no packages. Problems show as you type: a header SumiTeX can't read, a missing `\endsnippet`, a trigger used twice, and a note where a snippet replaces a built-in one.
 - **In the menu:** project snippets carry a `project-snippet` tag.
-- **Later:** preamble lines (`\newtheorem`) for project snippets, and personal snippets kept with your account for every project.
+- **Later:** preamble lines (`\newtheorem`) for project snippets.
+
+### Personal snippets (decided 17 Nov 2026)
+
+Your own snippets, in the same `\snippet … \endsnippet` text, offered in every project you open and kept with your account (`user.ace.sumitexSnippets`, saved through `/user/settings`), so they follow you to any device. A project's snippet with the same trigger wins over yours, and yours over a built-in one. In the menu they carry a `personal-snippet` tag.
+
+- **Palette:** "Snippets: Open your snippets (every project)" opens a dialog with a small editor (LaTeX highlighting, `\snippet` for a new one, Tab between placeholders, problems underlined as you type). "Snippets: New personal snippet from selection" opens it with the selection added as a new snippet. The project commands are now "Open project snippets" and "New project snippet from selection".
+- **Account settings** (`/user/settings`, no project needed): a "Snippets and math shortcuts" section with the same snippet editor and the math shortcuts box, through a new `settingsPageSections` module slot. The editor's Settings → SumiTeX has a "Your snippets" row linking there.
+- **The snippet editor** (`completions/snippet-editor.tsx`, shared by the dialog and the account page): LaTeX in SumiTeX's colours, `#{…}` placeholders as pills, each `\snippet` header on a band, and the problems underlined.
+- **Math shortcuts** moved to the account as well (`user.ace.sumitexMathRules`); rules kept in a browser before are moved over on the first visit. The on/off switch stays per browser.
+- **Upstream edits, each marked `// SumiTeX`:** two fields in `User.mjs`, accepting them in `UserController.mjs` (64 KB and 16 KB at most), sending them to the editor (`UserSettingsHelper.mjs`) and to the account page (`UserPagesController.mjs`, `user/settings.pug`, `meta.ts`), and the `settingsPageSections` slot (`features/settings/components/root.tsx`, `settings.defaults.js`).
 
 ### Preset catalogue
 
@@ -450,7 +475,7 @@ A project can have snippets of its own in `.sxs` files (for example `snippets.sx
 - **Word triggers** (`sq`, `sum`, `int`, `RR`…) fire only at the start of a word, so `\sqrt`, `\sum` and `\int` typed in full stay as they are.
 - **Packages:** `\mathbb` from `RR` adds `amssymb` in the same step (one Ctrl+Z removes both) when the open file holds the preamble; in a chapter, the missing-package linter offers the fix instead of switching files mid-formula.
 - **Also math:** an empty `equation` or `align`. **Not math:** `\text{}`, `\mathrm{}`, `\operatorname{}`, `\label{}`, `\ref{}` and the like.
-- **Settings → Editor → SumiTeX:** the switch, and "Your math shortcuts": one rule per line (`@w \omega`, `hat \hat{#{}}#{}`), a trigger on its own to switch a built-in one off, with the built-in list shown below. Saved per browser for now.
+- **Settings → Editor → SumiTeX:** the switch, and "Your math shortcuts": one rule per line (`@w \omega`, `hat \hat{#{}}#{}`), a trigger on its own to switch a built-in one off, with the built-in list shown below. Saved with your account (see Personal snippets).
 
 ## 9 · Draggable lists
 

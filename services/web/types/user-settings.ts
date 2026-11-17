@@ -30,6 +30,9 @@ export type UserSettings = {
   nonBlinkingCursor: boolean
   darkModePdf: boolean
   floatingMenu: boolean
+  // SumiTeX: personal snippets and math shortcuts
+  sumitexSnippets?: string
+  sumitexMathRules?: string | null
   zotero: RefProviderSettings
   mendeley: RefProviderSettings
   papers: RefProviderSettings
