@@ -529,3 +529,102 @@
   vertical-align: 1px;
   white-space: nowrap;
 }
+
+// "Add amssymb" and "CTAN ↗" on a compile error
+// (diagnostics/add-package-button.tsx; mockup frame 4)
+.sx-add-package {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 4px;
+}
+
+.sx-add-package-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 10px 0 6px;
+  border: 0;
+  border-radius: 5px;
+  background: var(--sx-accent-fill);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--sx-accent-fill-hover);
+  }
+
+  &:disabled {
+    background: transparent;
+    color: var(--sx-positive);
+    cursor: default;
+  }
+
+  .material-symbols {
+    font-size: 15px;
+  }
+}
+
+.sx-add-package-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--sx-accent);
+  font-size: 12px;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  .material-symbols {
+    font-size: 13px;
+  }
+}
+
+// The linter's hover card (editor/missing-package-linter.ts): the first
+// fix is the main button, the CTAN link plain
+.cm-tooltip-lint .cm-diagnostic[class*='cm-diagnostic-'] {
+  .cm-diagnosticAction {
+    margin: 8px 8px 0 0;
+    padding: 3px 10px;
+    border-radius: 5px;
+    background: var(--sx-accent-fill);
+    color: #fff;
+    font: 600 12px/18px var(--font-sans);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--sx-accent-fill-hover);
+    }
+
+    + .cm-diagnosticAction {
+      padding: 3px 2px;
+      background: transparent;
+      color: var(--sx-accent);
+      font-weight: 500;
+
+      &:hover {
+        background: transparent;
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .cm-diagnosticSource {
+    display: none;
+  }
+}
+
+.sx-add-package-button[data-outcome='already'] {
+  color: var(--sx-muted);
+}
+
+.sx-add-package-button[data-outcome='failed'] {
+  color: var(--sx-danger);
+}

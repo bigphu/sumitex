@@ -14,6 +14,7 @@ import { useUserSettingsContext } from '@/shared/context/user-settings-context'
 import { useRailContext } from '@/features/ide-react/context/rail-context'
 import { SHOW_SHORTCUTS_EVENT, setVscodeKeys } from '../editor/vscode-keymap'
 import { useRecordRecentFile } from '../palette/recent-files'
+import { useProjectPreamble } from '../diagnostics/use-project-preamble'
 import { gotoLine } from '@codemirror/search'
 
 // The layout Zen came from ('sideBySide' or 'flat'), to go back to when it
@@ -99,6 +100,9 @@ export default function SumitexBridge() {
 
   // The palette's "Recent files"
   useRecordRecentFile()
+
+  // The live linter's view of main.tex, and "Add package"
+  useProjectPreamble(view)
 
   // Palette entries. Zen sits under View, next to the stock "Toggle focus
   // mode"; every other sumitex-* command is listed by its own label. Their
