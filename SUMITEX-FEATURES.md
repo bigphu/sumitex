@@ -187,13 +187,30 @@ The dialog's tabs follow what you're doing, not where a setting came from (`sett
 | Tab | Holds |
 |---|---|
 | Editor | **Typing:** auto-complete, auto-close brackets, floating menu. **Display:** editor tabs, preview tabs, breadcrumbs, equation preview, non-blinking cursor, Code-mode toolbar, PDF viewer |
-| Snippets & shortcuts | **Snippets:** yours (Edit… opens the dialog) and the project's (Open, or Create… for `snippets.sxs`). **Math shortcuts:** the switch and your rules, with the built-in list. **Keys:** keybindings (Vim, Emacs) and the shortcut sheet |
+| Snippets & shortcuts | **Snippets & shortcuts:** the snippet library (Open), your snippets (Edit…), the math auto-expansion switch, your math shortcuts (Edit…); the buttons open the library on the right pane. **Keys:** keybindings (Vim, Emacs) and the shortcut sheet |
 | Checks | **While you type:** code check, missing packages, project checks (the last two need the code check, and switching them re-checks at once) |
 | Spelling, Compiler, References, Appearance, Notifications | As in Overleaf |
 
 - **Filter** (`settings/use-settings-filter.tsx`, `settingsModalFilter` slot): a box above the tabs, like the shortcut sheet's. Typing lists the matching settings from every tab under the tab's name (tab and section names count, so "checks" lists the Checks tab); Esc clears it, picking a tab leaves it.
 - **Nothing lost:** an Editor setting the layout doesn't place (from another module or a later Overleaf) stays in Editor, in its own section.
 - **Upstream edits, marked `// SumiTeX`:** the two slots in `ide-settings/context/settings-modal-context.tsx` and `ide-settings/components/settings-modal-body.tsx`.
+- **Size (18 Nov 2026):** up to 1180 px wide and 760 px of content, so most tabs show whole.
+
+### The snippet library (18 Nov 2026)
+
+Snippets and math shortcuts moved out of Settings into a dialog of their own, as big as Settings (`completions/snippet-library.tsx`). It opens from Settings → Snippets & shortcuts, Help → Snippets & shortcuts (the rail's ? menu and the menu bar), and the palette ("Snippets: Open snippet library", "Snippets: Open your snippets").
+
+- **Browse:** every snippet and shortcut (built-in by subject, this project's, yours), with a filter on trigger, label and body. A row opens to show what it inserts (with an example size, `\bmat3x3`), the size it takes and the packages it adds. Built-in shortcuts have a switch, which writes the trigger into your math shortcuts; switched-off and replaced ones are dimmed.
+- **Yours:** Edit snippets (the snippet editor, full height, kept while you look elsewhere, Save), Edit math shortcuts (the rules box), Project file (opens `snippets.sxs`).
+
+### Equation preview (18 Nov 2026)
+
+The stock preview floated above the start of the equation, vanished when there was no room above or the math didn't parse, and was rebuilt on every keystroke. Now (`source-editor/extensions/math-preview.ts`, an upstream file):
+
+- **A block under the math**, taking its own space instead of covering text: under the equation's end for display math, under the line for `$…$` in a paragraph. On the last line on screen, the editor scrolls just enough to show it.
+- **Steady while typing:** one preview per editor, redrawn in place about 150 ms after a pause. While the math is incomplete or MathJax can't render it, the last good render stays, dimmed and marked "incomplete", where it was.
+- **Long equations** scroll sideways.
+- **Esc** hides it for the equation (moving into another shows it again); **Alt+P** shows or hides it.
 
 ## 5 · Project folders
 
@@ -243,6 +260,28 @@ There are two kinds of folders. The design doc's main feature is the first.
 **How it's built.** A completion source in the `sourceEditorCompletionSources` slot. Presets are kept in a data file. It shares the "add package" helper with feature 6.
 
 **Built (Phase 4, 17 Nov 2026):** 19 presets from the catalogue below (`completions/presets.ts`): `\fig` `\subfig` `\herefig`, `\table` `\booktab` `\widetab`, `\ilist` `\elist` `\alist`, `\eq` `\align` `\cases` `\bmat`, `\thm` `\proof`, `\cref`, `\code` `\algo` `\tikzpic`. The menu says what a snippet will add ("Clean table with rules · adds booktabs"), and nothing that is already loaded. In a file with its own preamble, one Ctrl+Z takes back the snippet and its package lines. In a chapter, the packages go into the main file in one visit, then the snippet goes in; undo is then per file.
+
+**Added (18 Nov 2026):** 31 more, for statistics, machine learning, linear algebra and reports. Linear algebra (in math): `\pmat` `\vmat` `\matn` `\colvec` `\idmat` `\sys`. Statistics: `\hyp` `\gauss` `\confint` `\ols` (in math), `\regtab`. Machine learning (in math): `\loss` `\softmax` `\gdstep`, and `\train` for a training loop in pseudocode. Diagrams and plots: `\flow` `\lineplot` `\scatter` `\barchart`. Theorems: `\lem` `\cor` `\prop` `\defn` `\rem`. Reports: `\numtab` `\eqs` `\sube` `\siqty` `\toc` `\appx` `\fn`. Every snippet compiles as soon as it goes in, and no trigger is a real command name.
+
+**Rebuilt (18 Nov 2026): one format for every snippet and shortcut.** Built-in snippets, a project's `snippets.sxs` and personal snippets are all written the same way, and math shortcuts are snippets that expand as you type (`modules/sumitex/frontend/js/snippets/`).
+
+```latex
+\snippet[math,auto]{mat#{r:1-9}x#{c:1-9}}{Matrix #{r} × #{c}}[amsmath]
+\begin{bmatrix}
+\rows{r}{  \cols{c}{#{}}}
+\end{bmatrix}#{}
+\endsnippet
+
+\shortcut{EE}{\mathbb{E}}
+```
+
+- **Options:** where (`text`, the default for `\snippet`; `math`, the default for `\shortcut`; `any`) and how (`menu`, the default for `\snippet`; `auto`, as you type, the default for `\shortcut`; `tab`, on Tab after the trigger).
+- **Captures in triggers:** `#{name:1-20}` takes a number, `#{name:letter}` a letter. `\table3x4`, `\elist6`, `\bmat2x3`, and as you type in math `mat3x4`, `pmat2x2`, `vmat3x3`, `vec4`, `id3`. Auto triggers take numbers up to 9.
+- **In the body:** `\rows{r}{…}` (joined by `\\` and a new line), `\cols{c}{…}` (by `&`), `\lines{n}{…}`, `\repeat{n}{…}`, with `@row`, `@col` and `@i` for the position, and `\ifsame{a}{b}{then}{else}` (the identity matrix). A capture's name in the body or label stands for what was typed. `\preamble{…}` at the top of a body adds a preamble line.
+- **Order:** the project's snippets, then personal ones, then the one-per-line shortcuts in Settings, then the built-in ones; the first with a trigger wins. A trigger alone on a line in Settings switches a built-in shortcut off (`mat` switches off every `mat…`).
+- **Checks:** the snippet-file linter reports a bad header, option, capture or range by line, a trigger used twice, and a snippet that replaces a built-in one.
+
+**Adding a built-in snippet or shortcut:** add a `\snippet` or `\shortcut` to the file for its subject in `snippets/builtin/` (`statistics.ts`, `linear-algebra.ts`…; each holds plain snippet text), or add a file and list it in `builtin/index.ts`. The tests in `modules/sumitex/test/frontend/snippets/` read every built-in file and fail on a problem, a trigger used twice, or a body that doesn't render cleanly. Snippets must compile as they go in: images name mwe's `example-image`, math never starts with an empty placeholder line, and a trigger is never a real command's name.
 
 ### Project snippets (decided 17 Nov 2026)
 
@@ -344,9 +383,9 @@ Your own snippets, in the same `\snippet … \endsnippet` text, offered in every
 | `\tikzpic` | empty `tikzpicture` (not `\tikz`, which draws inline pictures) | tikz |
 | `\flow` | flowchart: 3 boxes and arrows | tikz (`positioning`, `arrows.meta`) |
 | `\tree` | simple tree diagram | tikz |
-| `\plot` | line plot of a function | pgfplots |
+| `\lineplot` | line plot of a function (not `\plot`, a TikZ path operation) | pgfplots |
 | `\plotdata` | plot from a data file or table | pgfplots |
-| `\bar` | bar chart | pgfplots |
+| `\barchart` | bar chart (not `\bar`, the math accent) | pgfplots |
 | `\cd` | commutative diagram | tikz-cd |
 
 **Math environments**
@@ -476,6 +515,7 @@ Your own snippets, in the same `\snippet … \endsnippet` text, offered in every
 - **Packages:** `\mathbb` from `RR` adds `amssymb` in the same step (one Ctrl+Z removes both) when the open file holds the preamble; in a chapter, the missing-package linter offers the fix instead of switching files mid-formula.
 - **Also math:** an empty `equation` or `align`. **Not math:** `\text{}`, `\mathrm{}`, `\operatorname{}`, `\label{}`, `\ref{}` and the like.
 - **Settings → Editor → SumiTeX:** the switch, and "Your math shortcuts": one rule per line (`@w \omega`, `hat \hat{#{}}#{}`), a trigger on its own to switch a built-in one off, with the built-in list shown below. Saved with your account (see Personal snippets).
+- **Added (18 Nov 2026):** relations `+-` `xx` `~~` `~=` `:=` `<<` `>>` `...`, sets and logic `AA` `EX` `sse` `nin`, `lim` with its limit; accents and fonts `bar` `hat` `til` `cal` `bb` `bf` `bs`; statistics `EE` `PP` `Var` `Cov` `iid`; machine learning `amin` `amax` `nrm` `abs` `grad` `par` (∂/∂) `KL` `smax` `ell`; linear algebra `TT` (transpose) `inv` `Tr` `rank` `diag` `span` `det` `otimes` `oplus` `odot`. Word triggers are the command's name without its backslash, or uppercase pairs, so ordinary variables don't fire them.
 
 ## 9 · Draggable lists
 

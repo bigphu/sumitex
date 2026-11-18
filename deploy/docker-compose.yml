@@ -1,0 +1,51 @@
+# SumiTeX: the app, MongoDB and Redis. Settings live in .env (copy
+# .env.example); deploy/README.md walks through it.
+name: sumitex
+
+services:
+  sumitex:
+    image: ${SUMITEX_IMAGE:-sumitex/sumitex}:${SUMITEX_VERSION:-latest}
+    container_name: sumitex
+    restart: always
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    ports:
+      - "${SUMITEX_LISTEN_IP:-127.0.0.1}:${SUMITEX_PORT:-8080}:80"
+    stop_grace_period: 60s
+    volumes:
+      - ${SUMITEX_DATA_DIR:?set SUMITEX_DATA_DIR in .env}/sumitex:/var/lib/overleaf
+    env_file: .env
+    environment:
+      OVERLEAF_MONGO_URL: mongodb://mongo/sharelatex
+      OVERLEAF_REDIS_HOST: redis
+      REDIS_HOST: redis
+
+  mongo:
+    image: mongo:8.0
+    container_name: sumitex-mongo
+    restart: always
+    command: --replSet overleaf
+    volumes:
+      - ${SUMITEX_DATA_DIR}/mongo:/data/db
+      - ./mongodb-init-replica-set.js:/docker-entrypoint-initdb.d/mongodb-init-replica-set.js:ro
+    environment:
+      MONGO_INITDB_DATABASE: sharelatex
+    extra_hosts:
+      # Lets the first start set up the replica set under the name "mongo"
+      - mongo:127.0.0.1
+    healthcheck:
+      test: echo 'db.stats().ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  redis:
+    image: redis:7.4
+    container_name: sumitex-redis
+    restart: always
+    command: --appendonly yes
+    volumes:
+      - ${SUMITEX_DATA_DIR}/redis:/data

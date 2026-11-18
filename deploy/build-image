@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+# Build the SumiTeX Docker image from the commit checked out here.
+#
+#   deploy/build-image            tag from the latest git tag (v0.5.1 -> 0.5.1)
+#   deploy/build-image 0.5.1      or name the version yourself
+#
+# Builds from a clean copy of the commit (git archive), so uncommitted
+# changes are left out and the checkout isn't touched. The same steps as
+# AyakaLeaf's release build: refresh yarn.lock, apply the locale patches,
+# then the base image (Ubuntu, Node, a small TeX Live) and the app image.
+# Takes 30-60 minutes the first time and wants about 8 GB of memory.
+#
+# Environment:
+#   SUMITEX_IMAGE      image name (default: sumitex/sumitex)
+#   TEXLIVE_MIRROR     a CTAN mirror for the base image's TeX Live
+set -euo pipefail
+
+ROOT=$(cd "$(dirname "$0")/.." && pwd)
+cd "$ROOT"
+
+VERSION=${1:-$(git describe --tags --abbrev=0 2>/dev/null || true)}
+VERSION=${VERSION#v}
+if [[ -z $VERSION ]]; then
+  echo "No version: pass one, as in deploy/build-image 0.5.1" >&2
+  exit 1
+fi
+IMAGE=${SUMITEX_IMAGE:-sumitex/sumitex}
+REVISION=$(git rev-parse HEAD)
+
+if ! git diff --quiet HEAD -- services libraries server-ce; then
+  echo "Note: uncommitted changes are not part of the image (it builds $REVISION)."
+fi
+
+WORK=$(mktemp -d)
+cleanup() {
+  # Files made inside containers belong to root: hand them back first
+  docker run --rm -v "$WORK":/work alpine chown -R "$(id -u):$(id -g)" /work >/dev/null 2>&1 || true
+  rm -rf "$WORK"
+}
+trap cleanup EXIT
+
+echo "==> Copying $REVISION"
+git archive HEAD | tar -x -C "$WORK"
+cp server-ce/.dockerignore "$WORK/.dockerignore"
+
+echo "==> Refreshing yarn.lock"
+docker run --rm -v "$WORK":/workspace -w /workspace node:24.18.1 \
+  sh -c 'corepack enable && yarn install --mode=update-lockfile' >/dev/null
+
+echo "==> Applying the locale patches"
+docker run --rm -v "$WORK/services/web/locales":/locales -w /locales node:24.18.1 node -e '
+  const fs = require("fs")
+  const dirs = fs.readdirSync("locales_patches").filter(d => /^v[0-9]/.test(d))
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+  const latest = dirs.pop()
+  if (latest) for (const f of fs.readdirSync(`locales_patches/${latest}`))
+    if (f.endsWith(".json")) fs.copyFileSync(`locales_patches/${latest}/${f}`, f)
+  const added = "locales_patches/added"
+  if (fs.existsSync(added)) for (const f of fs.readdirSync(added)) {
+    if (!f.endsWith(".json") || f === "added-translations.json" || !fs.existsSync(f)) continue
+    const merged = { ...JSON.parse(fs.readFileSync(f)), ...JSON.parse(fs.readFileSync(`${added}/${f}`)) }
+    fs.writeFileSync(f, JSON.stringify(merged, null, 2) + "\n")
+  }
+'
+
+echo "==> Building $IMAGE-base:$VERSION"
+docker build \
+  --progress=plain \
+  --file "$WORK/server-ce/Dockerfile-base" \
+  ${TEXLIVE_MIRROR:+--build-arg TEXLIVE_MIRROR="$TEXLIVE_MIRROR"} \
+  --tag "$IMAGE-base:$VERSION" \
+  "$WORK"
+
+echo "==> Building $IMAGE:$VERSION"
+docker build \
+  --progress=plain \
+  --file "$WORK/server-ce/Dockerfile" \
+  --build-arg OVERLEAF_BASE_TAG="$IMAGE-base:$VERSION" \
+  --label "org.opencontainers.image.version=$VERSION" \
+  --label "org.opencontainers.image.revision=$REVISION" \
+  --label "org.opencontainers.image.source=https://github.com/bigphu/sumitex" \
+  --tag "$IMAGE:$VERSION" \
+  --tag "$IMAGE:latest" \
+  "$WORK"
+
+echo
+echo "Built $IMAGE:$VERSION (and :latest)."
+echo "Set SUMITEX_VERSION=$VERSION in deploy/.env, then: docker compose up -d"

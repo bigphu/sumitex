@@ -43,10 +43,13 @@ import {
   requestAddPackage,
 } from '../editor/add-package'
 import { debugConsole } from '@/utils/debugging'
-import { PRESETS, Preset, PresetContext } from './presets'
-import { personalPresets, projectPresets } from './project-snippets'
+import type { Preset } from '../snippets/format'
+import { menuPresets, sizeHint, Sources } from '../snippets/registry'
 import { getPersonalSnippets } from '../settings/account-prefs'
+import { getMathRules } from '../settings/prefs'
 import { isSnippetText } from './snippet-file'
+
+type PresetContext = 'text' | 'math'
 
 // Ahead of the stock completions (boost runs from -99 to 99)
 const BOOST = 50
@@ -180,16 +183,24 @@ function applyPreset(preset: Preset) {
   }
 }
 
-function detailOf(preset: Preset, needs: Needs) {
+function detailOf(sources: Sources, preset: Preset, needs: Needs) {
   const adds = [...needs.packages]
   if (needs.preamble.length) adds.push('its preamble line')
-  return adds.length ? `${preset.label} · adds ${adds.join(', ')}` : preset.label
+  const hint = sizeHint(sources, preset.trigger)
+  return [
+    preset.label,
+    adds.length ? `adds ${adds.join(', ')}` : null,
+    hint,
+  ]
+    .filter(Boolean)
+    .join(' · ')
 }
 
 export default function snippetsWithPackages(
   context: CompletionContext
 ): CompletionResult | null {
-  const word = context.matchBefore(/\\[a-zA-Z]*/)
+  // A trigger may hold a size: \table3x4, \elist6 (snippets/format.ts)
+  const word = context.matchBefore(/\\[a-zA-Z0-9]*/)
   if (!word || (word.from === word.to && !context.explicit)) return null
   // Not when the backslash is escaped (\\fig is a line break and "fig")
   if (context.state.sliceDoc(word.from - 1, word.from) === '\\') return null
@@ -204,22 +215,23 @@ export default function snippetsWithPackages(
   const effect = inEffect(text)
   // The project's own snippets, then your personal ones, then the
   // built-in ones; the first with a trigger hides the others
-  const seen = new Set<string>()
-  const presets = [
-    ...projectPresets(store.snippets ?? null),
-    ...personalPresets(getPersonalSnippets()),
-    ...PRESETS,
-  ].filter(preset => !seen.has(preset.trigger) && seen.add(preset.trigger))
-  const options: Completion[] = presets
-    .filter(preset => snippetFile || (preset.context ?? 'text') === where)
-    .map(preset => ({
+  const sources: Sources = {
+    project: store.snippets ?? null,
+    personal: getPersonalSnippets(),
+    rules: getMathRules(),
+  }
+  const typed = context.state.sliceDoc(word.from, word.to)
+  const presets = menuPresets(sources, typed, where, snippetFile)
+  const options: Completion[] = presets.map(preset => ({
       label: preset.trigger,
       detail: snippetFile
         ? preset.label
-        : detailOf(preset, needsOf(effect, preset)),
+        : detailOf(sources, preset, needsOf(effect, preset)),
       type:
-        preset.category === 'project' || preset.category === 'personal'
-          ? `${preset.category}-snippet`
+        preset.category === 'project' ||
+        preset.category === 'personal' ||
+        preset.category === 'rules'
+          ? `${preset.category === 'rules' ? 'personal' : preset.category}-snippet`
           : 'snippet',
       boost: BOOST,
       apply: snippetFile

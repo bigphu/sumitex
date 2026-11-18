@@ -33,7 +33,7 @@
   }
 
   .ide-settings-tab-content {
-    height: min(560px, calc(100vh - 160px));
+    height: min(760px, calc(100vh - 150px));
     max-height: none;
     padding: 0 24px 16px;
   }
@@ -86,6 +86,13 @@
     color: var(--sx-muted);
     font-size: 12.5px;
   }
+}
+
+// Roomier than the stock lg dialog: wide rows, and most tabs whole without
+// scrolling
+.modal-themed .modal-dialog:has(.ide-settings-modal-body) {
+  width: calc(100vw - 48px);
+  max-width: 1180px;
 }
 
 // The title, as the sheet's
