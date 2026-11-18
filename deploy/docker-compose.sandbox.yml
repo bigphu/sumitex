@@ -1,0 +1,16 @@
+# Sandboxed compiles: each compile runs in a throwaway TeX Live container
+# started next to SumiTeX (through the Docker socket), so a document can't
+# reach the server or other users' files. On by default (COMPOSE_FILE in
+# .env); leave it out only when everyone using the server is trusted.
+services:
+  sumitex:
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      SANDBOXED_COMPILES: "true"
+      SANDBOXED_COMPILES_SIBLING_CONTAINERS: "true"
+      DOCKER_RUNNER: "true"
+      # Host paths of the compile folders, for the TeX Live containers
+      SANDBOXED_COMPILES_HOST_DIR_COMPILES: ${SUMITEX_DATA_DIR}/sumitex/data/compiles
+      SANDBOXED_COMPILES_HOST_DIR_OUTPUT: ${SUMITEX_DATA_DIR}/sumitex/data/output
+      SYNCTEX_BIN_HOST_PATH: ${SUMITEX_DATA_DIR}/sumitex/bin/synctex

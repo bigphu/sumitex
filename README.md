@@ -34,29 +34,33 @@ SumiTeX (墨, *sumi*: the ink of brush calligraphy) is a LaTeX editor for writin
 - **A live linter** that underlines a command whose package isn't loaded, with a one-click "Add \usepackage" fix (Ctrl+.), plus checks for undefined references, duplicate labels, missing citations and missing files.
 - **Plain-language errors** in the Problems panel, with links and an "Add package" button where that's the fix.
 - **Snippets that bring their packages:** `\fig`, `\booktab`, `\eq`, `\thm`… add their `\usepackage` lines as they go in. Projects can share their own snippets, and you can keep personal ones for every project.
-- **Math auto-expansion:** `//` to `\frac{}{}`, `@a` to `\alpha`, `->` to `\to`, inside math only, with your own rules.
+- **Math auto-expansion:** `//` to `\frac{}{}`, `@a` to `\alpha`, `->` to `\to`, `mat3x4` to a 3 × 4 matrix, inside math only, with your own rules.
+- **A snippet library:** every snippet and shortcut in one place, with a filter, what each inserts, and a switch for each built-in shortcut. Snippets and shortcuts share one plain-text format, and take sizes (`\table3x4`, `\elist5`).
+- **An equation preview that stays put:** a block under the math, steady while you type, keeping the last good render while the formula is half-written.
 - **Folders for your projects:** nested, colour-coded folders on the dashboard. Drag projects onto them, drag folders to rearrange, and open one to see everything inside it. The project list itself sits in islands, like the editor.
 
 Nothing Overleaf or AyakaLeaf offers is removed: stock parts are restyled, moved, or one setting away. [SUMITEX-FEATURES.md](SUMITEX-FEATURES.md) lists every agreed feature and how it behaves.
 
 ## Run it
 
-SumiTeX doesn't ship its own Docker image yet. Run it from source with the development environment in [`develop/`](develop/README.md) (Docker with Compose; on Windows, use WSL 2):
+**On a server, for you or a group:** [deploy/README.md](deploy/README.md) builds the SumiTeX image and runs it with Docker Compose behind HTTPS, with sandboxed compiles, backups and upgrades covered.
 
 ```shell
 git clone https://github.com/bigphu/sumitex.git
+cd sumitex
+deploy/build-image
+```
+
+**To work on SumiTeX itself**, use the development environment in [`develop/`](develop/README.md) (Docker with Compose; on Windows, use WSL 2):
+
+```shell
 cd sumitex/develop
 bin/build
 bin/up
-```
-
-Then open <http://localhost/launchpad> to create the first admin account. For live reload while you work on SumiTeX itself:
-
-```shell
 bin/dev web webpack
 ```
 
-`develop/dev.rc` switches the heavier extras (LDAP, SAML, S3, Grafana, …) on or off; they're off by default to fit a small machine.
+Then open <http://localhost/launchpad> to create the first admin account. `bin/dev web webpack` gives live reload. `develop/dev.rc` switches the heavier extras (LDAP, SAML, S3, Grafana, …) on or off.
 
 ## Roadmap
 
