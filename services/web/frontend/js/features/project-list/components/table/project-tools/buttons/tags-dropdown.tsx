@@ -1,4 +1,4 @@
-import { sortBy } from 'lodash'
+import { flattenFolders } from '@modules/sumitex/frontend/js/folders/folder-tree' // SumiTeX
 import { memo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import MaterialIcon from '../../../../../../shared/components/material-icon'
@@ -84,15 +84,23 @@ function TagsDropdown() {
           variant="secondary"
           aria-label={t('tags')}
         >
-          <MaterialIcon type="label" className="align-text-top" />
+          {/* SumiTeX: folders, with a label */}
+          <MaterialIcon type="create_new_folder" className="align-text-top" />
+          <span className="sx-add-to-folder-label">{t('add_to_tag')}</span>
         </OLDropdownToggle>
         <OLDropdownMenu
           flip={false}
           data-testid="project-tools-more-dropdown-menu"
         >
           <OLDropdownHeader>{t('add_to_tag')}</OLDropdownHeader>
-          {sortBy(tags, tag => tag.name?.toLowerCase()).map(tag => (
-            <li role="none" key={tag._id}>
+          {/* SumiTeX: folders in tree order, indented */}
+          {flattenFolders(tags).map(({ tag, depth }) => (
+            <li
+              role="none"
+              key={tag._id}
+              className="sx-folder-item"
+              style={{ '--sx-folder-depth': depth } as React.CSSProperties}
+            >
               <OLDropdownItem
                 onClick={e =>
                   containsAllSelectedProjects(tag)

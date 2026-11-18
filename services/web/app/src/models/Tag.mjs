@@ -21,6 +21,10 @@ export const TagSchema = new Schema(
       },
     },
     project_ids: [String],
+    // SumiTeX: dashboard folders are tags that can sit inside another. Old
+    // tags have no parent, so they are top-level folders, and stock Overleaf
+    // ignores the field.
+    parent_id: { type: String },
   },
   { minimize: false }
 )

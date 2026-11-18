@@ -7,6 +7,7 @@ import { useRefWithAutoFocus } from '../../../../shared/hooks/use-ref-with-auto-
 import useSelectColor from '../../hooks/use-select-color'
 import { createTag } from '../../util/api'
 import { MAX_TAG_LENGTH } from '../../util/tag'
+import { folderPath } from '@modules/sumitex/frontend/js/folders/folder-tree' // SumiTeX
 import { ColorPicker } from '../color-picker/color-picker'
 import { debugConsole } from '@/utils/debugging'
 import {
@@ -30,6 +31,7 @@ type CreateTagModalProps = {
   onCreate: (tag: Tag) => void
   onClose: () => void
   disableCustomColor?: boolean
+  parentId?: string | null // SumiTeX: create it inside this folder
 }
 
 export default function CreateTagModal({
@@ -38,6 +40,7 @@ export default function CreateTagModal({
   onCreate,
   onClose,
   disableCustomColor,
+  parentId = null,
 }: CreateTagModalProps) {
   const { tags } = useProjectListContext()
   const { selectedColor } = useSelectColor()
@@ -51,11 +54,11 @@ export default function CreateTagModal({
 
   const runCreateTag = useCallback(() => {
     if (tagName) {
-      runAsync(createTag(tagName, selectedColor))
+      runAsync(createTag(tagName, selectedColor, parentId))
         .then(tag => onCreate(tag))
         .catch(debugConsole.error)
     }
-  }, [runAsync, tagName, selectedColor, onCreate])
+  }, [runAsync, tagName, selectedColor, onCreate, parentId])
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -70,12 +73,18 @@ export default function CreateTagModal({
       setValidationError(
         t('tag_name_cannot_exceed_characters', { maxLength: MAX_TAG_LENGTH })
       )
-    } else if (tagName && tags.find(tag => tag.name === tagName)) {
+    } else if (
+      tagName &&
+      // SumiTeX: names need only differ among folders in the same place
+      tags.find(
+        tag => tag.name === tagName && (tag.parent_id || null) === parentId
+      )
+    ) {
       setValidationError(t('tag_name_is_already_used', { tagName }))
     } else if (validationError) {
       setValidationError(undefined)
     }
-  }, [tagName, tags, t, validationError])
+  }, [tagName, tags, t, validationError, parentId])
 
   if (!show) {
     return null
@@ -92,7 +101,16 @@ export default function CreateTagModal({
       className="project-list-modal"
     >
       <OLModalHeader>
-        <OLModalTitle>{t('create_new_tag')}</OLModalTitle>
+        <OLModalTitle>
+          {t('create_new_tag')}
+          {/* SumiTeX: where it goes */}
+          {parentId && (
+            <span className="sx-folder-modal-path">
+              {' '}
+              in {folderPath(tags, parentId)}
+            </span>
+          )}
+        </OLModalTitle>
       </OLModalHeader>
 
       <OLModalBody>

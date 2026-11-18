@@ -6,7 +6,7 @@ import {
   useProjectListContext,
 } from '../context/project-list-context'
 import useTag from '../hooks/use-tag'
-import { sortBy } from 'lodash'
+import { flattenFolders } from '@modules/sumitex/frontend/js/folders/folder-tree' // SumiTeX
 import { Tag } from '../../../../../app/src/Features/Tags/types'
 import { OLDropdownItem } from '@/shared/components/ol/ol-dropdown-menu'
 
@@ -16,8 +16,13 @@ type TagsListProps = {
 
 function TagsList({ onTagClick }: TagsListProps) {
   const { t } = useTranslation()
-  const { tags, untaggedProjectsCount, selectedTagId, selectTag } =
-    useProjectListContext()
+  const {
+    tags,
+    untaggedProjectsCount,
+    selectedTagId,
+    selectTag,
+    projectsPerTag, // SumiTeX
+  } = useProjectListContext()
 
   const {
     handleSelectTag,
@@ -35,8 +40,14 @@ function TagsList({ onTagClick }: TagsListProps) {
   return (
     <>
       <>
-        {sortBy(tags, ['name']).map((tag, index) => (
-          <li role="none" className="position-relative" key={index}>
+        {/* SumiTeX: folders in tree order, indented */}
+        {flattenFolders(tags).map(({ tag, depth }) => (
+          <li
+            role="none"
+            className="position-relative sx-folder-item"
+            key={tag._id}
+            style={{ '--sx-folder-depth': depth } as React.CSSProperties}
+          >
             <OLDropdownItem
               as="button"
               tabIndex={-1}
@@ -50,7 +61,7 @@ function TagsList({ onTagClick }: TagsListProps) {
               active={selectedTagId === tag._id}
             >
               <span className="project-menu-item-tag-name text-truncate">
-                {tag.name}&nbsp;({tag.project_ids?.length})
+                {tag.name}&nbsp;({projectsPerTag[tag._id]?.length ?? 0})
               </span>
             </OLDropdownItem>
             <OLDropdownItem

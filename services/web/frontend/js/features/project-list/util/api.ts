@@ -9,10 +9,19 @@ export function getProjects(sortBy: Sort): Promise<GetProjectsResponseBody> {
   return postJSON('/api/project', { body: { sort: sortBy } })
 }
 
-export function createTag(name: string, color?: string): Promise<Tag> {
+export function createTag(
+  name: string,
+  color?: string,
+  parentId?: string | null // SumiTeX: a folder inside another
+): Promise<Tag> {
   return postJSON(`/tag`, {
-    body: { name, color },
+    body: { name, color, ...(parentId ? { parentId } : {}) },
   })
+}
+
+// SumiTeX: move a folder inside another, or to the top (parentId null)
+export function moveTag(tagId: string, parentId: string | null) {
+  return postJSON(`/tag/${tagId}/move`, { body: { parentId } })
 }
 
 export function editTag(

@@ -709,12 +709,12 @@ describe('<ProjectListRoot />', function () {
           })
 
           const tagsDropdown =
-            await within(actionsToolbar).findByLabelText('Tags')
+            await within(actionsToolbar).findByLabelText('Folders')
           fireEvent.click(tagsDropdown)
-          screen.getByText('Add to tag')
+          screen.getAllByText('Add to folder')
 
           const newTagButton = screen.getByRole('menuitem', {
-            name: 'Create new tag',
+            name: 'New folder',
           })
 
           fireEvent.click(newTagButton)
@@ -758,12 +758,12 @@ describe('<ProjectListRoot />', function () {
           )
           screen.getByRole('button', { name: `${this.tagName} (2)` })
 
-          const tagsDropdown = within(actionsToolbar).getByLabelText('Tags')
+          const tagsDropdown = within(actionsToolbar).getByLabelText('Folders')
           fireEvent.click(tagsDropdown)
-          within(actionsToolbar).getByText('Add to tag')
+          within(actionsToolbar).getAllByText('Add to folder')
 
           const tagButton = within(actionsToolbar).getByLabelText(
-            `Add or remove project from tag ${this.tagName}`
+            `Add or remove project from folder ${this.tagName}`
           )
           fireEvent.click(tagButton)
 
@@ -794,12 +794,12 @@ describe('<ProjectListRoot />', function () {
 
           screen.getByRole('button', { name: `${this.tagName} (2)` })
 
-          const tagsDropdown = within(actionsToolbar).getByLabelText('Tags')
+          const tagsDropdown = within(actionsToolbar).getByLabelText('Folders')
           fireEvent.click(tagsDropdown)
-          within(actionsToolbar).getByText('Add to tag')
+          within(actionsToolbar).getAllByText('Add to folder')
 
           const tagButton = within(actionsToolbar).getByLabelText(
-            `Add or remove project from tag ${this.tagName}`
+            `Add or remove project from folder ${this.tagName}`
           )
           fireEvent.click(tagButton)
 
@@ -825,7 +825,7 @@ describe('<ProjectListRoot />', function () {
             within(actionsToolbar).getByLabelText(/download/i)
             within(actionsToolbar).getByLabelText(/archive/i)
             within(actionsToolbar).getByLabelText(/trash/i)
-            within(actionsToolbar).getByLabelText(/tags/i)
+            within(actionsToolbar).getByLabelText(/folders/i)
             within(actionsToolbar).getByText(/more/i)
           }
 

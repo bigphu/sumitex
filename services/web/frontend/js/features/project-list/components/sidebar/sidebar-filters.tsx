@@ -6,7 +6,7 @@ import {
 } from '../../context/project-list-context'
 import TagsList from './tags-list'
 import ProjectsFilterMenu from '../projects-filter-menu'
-import { Folder } from '@phosphor-icons/react'
+import { Archive, Folder, User, Users } from '@phosphor-icons/react' // SumiTeX: an icon for each view
 import { ActivePage } from '../../util/navigation-state'
 
 type SidebarFilterProps = {
@@ -22,7 +22,8 @@ export function SidebarFilter({
   icon,
   activePage,
 }: SidebarFilterProps) {
-  const { selectFilter } = useProjectListContext()
+  const { selectFilter, filterProjectsCount } = useProjectListContext()
+  const count = filterProjectsCount?.[filter] // SumiTeX
 
   return (
     <ProjectsFilterMenu filter={filter} activePage={activePage}>
@@ -36,7 +37,13 @@ export function SidebarFilter({
             onClick={() => selectFilter(filter)}
           >
             {icon && <span className="icon">{icon}</span>}
-            {text}
+            <span className="sx-view-label">{text}</span>
+            {/* SumiTeX: the view's size, as the folders show theirs */}
+            {count !== undefined && (
+              <span className="sx-folder-count" aria-hidden="true">
+                {count}
+              </span>
+            )}
           </button>
         </li>
       )}
@@ -62,16 +69,19 @@ export default function SidebarFilters({
         activePage={activePage}
         filter="owned"
         text={t('your_projects')}
+        icon={<User size={20} />}
       />
       <SidebarFilter
         activePage={activePage}
         filter="shared"
         text={t('shared_with_you')}
+        icon={<Users size={20} />}
       />
       <SidebarFilter
         activePage={activePage}
         filter="archived"
         text={t('archived_projects')}
+        icon={<Archive size={20} />}
       />
       <li aria-hidden="true">
         <hr />

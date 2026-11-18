@@ -888,6 +888,13 @@ async function initialize(webRouter, privateApiRouter, publicApiRouter) {
     RateLimiterMiddleware.rateLimit(rateLimiters.renameTag),
     TagsController.editTag
   )
+  // SumiTeX: folders nest
+  webRouter.post(
+    '/tag/:tagId/move',
+    AuthenticationController.requireLogin(),
+    RateLimiterMiddleware.rateLimit(rateLimiters.renameTag),
+    TagsController.moveTag
+  )
   webRouter.delete(
     '/tag/:tagId',
     AuthenticationController.requireLogin(),

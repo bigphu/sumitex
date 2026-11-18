@@ -20,13 +20,13 @@ describe('<ProjectTools />', function () {
     expect(screen.getByLabelText('Download')).to.exist
     expect(screen.getByLabelText('Archive')).to.exist
     expect(screen.getByLabelText('Trash')).to.exist
-    expect(screen.getByLabelText('Tags')).to.exist
+    expect(screen.getByLabelText('Folders')).to.exist
 
-    expect(screen.queryByText('Create new tag')).to.not.exist
+    expect(screen.queryByText('New folder')).to.not.exist
 
-    screen.getByLabelText('Tags').click()
+    screen.getByLabelText('Folders').click()
 
-    const createTagButton = await screen.findByText('Create new tag')
+    const createTagButton = await screen.findByText('New folder')
     expect(createTagButton).to.exist
   })
 })

@@ -77,7 +77,13 @@ export function EditTagModal({ id, tag, onEdit, onClose }: EditTagModalProps) {
     } else if (
       newTagName &&
       newTagName !== tag?.name &&
-      tags.find(tag => tag.name === newTagName)
+      // SumiTeX: names need only differ among folders in the same place
+      tags.find(
+        other =>
+          other.name === newTagName &&
+          other._id !== tag?._id &&
+          (other.parent_id || null) === (tag?.parent_id || null)
+      )
     ) {
       setValidationError(t('tag_name_is_already_used', { tagName: newTagName }))
     } else if (validationError) {

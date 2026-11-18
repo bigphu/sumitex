@@ -4,4 +4,5 @@ export type Tag = {
   name: string
   color?: string
   project_ids?: string[]
+  parent_id?: string | null // SumiTeX: the folder this one sits in
 }

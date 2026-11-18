@@ -285,6 +285,14 @@ describe('TagsHandler', function () {
   describe('deleteTag', function () {
     describe('with a valid tag_id', function () {
       it('should call remove in mongo', async function (ctx) {
+        ctx.TagMock.expects('findOne').once().resolves({})
+        ctx.TagMock.expects('updateMany')
+          .once()
+          .withArgs(
+            { user_id: ctx.userId, parent_id: ctx.tagId },
+            { $unset: { parent_id: 1 } }
+          )
+          .resolves()
         ctx.TagMock.expects('deleteOne')
           .once()
           .withArgs({ _id: ctx.tagId, user_id: ctx.userId })
@@ -332,6 +340,135 @@ describe('TagsHandler', function () {
         expect(error).to.exist
         expect(error).to.have.property('message', 'Exceeded max tag length')
       })
+    })
+  })
+  // SumiTeX: folders nest through parent_id
+  describe('folders', function () {
+    // a → b → c → d (each inside the one before), e on its own
+    const ids = {}
+    beforeEach(function () {
+      for (const name of ['a', 'b', 'c', 'd', 'e']) {
+        ids[name] = new ObjectId().toString()
+      }
+    })
+    const tree = () => [
+      { _id: ids.a, parent_id: null },
+      { _id: ids.b, parent_id: ids.a },
+      { _id: ids.c, parent_id: ids.b },
+      { _id: ids.d, parent_id: ids.c },
+      { _id: ids.e },
+    ]
+    const findReturns = (ctx, tags) =>
+      ctx.TagMock.expects('find').returns({
+        lean: () => Promise.resolve(tags),
+      })
+
+    it('creates a folder inside another', async function (ctx) {
+      findReturns(ctx, tree())
+      ctx.TagMock.expects('create')
+        .once()
+        .withArgs({
+          user_id: ctx.userId,
+          name: 'inside',
+          color: undefined,
+          parent_id: ids.a,
+        })
+        .resolves({ name: 'inside' })
+      await ctx.TagsHandler.promises.createTag(
+        ctx.userId,
+        'inside',
+        undefined,
+        {
+          parentId: ids.a,
+        }
+      )
+      ctx.TagMock.verify()
+    })
+
+    it('rejects a parent that is not one of the user’s folders', async function (ctx) {
+      findReturns(ctx, tree())
+      const error = await ctx.TagsHandler.promises
+        .createTag(ctx.userId, 'x', undefined, {
+          parentId: new ObjectId().toString(),
+        })
+        .catch(e => e)
+      expect(error.message).to.contain('folder not found')
+    })
+
+    it('rejects a new folder past five levels', async function (ctx) {
+      const deep = [...tree(), { _id: ids.e, parent_id: ids.d }]
+      findReturns(ctx, deep)
+      const error = await ctx.TagsHandler.promises
+        .createTag(ctx.userId, 'x', undefined, {
+          parentId: ids.e,
+        })
+        .catch(e => e)
+      expect(error.message).to.contain('at most 5 levels')
+    })
+
+    it('rejects moving a folder inside itself or its own subfolder', async function (ctx) {
+      ctx.TagMock.expects('findOne').resolves({ _id: ids.b })
+      findReturns(ctx, tree())
+      const error = await ctx.TagsHandler.promises
+        .moveTag(ctx.userId, ids.b, ids.d)
+        .catch(e => e)
+      expect(error.message).to.contain('inside itself')
+    })
+
+    it('rejects a move that makes the tree too deep', async function (ctx) {
+      // e holds a three-level subtree; under d (level 4) it would reach 7
+      const tags = [
+        ...tree(),
+        { _id: 'f', parent_id: ids.e },
+        { _id: 'g', parent_id: 'f' },
+      ]
+      ctx.TagMock.expects('findOne').resolves({ _id: ids.e })
+      findReturns(ctx, tags)
+      const error = await ctx.TagsHandler.promises
+        .moveTag(ctx.userId, ids.e, ids.d)
+        .catch(e => e)
+      expect(error.message).to.contain('at most 5 levels')
+    })
+
+    it('moves a folder inside another', async function (ctx) {
+      ctx.TagMock.expects('findOne').resolves({ _id: ids.e })
+      findReturns(ctx, tree())
+      ctx.TagMock.expects('updateOne')
+        .once()
+        .withArgs(
+          { _id: ids.e, user_id: ctx.userId },
+          { $set: { parent_id: ids.a } }
+        )
+        .resolves()
+      await ctx.TagsHandler.promises.moveTag(ctx.userId, ids.e, ids.a)
+      ctx.TagMock.verify()
+    })
+
+    it('moves a folder to the top', async function (ctx) {
+      ctx.TagMock.expects('findOne').resolves({ _id: ids.c })
+      ctx.TagMock.expects('updateOne')
+        .once()
+        .withArgs(
+          { _id: ids.c, user_id: ctx.userId },
+          { $unset: { parent_id: 1 } }
+        )
+        .resolves()
+      await ctx.TagsHandler.promises.moveTag(ctx.userId, ids.c, null)
+      ctx.TagMock.verify()
+    })
+
+    it('moves the folders inside a deleted one up a level', async function (ctx) {
+      ctx.TagMock.expects('findOne').resolves({ parent_id: ids.a })
+      ctx.TagMock.expects('updateMany')
+        .once()
+        .withArgs(
+          { user_id: ctx.userId, parent_id: ids.b },
+          { $set: { parent_id: ids.a } }
+        )
+        .resolves()
+      ctx.TagMock.expects('deleteOne').once().resolves()
+      await ctx.TagsHandler.promises.deleteTag(ctx.userId, ids.b)
+      ctx.TagMock.verify()
     })
   })
 })
