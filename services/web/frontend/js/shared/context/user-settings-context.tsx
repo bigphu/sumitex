@@ -16,7 +16,7 @@ export const defaultSettings: UserSettings = {
   autoPairDelimiters: true,
   syntaxValidation: false,
   previewTabs: false,
-  editorTheme: 'textmate',
+  editorTheme: 'sumitex_dark', // SumiTeX: matches the default dark theme
   editorDarkTheme: 'sumitex_dark', // SumiTeX
   editorLightTheme: 'sumitex_light', // SumiTeX
   overallTheme: '',

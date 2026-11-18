@@ -1,24 +1,35 @@
 // Scrollbars: thin and faint, on a transparent track, so they take as
-// little room and attention as the browser allows. One look everywhere:
-// the editor page, and the dialogs, menus and pop-ups that open above it
-// (they are mounted outside the editor page, so they are listed here too).
+// little room and attention as the browser allows. One look everywhere,
+// including what is mounted straight under <body>: CodeMirror's pop-ups
+// (completions, hovers), tooltips, toasts, dialogs and menus.
+//
+// The thumb is a tint of the text colour around it (currentColor), so it is
+// light on dark surfaces and dark on light ones, whichever theme the page is
+// in. A light dialog on the dark theme keeps a visible thumb.
 @mixin sx-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--sx-fg) 22%, transparent)
+  scrollbar-color: color-mix(in srgb, currentColor 24%, transparent)
     transparent;
 
   &:hover {
-    scrollbar-color: color-mix(in srgb, var(--sx-fg) 38%, transparent)
+    scrollbar-color: color-mix(in srgb, currentColor 40%, transparent)
       transparent;
   }
 }
 
-.ide-redesign-main,
-.ide-redesign-main *,
-.modal,
-.modal *,
-.dropdown-menu,
-.popover,
-.popover * {
+html,
+body,
+body * {
   @include sx-scrollbar;
+}
+
+// Checked switches and checkboxes take SumiTeX's accent, not upstream's green
+.form-check-input:checked {
+  border-color: var(--sx-accent-fill);
+  background-color: var(--sx-accent-fill);
+}
+
+.form-check-input:focus {
+  border-color: var(--sx-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sx-accent) 25%, transparent);
 }
