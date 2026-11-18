@@ -133,6 +133,13 @@ function ProjectListTable() {
               onClick={() => handleSort('lastUpdated')}
             />
           </th>
+          {/* SumiTeX: the folders column */}
+          <th
+            className="dash-cell-folders d-none d-lg-table-cell"
+            aria-label={t('tags')}
+          >
+            {t('tags')}
+          </th>
           <th className="dash-cell-tag d-md-none" aria-label={t('tags')}>
             {t('tags')}
           </th>

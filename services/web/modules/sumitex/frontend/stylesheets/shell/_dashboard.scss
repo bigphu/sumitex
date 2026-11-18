@@ -1,0 +1,442 @@
+// The project list in islands, after the UI mockup's Project list
+// (concept/SumiTeX Zen Editor.pdf, frame 20): a slim title bar on the frame,
+// then the sidebar and the project list as two rounded islands with the
+// frame showing between them, as in the editor. Upstream's dashboard
+// variables are pointed at the --sx- tokens, so both themes follow.
+
+body:has(.project-ds-nav-page) {
+  background-color: var(--sx-frame);
+}
+
+.project-ds-nav-page {
+  // ---------- upstream variables → SumiTeX tokens ----------
+  --bg-primary-themed: var(--sx-island);
+  --bg-secondary-themed: var(--sx-island-raised);
+  --bg-tertiary-themed: var(--sx-row-active);
+  --content-primary-themed: var(--sx-fg);
+  --content-secondary-themed: var(--sx-muted);
+  --content-placeholder-themed: var(--sx-muted);
+  --border-primary-themed: var(--sx-border);
+  --border-hover-themed: var(--sx-muted);
+  --border-divider-themed: var(--sx-border);
+  --link-ui-themed: var(--sx-accent);
+  --link-ui-hover-themed: var(--sx-accent);
+  --ds-nav-bg-color: var(--sx-island);
+  --ds-nav-color: var(--sx-fg);
+  --ds-nav-hover-bg: var(--sx-island-raised);
+  --ds-nav-active-bg: var(--sx-row-active);
+  --ds-nav-active-color: var(--sx-fg);
+  --ds-nav-content-bg-primary: var(--sx-island);
+  --ds-nav-content-bg-secondary: var(--sx-island);
+  --navbar-title-color: var(--sx-fg);
+  --navbar-title-color-hover: var(--sx-fg);
+  --navbar-subdued-color: var(--sx-muted);
+  --navbar-subdued-hover-color: var(--sx-fg);
+  --navbar-subdued-hover-bg: var(--sx-island-raised);
+  --bs-body-color: var(--sx-fg);
+  --bs-border-color: var(--sx-border);
+
+  background-color: var(--sx-frame);
+  color: var(--sx-muted);
+
+  // ---------- title bar: on the frame, 40 px, ensō + "SumiTeX / Projects" ----------
+  > .navbar-default.navbar-main {
+    min-height: 40px;
+    height: 40px;
+    padding: 0 var(--sx-island-gap) 0 var(--spacing-05);
+    border: none;
+    background-color: var(--sx-frame);
+
+    .navbar-container {
+      height: 40px;
+      padding: 0;
+    }
+
+    .navbar-header,
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      height: 40px;
+      margin: 0;
+      padding: 0;
+    }
+
+    .navbar-brand {
+      gap: var(--spacing-04);
+      text-decoration: none;
+
+      &::before {
+        content: '';
+        width: 20px;
+        height: 20px;
+        background-color: var(--sx-fg);
+        mask: url('../../../../../public/sumitex/enso.svg') center / contain
+          no-repeat;
+      }
+    }
+
+    .navbar-title {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-04);
+      font-size: var(--font-size-03);
+      font-weight: 600;
+      color: var(--sx-fg);
+
+      &::after {
+        content: '/\00a0\00a0Projects';
+        font-weight: 400;
+        color: var(--sx-muted);
+      }
+    }
+
+    // Dev tools, Templates and the like: quiet buttons on the frame
+    .navbar-nav {
+      gap: var(--spacing-02);
+
+      > li > a,
+      > li > button,
+      .nav-link,
+      .dropdown-toggle {
+        padding: var(--spacing-02) var(--spacing-05);
+        border: none;
+        border-radius: var(--border-radius-base);
+        background: none;
+        color: var(--sx-muted);
+        font-size: var(--font-size-02);
+
+        &:hover,
+        &:focus-visible,
+        &[aria-expanded='true'] {
+          background-color: var(--sx-island-raised);
+          color: var(--sx-fg);
+        }
+      }
+    }
+  }
+
+  // ---------- the two islands ----------
+  .project-list-wrapper {
+    gap: var(--sx-island-gap);
+    padding: 0 var(--sx-island-gap) var(--sx-island-gap);
+    background-color: var(--sx-frame);
+  }
+
+  .project-list-sidebar-wrapper-react {
+    max-width: 480px !important; // upstream stops at 320
+    flex-basis: max(
+      15%,
+      264px
+    ); // wide enough for every view's name; dragging sets its own
+    margin-top: 0;
+    padding-top: var(--spacing-04);
+    border-radius: var(--sx-island-radius);
+    background-color: var(--sx-island);
+
+    // The resize handle (upstream's, last child): it fills the gap between
+    // the two islands and shows a line while hovered or dragged
+    > div[style*='col-resize'] {
+      right: calc(var(--sx-island-gap) * -1) !important;
+      width: var(--sx-island-gap) !important;
+
+      &::after {
+        content: '';
+        position: absolute;
+        inset: var(--sx-island-radius) 2px;
+        border-radius: 2px;
+        transition: background-color 0.15s;
+      }
+
+      &:hover::after,
+      &:active::after {
+        background-color: var(--sx-accent);
+      }
+    }
+
+    .ds-nav-sidebar-lower {
+      padding-bottom: var(--spacing-04);
+      border-top: 1px solid var(--sx-border);
+      background-color: var(--sx-island);
+    }
+
+    // Upstream's company wordmark: not SumiTeX's
+    .ds-nav-ds-name {
+      display: none;
+    }
+  }
+
+  .project-ds-nav-content-and-messages {
+    min-width: 0;
+  }
+
+  .project-ds-nav-content {
+    border: none;
+    border-radius: var(--sx-island-radius);
+    background-color: var(--sx-island);
+    overflow: auto;
+  }
+
+  .site-footer {
+    border-top: 1px solid var(--sx-border);
+    background-color: transparent;
+    color: var(--sx-muted);
+  }
+
+  // ---------- sidebar items ----------
+  .project-list-filters {
+    > li > button,
+    .sidebar-filter-button {
+      color: var(--sx-fg);
+    }
+
+    .dropdown-header {
+      color: var(--sx-muted);
+    }
+
+    hr {
+      border-color: var(--sx-border);
+      opacity: 1;
+    }
+  }
+
+  .ds-nav-page-switcher-item,
+  .ds-nav-dropdown-list button,
+  .ds-nav-dropdown-list a {
+    color: var(--sx-fg);
+
+    &:hover {
+      background-color: var(--sx-island-raised);
+    }
+  }
+
+  // ---------- the project list ----------
+  .project-list-title,
+  h1 {
+    color: var(--sx-fg);
+  }
+
+  // Search: a sunken field
+  .project-list-header-row ~ * .form-control,
+  .project-ds-nav-project-list .form-control {
+    border-color: var(--sx-border);
+    background-color: var(--sx-sunken);
+    color: var(--sx-fg);
+
+    &::placeholder {
+      color: var(--sx-muted);
+    }
+
+    &:focus {
+      border-color: var(--sx-accent);
+      box-shadow: 0 0 0 3px
+        color-mix(in srgb, var(--sx-accent) 22%, transparent);
+    }
+  }
+
+  // The table sits straight on the island: no card around it
+  .table-container,
+  .project-ds-nav-project-list .table-container-bordered {
+    border: none;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .project-dash-table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--sx-fg);
+    --bs-table-hover-bg: var(--sx-island-raised);
+    --bs-table-hover-color: var(--sx-fg);
+    --bs-table-active-bg: var(--sx-selected-bg);
+    --bs-table-active-color: var(--sx-fg);
+    --bs-table-border-color: var(--sx-border);
+
+    color: var(--sx-fg);
+
+    thead,
+    thead tr,
+    thead th {
+      background: transparent !important;
+    }
+
+    thead th {
+      border-bottom-color: var(--sx-border);
+      color: var(--sx-muted);
+      font-size: var(--font-size-02);
+      font-weight: 500;
+
+      button,
+      .table-header-sort-btn {
+        color: var(--sx-muted);
+        font-weight: 500;
+      }
+    }
+
+    tbody td {
+      border-bottom-color: var(--sx-border);
+      background-color: transparent !important; // hover and selection still show
+    }
+
+    .dash-cell-name a {
+      color: var(--sx-fg);
+      font-weight: 500;
+    }
+
+    .dash-cell-owner,
+    .dash-cell-date {
+      color: var(--sx-muted);
+    }
+
+    .dash-cell-actions .btn,
+    .dash-cell-actions button {
+      color: var(--sx-muted);
+
+      &:hover {
+        color: var(--sx-fg);
+      }
+    }
+  }
+
+  // ---------- buttons ----------
+  .btn-primary {
+    --bs-btn-bg: var(--sx-accent-fill);
+    --bs-btn-border-color: var(--sx-accent-fill);
+    --bs-btn-hover-bg: var(--sx-accent-fill-hover);
+    --bs-btn-hover-border-color: var(--sx-accent-fill-hover);
+    --bs-btn-active-bg: var(--sx-accent-fill-hover);
+    --bs-btn-active-border-color: var(--sx-accent-fill-hover);
+
+    border-radius: var(--border-radius-base);
+    color: #fff;
+  }
+
+  .btn-secondary {
+    --bs-btn-bg: transparent;
+    --bs-btn-color: var(--sx-fg);
+    --bs-btn-border-color: var(--sx-border);
+    --bs-btn-hover-bg: var(--sx-island-raised);
+    --bs-btn-hover-color: var(--sx-fg);
+    --bs-btn-hover-border-color: var(--sx-border);
+    --bs-btn-active-bg: var(--sx-row-active);
+    --bs-btn-active-color: var(--sx-fg);
+
+    border-radius: var(--border-radius-base);
+  }
+
+  // The selected-projects toolbar: square-ish buttons, as in the editor
+  .project-tools .btn-group > .btn,
+  .project-tools .dropdown > .btn {
+    border-radius: var(--border-radius-base);
+  }
+
+  // ---------- menus ----------
+  .dropdown-menu {
+    --bs-dropdown-bg: var(--sx-island-raised);
+    --bs-dropdown-color: var(--sx-fg);
+    --bs-dropdown-border-color: var(--sx-border);
+    --bs-dropdown-link-color: var(--sx-fg);
+    --bs-dropdown-link-hover-bg: var(--sx-row-active);
+    --bs-dropdown-link-hover-color: var(--sx-fg);
+    --bs-dropdown-link-active-bg: var(--sx-selected-bg);
+    --bs-dropdown-link-active-color: var(--sx-selected-fg);
+    --bs-dropdown-header-color: var(--sx-muted);
+    --bs-dropdown-divider-bg: var(--sx-border);
+
+    border-radius: var(--sx-island-radius);
+    box-shadow: 0 12px 32px rgb(0 0 0 / 28%);
+  }
+}
+
+// ---------- one design for every sidebar row ----------
+// Views and folders share the same row: a slot for the fold arrow, an icon
+// column, the label, and a count on the right. Folders indent by depth.
+.project-ds-nav-page {
+  --sx-side-pad: 8px; // left edge of a row's content
+  --sx-side-chevron: 16px; // slot for the fold arrow
+  --sx-side-icon: 18px;
+  --sx-side-gap: 10px;
+  --sx-side-label: calc(
+    var(--sx-side-pad) + var(--sx-side-chevron) + var(--sx-side-icon) +
+      var(--sx-side-gap)
+  );
+
+  // Both islands start and end at the same height
+  .project-list-sidebar-wrapper-react {
+    margin-top: 0 !important;
+  }
+
+  ul.project-list-filters {
+    margin-top: var(--spacing-02);
+
+    > li > button.sidebar-filter-button,
+    > li.tag > button.tag-name {
+      display: flex;
+      align-items: center;
+      gap: var(--sx-side-gap);
+      min-height: 34px;
+      padding: var(--spacing-02) var(--spacing-08) var(--spacing-02)
+        calc(var(--sx-side-pad) + var(--sx-side-chevron)) !important;
+      font-size: 0.9375rem;
+      line-height: 1.3;
+    }
+
+    // Views: icon, label, count
+    > li > button.sidebar-filter-button {
+      .icon {
+        display: flex;
+        flex: none;
+        color: var(--sx-muted);
+      }
+
+      svg {
+        width: var(--sx-side-icon);
+        height: var(--sx-side-icon);
+        margin: 0 !important;
+      }
+    }
+
+    // One line per view, cut short with … when the sidebar is narrow
+    .sx-view-label {
+      flex: 1 1 auto;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    > li.active > button.sidebar-filter-button .icon {
+      color: var(--sx-fg);
+    }
+
+    // Folders: the same columns, indented by depth
+    > li.tag.sx-folder > button.tag-name {
+      padding-left: calc(
+        var(--sx-side-pad) + var(--sx-side-chevron) + var(--sx-folder-indent)
+      ) !important;
+
+      .sx-folder-icon svg {
+        width: var(--sx-side-icon);
+        height: var(--sx-side-icon);
+      }
+    }
+
+    > li.tag.sx-folder > .sx-folder-chevron {
+      left: calc(var(--sx-side-pad) + var(--sx-folder-indent) - 2px);
+    }
+
+    // "Not in a folder" lines up with the labels
+    > li.tag.untagged > button.tag-name {
+      padding-left: var(--sx-side-label) !important;
+    }
+
+    // Section headings line up with the icons
+    > li.sx-folders-header {
+      padding-left: calc(
+        var(--sx-side-pad) + var(--sx-side-chevron)
+      ) !important;
+    }
+
+    .sx-folder-count {
+      margin-left: auto;
+    }
+  }
+}

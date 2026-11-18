@@ -45,10 +45,10 @@ describe('<TagsList />', function () {
 
   it('displays the tags list', async function () {
     const header = await screen.findByTestId('organize-projects')
-    expect(header.textContent).to.equal('Organize Tags')
+    expect(header.textContent).to.equal('Folders')
 
     await screen.findByRole('button', {
-      name: 'New tag',
+      name: 'New folder',
     })
     await screen.findByRole('button', {
       name: 'Tag 1 (1)',
@@ -57,7 +57,7 @@ describe('<TagsList />', function () {
       name: 'Another tag (2)',
     })
     await screen.findByRole('button', {
-      name: 'Uncategorized (3)',
+      name: 'Not in a folder (3)',
     })
   })
 
@@ -70,7 +70,7 @@ describe('<TagsList />', function () {
   })
 
   it('selects uncategorized when clicked', function () {
-    const uncategorizedButton = screen.getByText('Uncategorized')
+    const uncategorizedButton = screen.getByText('Not in a folder')
     assert.isFalse(
       uncategorizedButton.closest('li')?.classList.contains('active')
     )
@@ -84,7 +84,7 @@ describe('<TagsList />', function () {
   describe('Create modal', function () {
     beforeEach(async function () {
       const newTagButton = screen.getByRole('button', {
-        name: 'New tag',
+        name: 'New folder',
       })
 
       fireEvent.click(newTagButton)
@@ -92,7 +92,7 @@ describe('<TagsList />', function () {
 
     it('modal is open', async function () {
       const modal = screen.getAllByRole('dialog', { hidden: false })[0]
-      within(modal).getByRole('heading', { name: 'Create new tag' })
+      within(modal).getByRole('heading', { name: 'New folder' })
     })
 
     it('click on cancel closes the modal', async function () {
@@ -121,7 +121,7 @@ describe('<TagsList />', function () {
 
       const createButton = within(modal).getByRole('button', { name: 'Create' })
       expect(createButton.hasAttribute('disabled')).to.be.true
-      screen.getByText('Tag name cannot exceed 50 characters')
+      screen.getByText('Folder name cannot exceed 50 characters')
     })
 
     it('Create button is disabled with error message when tag name is already used', async function () {
@@ -135,7 +135,7 @@ describe('<TagsList />', function () {
 
       const createButton = within(modal).getByRole('button', { name: 'Create' })
       expect(createButton.hasAttribute('disabled')).to.be.true
-      screen.getByText('Tag "Tag 1" already exists')
+      screen.getByText('There is already a folder named "Tag 1" here')
     })
 
     it('filling the input and clicking Create sends a request', async function () {
@@ -175,7 +175,7 @@ describe('<TagsList />', function () {
 
     it('modal is open', async function () {
       const modal = screen.getAllByRole('dialog', { hidden: false })[0]
-      within(modal).getByRole('heading', { name: 'Edit tag' })
+      within(modal).getByRole('heading', { name: 'Edit folder' })
     })
 
     it('click on cancel closes the modal', async function () {
@@ -210,7 +210,7 @@ describe('<TagsList />', function () {
 
       const saveButton = within(modal).getByRole('button', { name: 'Save' })
       expect(saveButton.hasAttribute('disabled')).to.be.true
-      screen.getByText('Tag name cannot exceed 50 characters')
+      screen.getByText('Folder name cannot exceed 50 characters')
     })
 
     it('Save button is disabled with no error message when tag name is unchanged', async function () {
@@ -230,7 +230,7 @@ describe('<TagsList />', function () {
 
       const saveButton = within(modal).getByRole('button', { name: 'Save' })
       expect(saveButton.hasAttribute('disabled')).to.be.true
-      screen.getByText('Tag "Another tag" already exists')
+      screen.getByText('There is already a folder named "Another tag" here')
     })
 
     it('filling the input and clicking Save sends a request', async function () {
@@ -274,7 +274,7 @@ describe('<TagsList />', function () {
 
     it('modal is open', async function () {
       const modal = screen.getAllByRole('dialog', { hidden: false })[0]
-      within(modal).getByRole('heading', { name: 'Delete Tag' })
+      within(modal).getByRole('heading', { name: 'Delete folder' })
     })
 
     it('click on Cancel closes the modal', async function () {

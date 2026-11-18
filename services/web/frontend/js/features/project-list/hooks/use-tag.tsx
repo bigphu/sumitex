@@ -19,6 +19,8 @@ function useTag() {
     addProjectToTagInView,
   } = useProjectListContext()
   const [creatingTag, setCreatingTag] = useState<boolean>(false)
+  // SumiTeX: the folder a new one goes in (null: the top)
+  const [newTagParent, setNewTagParent] = useState<string | null>(null)
   const [editingTag, setEditingTag] = useState<Tag>()
   const [deletingTag, setDeletingTag] = useState<Tag>()
 
@@ -30,9 +32,13 @@ function useTag() {
     [selectTag]
   )
 
-  const openCreateTagModal = useCallback(() => {
-    setCreatingTag(true)
-  }, [setCreatingTag])
+  const openCreateTagModal = useCallback(
+    (parentId?: string | null) => {
+      setNewTagParent(typeof parentId === 'string' ? parentId : null)
+      setCreatingTag(true)
+    },
+    [setCreatingTag]
+  )
 
   const onCreate = useCallback(
     (tag: Tag) => {
@@ -128,6 +134,7 @@ function useTag() {
         onCreate={onCreate}
         onClose={() => setCreatingTag(false)}
         disableCustomColor={disableCustomColor}
+        parentId={newTagParent}
       />
     )
   }

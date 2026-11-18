@@ -1,7 +1,58 @@
 import { Tag } from '../../models/Tag.mjs'
 import { callbackify } from '@overleaf/promise-utils'
+import Errors from '../Errors/Errors.js'
 
 const MAX_TAG_LENGTH = 50
+
+// SumiTeX: folders nest (a tag's parent_id), at most this many levels deep
+export const MAX_FOLDER_DEPTH = 5
+
+// tag id → parent id (null at the top), for one user
+async function _folderParents(userId) {
+  const tags = await Tag.find({ user_id: userId }, { parent_id: 1 }).lean()
+  return new Map(tags.map(tag => [tag._id.toString(), tag.parent_id || null]))
+}
+
+// 1 for a top-level folder; a parent that no longer exists counts as the top
+function _depth(parents, id) {
+  let depth = 0
+  for (let cur = id; cur && parents.has(cur) && depth <= parents.size; ) {
+    depth++
+    cur = parents.get(cur)
+  }
+  return depth
+}
+
+// How many levels a folder and everything inside it take up
+function _height(parents, id) {
+  const children = [...parents].filter(([, parent]) => parent === id)
+  return 1 + Math.max(0, ...children.map(([child]) => _height(parents, child)))
+}
+
+/**
+ * Throws when `tagId` (or a new folder, when null) can't go inside
+ * `parentId`: the parent isn't one of the user's folders, the move would put
+ * a folder inside itself, or the tree would get too deep.
+ */
+async function _checkParent(userId, tagId, parentId) {
+  if (!parentId) return
+  const parents = await _folderParents(userId)
+  if (!parents.has(parentId)) {
+    throw new Errors.NotFoundError('folder not found')
+  }
+  for (let cur = parentId, steps = 0; cur; cur = parents.get(cur), steps++) {
+    if (cur === tagId) {
+      throw new Errors.InvalidError('A folder cannot go inside itself')
+    }
+    if (steps > parents.size) break
+  }
+  const height = tagId ? _height(parents, tagId) : 1
+  if (_depth(parents, parentId) + height > MAX_FOLDER_DEPTH) {
+    throw new Errors.InvalidError(
+      `Folders can be at most ${MAX_FOLDER_DEPTH} levels deep`
+    )
+  }
+}
 
 async function getAllTags(userId) {
   return Tag.find({ user_id: userId })
@@ -23,8 +74,16 @@ async function createTag(userId, name, color, options = {}) {
       throw new Error('Exceeded max tag length')
     }
   }
+  // SumiTeX: a new folder may go inside another
+  const parentId = options.parentId || null
+  await _checkParent(userId, null, parentId)
   try {
-    return await Tag.create({ user_id: userId, name, color })
+    return await Tag.create({
+      user_id: userId,
+      name,
+      color,
+      ...(parentId ? { parent_id: parentId } : {}),
+    })
   } catch (error) {
     // on duplicate key error return existing tag
     if (error && error.code === 11000) {
@@ -69,7 +128,33 @@ async function editTag(userId, tagId, name, color) {
   )
 }
 
+// SumiTeX: move a folder inside another, or to the top (parentId null)
+async function moveTag(userId, tagId, parentId) {
+  const tag = await Tag.findOne({ _id: tagId, user_id: userId }, { _id: 1 })
+  if (!tag) {
+    throw new Errors.NotFoundError('folder not found')
+  }
+  await _checkParent(userId, tagId, parentId)
+  await Tag.updateOne(
+    { _id: tagId, user_id: userId },
+    parentId ? { $set: { parent_id: parentId } } : { $unset: { parent_id: 1 } }
+  )
+}
+
 async function deleteTag(userId, tagId) {
+  // SumiTeX: the folders inside move up a level
+  const tag = await Tag.findOne(
+    { _id: tagId, user_id: userId },
+    { parent_id: 1 }
+  )
+  if (tag) {
+    await Tag.updateMany(
+      { user_id: userId, parent_id: tagId.toString() },
+      tag.parent_id
+        ? { $set: { parent_id: tag.parent_id } }
+        : { $unset: { parent_id: 1 } }
+    )
+  }
   await Tag.deleteOne({
     _id: tagId,
     user_id: userId,
@@ -141,6 +226,7 @@ export default {
   renameTag: callbackify(renameTag),
   editTag: callbackify(editTag),
   deleteTag: callbackify(deleteTag),
+  moveTag: callbackify(moveTag),
   addProjectToTag: callbackify(addProjectToTag),
   addProjectsToTag: callbackify(addProjectsToTag),
   addProjectToTags: callbackify(addProjectToTags),
@@ -156,6 +242,7 @@ export default {
     renameTag,
     editTag,
     deleteTag,
+    moveTag,
     addProjectToTag,
     addProjectsToTag,
     addProjectToTags,

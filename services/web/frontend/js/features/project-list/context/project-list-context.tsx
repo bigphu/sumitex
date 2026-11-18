@@ -28,6 +28,10 @@ import {
 import getMeta from '../../../utils/meta'
 import useAsync from '../../../shared/hooks/use-async'
 import { getProjects } from '../util/api'
+import {
+  folderProjectIds,
+  parentOf,
+} from '@modules/sumitex/frontend/js/folders/folder-tree' // SumiTeX
 import sortProjects from '../util/sort-projects'
 import {
   getInitialNavigationState,
@@ -90,6 +94,7 @@ export type ProjectListContextValue = {
   untaggedProjectsCount: number
   projectsPerTag: Record<Tag['_id'], Project[]>
   currentFilterProjectsCount: number
+  filterProjectsCount: Record<Filter, number> // SumiTeX: counts in the sidebar
   filter: Filter
   selectFilter: (filter: Filter) => void
   selectedTagId?: string | undefined
@@ -97,6 +102,7 @@ export type ProjectListContextValue = {
   addTag: (tag: Tag) => void
   updateTag: (tagId: string, newTagName: string, newTagColor?: string) => void
   deleteTag: (tagId: string) => void
+  moveTagInView: (tagId: string, parentId: string | null) => void // SumiTeX
   updateProjectViewData: (newProjectData: Project) => void
   removeProjectFromView: (project: Project) => void
   addProjectToTagInView: (tagId: string, projectId: string) => void
@@ -224,8 +230,10 @@ export function ProjectListProvider({
       } else {
         const tag = tags.find(tag => tag._id === selectedTagId)
         if (tag) {
+          // SumiTeX: a folder lists the projects in its subfolders too
+          const inFolder = folderProjectIds(tags, tag._id)
           filteredProjects = filteredProjects.filter(
-            p => !isArchivedOrTrashed(p) && tag?.project_ids?.includes(p.id)
+            p => !isArchivedOrTrashed(p) && inFolder.has(p.id)
           )
         } else {
           setSelectedTagId(undefined)
@@ -372,8 +380,10 @@ export function ProjectListProvider({
 
   const projectsPerTag = useMemo(() => {
     return tags.reduce<Record<Tag['_id'], Project[]>>((prev, curTag) => {
+      // SumiTeX: counted with the projects in its subfolders
+      const inFolder = folderProjectIds(tags, curTag._id)
       const tagProjects = loadedProjects.filter(p => {
-        return !isArchivedOrTrashed(p) && curTag.project_ids?.includes(p.id)
+        return !isArchivedOrTrashed(p) && inFolder.has(p.id)
       })
       return { ...prev, [curTag._id]: tagProjects }
     }, {})
@@ -387,6 +397,18 @@ export function ProjectListProvider({
   const currentFilterProjectsCount = useMemo(
     () => arrayFilter(loadedProjects, filters[filter]).length,
     [loadedProjects, filter]
+  )
+
+  // SumiTeX: how many projects each view holds, for the sidebar
+  const filterProjectsCount = useMemo(
+    () =>
+      Object.fromEntries(
+        (Object.keys(filters) as Filter[]).map(name => [
+          name,
+          arrayFilter(loadedProjects, filters[name]).length,
+        ])
+      ) as Record<Filter, number>,
+    [loadedProjects]
   )
 
   const selectFilter = useCallback(
@@ -446,7 +468,28 @@ export function ProjectListProvider({
 
   const deleteTag = useCallback(
     (tagId: string | null) => {
-      setTags(tags => tags.filter(tag => tag._id !== tagId))
+      setTags(tags => {
+        // SumiTeX: the folders inside move up a level, as on the server
+        const deleted = tags.find(tag => tag._id === tagId)
+        const up = deleted ? parentOf(tags, deleted) : null
+        return tags
+          .filter(tag => tag._id !== tagId)
+          .map(tag =>
+            tag.parent_id === tagId ? { ...tag, parent_id: up } : tag
+          )
+      })
+    },
+    [setTags]
+  )
+
+  // SumiTeX: a folder moved inside another, or to the top
+  const moveTagInView = useCallback(
+    (tagId: string, parentId: string | null) => {
+      setTags(tags =>
+        tags.map(tag =>
+          tag._id === tagId ? { ...tag, parent_id: parentId } : tag
+        )
+      )
     },
     [setTags]
   )
@@ -540,6 +583,7 @@ export function ProjectListProvider({
       addClonedProjectToViewData,
       addProjectToTagInView,
       deleteTag,
+      moveTagInView,
       error,
       filter,
       hasLeavableProjectsSelected,
@@ -573,6 +617,7 @@ export function ProjectListProvider({
       updateTag,
       projectsPerTag,
       currentFilterProjectsCount,
+      filterProjectsCount,
       visibleProjects,
     }),
     [
@@ -580,6 +625,7 @@ export function ProjectListProvider({
       addClonedProjectToViewData,
       addProjectToTagInView,
       deleteTag,
+      moveTagInView,
       error,
       filter,
       hasLeavableProjectsSelected,
@@ -613,6 +659,7 @@ export function ProjectListProvider({
       updateTag,
       projectsPerTag,
       currentFilterProjectsCount,
+      filterProjectsCount,
       visibleProjects,
     ]
   )

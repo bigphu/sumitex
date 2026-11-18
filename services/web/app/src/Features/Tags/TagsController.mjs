@@ -33,6 +33,7 @@ const createTagSchema = z.object({
   body: z.strictObject({
     name: z.string().min(1),
     color: z.string().regex(TAG_COLOR_REGEX).optional(),
+    parentId: zz.objectId().optional(), // SumiTeX: inside another folder
   }),
 })
 // Rollout-temporary fallback (pre-refinement schema from main); delete
@@ -41,8 +42,26 @@ const createTagFallbackSchema = z.object({
   body: z.object({
     name: z.string(),
     color: z.string().optional(),
+    parentId: z.string().optional(), // SumiTeX
   }),
 })
+
+// SumiTeX: folder rules broken (inside itself, too deep) answer 400
+async function _folderRules(res, run) {
+  try {
+    return await run()
+  } catch (error) {
+    if (error instanceof Errors.InvalidError) {
+      res.status(400).json({ message: error.message })
+      return null
+    }
+    if (error instanceof Errors.NotFoundError) {
+      res.status(404).json({ message: error.message })
+      return null
+    }
+    throw error
+  }
+}
 
 async function createTag(req, res) {
   const { body } = parseReq(req, createTagSchema, {
@@ -52,10 +71,12 @@ async function createTag(req, res) {
     // the value to find out what real clients are sending instead.
     logFields: ['body.color'],
   })
-  const { name, color } = body
+  const { name, color, parentId } = body
   const userId = SessionManager.getLoggedInUserId(req.session)
-  const tag = await TagsHandler.promises.createTag(userId, name, color)
-  res.json(tag)
+  const tag = await _folderRules(res, () =>
+    TagsHandler.promises.createTag(userId, name, color, { parentId })
+  )
+  if (tag) res.json(tag)
 }
 
 const addProjectToTagSchema = z.object({
@@ -234,7 +255,28 @@ async function editTag(req, res) {
   res.status(204).end()
 }
 
+// SumiTeX: move a folder inside another, or to the top (parentId null)
+const moveTagSchema = z.object({
+  params: z.strictObject({
+    tagId: zz.objectId(),
+  }),
+  body: z.strictObject({
+    parentId: zz.objectId().nullable(),
+  }),
+})
+
+async function moveTag(req, res) {
+  const { params, body } = parseReq(req, moveTagSchema)
+  const userId = SessionManager.getLoggedInUserId(req.session)
+  const moved = await _folderRules(res, async () => {
+    await TagsHandler.promises.moveTag(userId, params.tagId, body.parentId)
+    return true
+  })
+  if (moved) res.status(204).end()
+}
+
 export default {
+  moveTag: expressify(moveTag), // SumiTeX
   apiGetAllTags: expressify(apiGetAllTags),
   getAllTags: expressify(getAllTags),
   createTag: expressify(createTag),

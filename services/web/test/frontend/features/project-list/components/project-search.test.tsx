@@ -127,12 +127,12 @@ describe('Project list search form', function () {
     {
       filter: 'all',
       selectedTag: { _id: '', user_id: '', name: 'sometag' },
-      expectedText: 'search sometag',
+      expectedText: 'search in sometag',
     },
     {
       filter: 'shared',
       selectedTag: { _id: '', user_id: '', name: 'othertag' },
-      expectedText: 'search othertag',
+      expectedText: 'search in othertag',
     },
   ]
 

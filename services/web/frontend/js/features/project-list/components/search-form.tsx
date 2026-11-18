@@ -34,7 +34,7 @@ function SearchForm({
   const { t } = useTranslation()
   let placeholderMessage = t('search_projects')
   if (selectedTag) {
-    placeholderMessage = `${t('search')} ${selectedTag.name}`
+    placeholderMessage = `Search in ${selectedTag.name}` // SumiTeX
   } else {
     switch (filter) {
       case 'all':

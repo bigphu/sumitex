@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import classnames from 'classnames'
 import { Tag } from '../../../../../../app/src/Features/Tags/types'
 import { Filter, UNCATEGORIZED_KEY } from '../../context/project-list-context'
+import FolderTitle from '@modules/sumitex/frontend/js/folders/folder-title' // SumiTeX
 
 function ProjectListTitle({
   filter,
@@ -15,6 +16,12 @@ function ProjectListTitle({
   className?: string
 }) {
   const { t } = useTranslation()
+
+  // SumiTeX: an open folder shows its path and how many projects it holds
+  if (selectedTag) {
+    return <FolderTitle tag={selectedTag} className={className} />
+  }
+
   let message = t('projects')
   let extraProps = {}
 

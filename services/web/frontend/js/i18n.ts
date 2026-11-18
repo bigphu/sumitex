@@ -3,6 +3,7 @@ import { initReactI18next } from 'react-i18next'
 import moment from 'moment'
 import getMeta from '@/utils/meta'
 import { resources } from '@/i18n-resources/writefull'
+import { englishOverrides } from '@modules/sumitex/frontend/js/i18n/en' // SumiTeX
 
 const LANG = getMeta('ol-i18n').currentLangCode
 
@@ -60,6 +61,10 @@ const localesPromise = Promise.all([
     /* webpackChunkName: "[request]" */ `../../locales/${LANG}.json`
   ).then(lang => {
     i18n.addResourceBundle(LANG, 'translation', lang)
+    // SumiTeX: its own wording, over upstream's English
+    if (LANG === 'en') {
+      i18n.addResourceBundle(LANG, 'translation', englishOverrides, true, true)
+    }
     i18n.addResourceBundle(
       LANG,
       'writefull',
