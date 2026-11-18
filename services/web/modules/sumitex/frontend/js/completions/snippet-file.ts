@@ -33,8 +33,8 @@ export const starterText = () => String.raw`% Snippets for this project, shared 
 % Reusing a built-in trigger replaces it in this project. Built-in ones:
 % ${builtInTriggers()}
 %
-% Palette (Ctrl+Shift+P): "Snippets: New snippet from selection" turns
-% selected text into a snippet here.
+% Palette (Ctrl+Shift+P): "Snippets: New project snippet from selection"
+% turns selected text into a snippet here.
 
 \snippet{\mytab}{Results table}[booktabs]
 \begin{table}[htbp]

@@ -69,8 +69,12 @@ const annotationsTheme = EditorView.baseTheme({
 export const lintSourceConfig = {
   delay: 100,
   // Show highlights only for errors
+  // SumiTeX: and SumiTeX's own checks, whose quick fixes (Ctrl+., the
+  // gutter tooltip) look their diagnostic up among the highlighted ones
   markerFilter(diagnostics: readonly Diagnostic[]) {
-    return diagnostics.filter(d => d.severity === 'error')
+    return diagnostics.filter(
+      d => d.severity === 'error' || d.source?.startsWith('SumiTeX')
+    )
   },
   // Do not show any tooltips for highlights within the editor content
   tooltipFilter() {

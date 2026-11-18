@@ -10,6 +10,7 @@ import { waitForParser } from '../wait-for-parser'
 import { debugConsole } from '@/utils/debugging'
 import type { HunspellManager } from '../../hunspell/HunspellManager'
 import { captureException } from '@/infrastructure/error-reporter'
+import { isSnippetText } from '@modules/sumitex/frontend/js/completions/snippet-file' // SumiTeX
 
 /*
  * Spellchecker, handles updates, schedules spelling checks
@@ -125,6 +126,12 @@ export class SpellChecker {
   }
 
   _performSpellCheck(view: EditorView) {
+    // SumiTeX: a snippet file holds templates (trigger names, package lists,
+    // placement options), not prose, so it isn't spell checked
+    if (isSnippetText(view.state.doc.toString())) {
+      this.trackedChanges = ChangeSet.empty(0)
+      return
+    }
     const wordsToCheck = this.getWordsToCheck(view)
     if (wordsToCheck.length === 0) {
       this.trackedChanges = ChangeSet.empty(0)

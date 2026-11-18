@@ -16,6 +16,7 @@
  * - It follows the editor's "code check" setting, like the stock linter.
  */
 import { needsRelint, relint } from './relint'
+import { isSnippetText } from '../completions/snippet-file'
 import { Prec } from '@codemirror/state'
 import { Command, EditorView, ViewPlugin, keymap } from '@codemirror/view'
 import { Diagnostic, forEachDiagnostic } from '@codemirror/lint'
@@ -117,6 +118,8 @@ function loadedTooLate(
 
 function lint(view: EditorView): Diagnostic[] {
   if (!getCheckPackages()) return []
+  // A snippet file holds templates, not a document
+  if (isSnippetText(view.state.doc.toString())) return []
   const text = view.state.doc.toString()
   const store = getProjectPreamble()
 

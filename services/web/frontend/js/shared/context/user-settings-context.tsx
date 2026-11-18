@@ -17,8 +17,8 @@ export const defaultSettings: UserSettings = {
   syntaxValidation: false,
   previewTabs: false,
   editorTheme: 'textmate',
-  editorDarkTheme: 'overleaf_dark',
-  editorLightTheme: 'textmate',
+  editorDarkTheme: 'sumitex_dark', // SumiTeX
+  editorLightTheme: 'sumitex_light', // SumiTeX
   overallTheme: '',
   mode: 'default',
   fontSize: 12,

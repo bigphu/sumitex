@@ -15,6 +15,7 @@
  * setting, like the other linters.
  */
 import { needsRelint, relint } from './relint'
+import { isSnippetText } from '../completions/snippet-file'
 import { getCheckProject, subscribePrefs } from '../settings/prefs'
 import { ViewPlugin, EditorView } from '@codemirror/view'
 import { Diagnostic } from '@codemirror/lint'
@@ -82,6 +83,8 @@ function lintBib(text: string): Diagnostic[] {
 
 function lint(view: EditorView): Diagnostic[] {
   if (!getCheckProject()) return []
+  // A snippet file holds templates, not a document
+  if (isSnippetText(view.state.doc.toString())) return []
   const { index, currentPath } = getProjectPreamble()
   if (!index) return []
   const text = view.state.doc.toString()
