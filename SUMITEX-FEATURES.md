@@ -38,7 +38,7 @@ This file lists every feature agreed so far: what it does, how it behaves, what'
 | 2 | Zen focus mode | **Done** 15 Nov 2026 | Small–medium |
 | 3 | VS Code keyboard shortcuts | **Done** 16 Nov 2026 (Phase 2) | Small |
 | 4 | Command palette | **Done** 16 Nov 2026 (Phase 2); `@` blocks come with feature 11 | Small |
-| 5 | Project folders: nested folders on the dashboard, plus polish for folders inside a project | Partial: dashboard tags exist (no nesting yet); folders inside a project already work | About 1 week (dashboard) + small polish |
+| 5 | Project folders: nested folders on the dashboard, plus polish for folders inside a project | Dashboard folders done (v0.5.0, 18 Nov 2026); folders inside a project already work, polish still to do | About 1 week (dashboard) + small polish |
 | 6 | Better linter and compile output | Started: the log is a bottom panel (Problems with filters, Log with folds and search); linter and plain-language rules still to do | Medium |
 | 7 | Snippets that bring their packages | Partial: snippet completions exist | Medium |
 | 8 | Math auto-expansion | New | Medium |

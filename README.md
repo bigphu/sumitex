@@ -35,6 +35,7 @@ SumiTeX (墨, *sumi*: the ink of brush calligraphy) is a LaTeX editor for writin
 - **Plain-language errors** in the Problems panel, with links and an "Add package" button where that's the fix.
 - **Snippets that bring their packages:** `\fig`, `\booktab`, `\eq`, `\thm`… add their `\usepackage` lines as they go in. Projects can share their own snippets, and you can keep personal ones for every project.
 - **Math auto-expansion:** `//` to `\frac{}{}`, `@a` to `\alpha`, `->` to `\to`, inside math only, with your own rules.
+- **Folders for your projects:** nested, colour-coded folders on the dashboard. Drag projects onto them, drag folders to rearrange, and open one to see everything inside it. The project list itself sits in islands, like the editor.
 
 Nothing Overleaf or AyakaLeaf offers is removed: stock parts are restyled, moved, or one setting away. [SUMITEX-FEATURES.md](SUMITEX-FEATURES.md) lists every agreed feature and how it behaves.
 
@@ -65,8 +66,8 @@ bin/dev web webpack
 | 2 | VS Code keys, the command palette and the shortcut sheet | Done, [v0.2.0](https://github.com/bigphu/sumitex/releases/tag/v0.2.0) |
 | 3 | A live linter with one-click "add package" fixes, plain-language errors | Done, [v0.3.0](https://github.com/bigphu/sumitex/releases/tag/v0.3.0) |
 | 4 | Snippets that bring their packages, math auto-expansion | Done, [v0.4.0](https://github.com/bigphu/sumitex/releases/tag/v0.4.0) |
-| 5 | Folders for projects on the dashboard | Next |
-| 6 | Draggable lists and table columns, the Outline with blocks | |
+| 5 | Folders for projects on the dashboard | Done, [v0.5.0](https://github.com/bigphu/sumitex/releases/tag/v0.5.0) |
+| 6 | Draggable lists and table columns, the Outline with blocks | Next |
 | 7 | Notion-like editing on the Visual editor | Later |
 
 ## Built on
