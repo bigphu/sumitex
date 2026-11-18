@@ -10,7 +10,10 @@
  *   selection" do the same for your personal snippets, in every project
  *   (personal-snippets.tsx).
  *
- * Returns the personal snippets dialog, for the bridge to render.
+ * - "Snippets: Open snippet library" browses every snippet and shortcut
+ *   (snippet-library.tsx), where yours are edited too.
+ *
+ * Returns the snippet library dialog, for the bridge to render.
  */
 import { useEffect, useRef, useState } from 'react'
 import type { EditorView } from '@codemirror/view'
@@ -29,10 +32,12 @@ import {
   newSnippetTemplate,
   starterText,
 } from './snippet-file'
+import { OPEN_PERSONAL_SNIPPETS_EVENT } from './personal-snippets'
 import {
-  OPEN_PERSONAL_SNIPPETS_EVENT,
-  PersonalSnippetsDialog,
-} from './personal-snippets'
+  LibraryPane,
+  OPEN_SNIPPET_LIBRARY_EVENT,
+  SnippetLibraryDialog,
+} from './snippet-library'
 
 const OPEN_TIMEOUT_MS = 6000
 const SETTLE_MS = 300
@@ -81,14 +86,28 @@ export function useSnippetCommands(view: EditorView) {
   const { fileTreeData } = useFileTreeData()
   const { openDocWithId } = useEditorManagerContext()
   const { currentDocumentId, currentDocument } = useEditorOpenDocContext()
-  // The personal snippets dialog, and a snippet to add when it opens
-  const [personal, setPersonal] = useState<{ newSnippet: string | null } | null>(null)
+  // The snippet library: its pane, and a snippet to add to yours
+  const [library, setLibrary] = useState<{
+    pane: LibraryPane
+    newSnippet: string | null
+  } | null>(null)
+  const setPersonal = (open: { newSnippet: string | null }) =>
+    setLibrary({ pane: 'yours', ...open })
 
-  // Settings → SumiTeX → "Your snippets" opens the dialog too
+  // Settings → Snippets & shortcuts opens it too
   useEffect(() => {
-    const open = () => setPersonal({ newSnippet: null })
-    window.addEventListener(OPEN_PERSONAL_SNIPPETS_EVENT, open)
-    return () => window.removeEventListener(OPEN_PERSONAL_SNIPPETS_EVENT, open)
+    const openYours = () => setLibrary({ pane: 'yours', newSnippet: null })
+    const openLibrary = (event: Event) =>
+      setLibrary({
+        pane: ((event as CustomEvent).detail as LibraryPane) ?? 'browse',
+        newSnippet: null,
+      })
+    window.addEventListener(OPEN_PERSONAL_SNIPPETS_EVENT, openYours)
+    window.addEventListener(OPEN_SNIPPET_LIBRARY_EVENT, openLibrary)
+    return () => {
+      window.removeEventListener(OPEN_PERSONAL_SNIPPETS_EVENT, openYours)
+      window.removeEventListener(OPEN_SNIPPET_LIBRARY_EVENT, openLibrary)
+    }
   }, [])
 
   // The latest values, for commands that wait across renders
@@ -199,6 +218,11 @@ export function useSnippetCommands(view: EditorView) {
         },
       },
       {
+        id: 'sumitex-open-snippet-library',
+        label: 'Snippets: Open snippet library',
+        handler: () => setLibrary({ pane: 'browse', newSnippet: null }),
+      },
+      {
         id: 'sumitex-open-personal-snippets',
         label: 'Snippets: Open your snippets (every project)',
         handler: () => setPersonal({ newSnippet: null }),
@@ -217,11 +241,12 @@ export function useSnippetCommands(view: EditorView) {
   )
 
   return (
-    <PersonalSnippetsDialog
-      show={personal !== null}
-      newSnippet={personal?.newSnippet ?? null}
+    <SnippetLibraryDialog
+      show={library !== null}
+      pane={library?.pane ?? 'browse'}
+      newSnippet={library?.newSnippet ?? null}
       onHide={() => {
-        setPersonal(null)
+        setLibrary(null)
         window.setTimeout(() => view.focus(), 60)
       }}
     />

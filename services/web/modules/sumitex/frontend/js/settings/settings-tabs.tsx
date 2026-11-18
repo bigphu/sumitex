@@ -5,8 +5,9 @@
  *
  * - Editor: Typing (completion, brackets, floating menu) and Display (tabs,
  *   breadcrumbs, equation preview, cursor, toolbar, PDF viewer)
- * - Snippets & shortcuts: your snippets, the project's snippets, math
- *   shortcuts with their rules, keybindings and the shortcut sheet
+ * - Snippets & shortcuts: math auto-expansion, and the way into the snippet
+ *   library (completions/snippet-library.tsx), which holds the snippets,
+ *   the shortcuts and their editors; keybindings and the shortcut sheet
  * - Checks: the code check, missing packages, and project checks
  * - Compiler, Spelling, References, Appearance… unchanged
  *
@@ -25,16 +26,11 @@ import type {
   SettingsSection,
   SettingsTab,
 } from '@/features/ide-settings/context/types'
-import {
-  CodeToolbarSetting,
-  MathExpandSetting,
-  PersonalSnippetsSetting,
-} from './editor-settings-section'
-import { MathRulesEditor } from './math-rules-editor'
+import { CodeToolbarSetting, MathExpandSetting } from './editor-settings-section'
 import {
   getCheckPackages,
   getCheckProject,
-  getMathExpand,
+  getMathRules,
   setCheckPackages,
   setCheckProject,
   subscribePrefs,
@@ -43,64 +39,106 @@ import {
   getProjectPreamble,
   subscribeProjectPreamble,
 } from '../diagnostics/preamble-store'
-import { projectPresets } from '../completions/project-snippets'
-import { OPEN_PROJECT_SNIPPETS_EVENT } from '../completions/snippet-file'
+import {
+  getPersonalSnippets,
+  subscribeAccountPrefs,
+} from './account-prefs'
+import { libraryEntries, parseRules } from '../snippets/registry'
+import {
+  LibraryPane,
+  OPEN_SNIPPET_LIBRARY_EVENT,
+} from '../completions/snippet-library'
 import { SHOW_SHORTCUTS_EVENT } from '../editor/vscode-keymap'
 
 /** Close Settings, then do something that needs the editor */
 function useCloseThen() {
   const { setShow } = useSettingsModalContext()
-  return (event: string) => {
+  return (event: string, detail?: unknown) => {
     setShow(false)
-    window.setTimeout(() => window.dispatchEvent(new Event(event)), 200)
+    window.setTimeout(
+      () => window.dispatchEvent(new CustomEvent(event, { detail })),
+      200
+    )
   }
 }
 
-function ProjectSnippetsSetting() {
+function LibraryButton({ pane, text }: { pane: LibraryPane; text: string }) {
   const closeThen = useCloseThen()
-  const snippets = useSyncExternalStore(
+  return (
+    <OLButton
+      id={`sumitex-library-${pane}`}
+      variant="secondary"
+      size="sm"
+      onClick={() => closeThen(OPEN_SNIPPET_LIBRARY_EVENT, pane)}
+    >
+      {text}
+    </OLButton>
+  )
+}
+
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
+
+function SnippetLibrarySetting() {
+  const project = useSyncExternalStore(
     subscribeProjectPreamble,
     () => getProjectPreamble().snippets ?? null
   )
-  const count = projectPresets(snippets).length
+  const personal = useSyncExternalStore(
+    subscribeAccountPrefs,
+    getPersonalSnippets
+  )
+  const rules = useSyncExternalStore(subscribePrefs, getMathRules)
+  const entries = libraryEntries({ project, personal, rules })
+  const snippets = entries.filter(({ def }) => def.mode === 'menu').length
   return (
     <Setting
-      controlId="sumitex-project-snippets"
-      label="Project snippets"
-      description={
-        snippets === null
-          ? 'Shared with everyone on this project, in snippets.sxs · none yet'
-          : `Shared with everyone on this project, in snippets.sxs · ${count} snippet${count === 1 ? '' : 's'}`
-      }
+      controlId="sumitex-library-browse"
+      label="Snippet library"
+      description={`Every snippet and math shortcut, with a filter and what each inserts · ${plural(snippets, 'snippet')}, ${plural(entries.length - snippets, 'shortcut')}`}
     >
-      <OLButton
-        id="sumitex-project-snippets"
-        variant="secondary"
-        size="sm"
-        onClick={() => closeThen(OPEN_PROJECT_SNIPPETS_EVENT)}
-      >
-        {snippets === null ? 'Create…' : 'Open'}
-      </OLButton>
+      <LibraryButton pane="browse" text="Open" />
     </Setting>
   )
 }
 
-function MathRulesBlock() {
-  const enabled = useSyncExternalStore(subscribePrefs, getMathExpand)
+function YourSnippetsSetting() {
+  const personal = useSyncExternalStore(
+    subscribeAccountPrefs,
+    getPersonalSnippets
+  )
+  const project = useSyncExternalStore(
+    subscribeProjectPreamble,
+    () => getProjectPreamble().snippets ?? null
+  )
+  const count = libraryEntries({ personal, project }).filter(
+    ({ def }) => def.source === 'personal'
+  ).length
   return (
-    <div
-      className="ide-setting sx-setting-block"
-      id="setting-sumitex-math-rules"
-      aria-disabled={!enabled}
+    <Setting
+      controlId="sumitex-library-yours"
+      label="Your snippets"
+      description={`In every project you open · ${count ? plural(count, 'snippet') : 'none yet'}`}
     >
-      <div>
-        <label className="ide-setting-title" htmlFor="sumitex-math-rules-input">
-          Your math shortcuts
-        </label>
+      <LibraryButton pane="yours" text="Edit…" />
+    </Setting>
+  )
+}
 
-      </div>
-      <MathRulesEditor id="sumitex-math-rules-input" />
-    </div>
+function YourShortcutsSetting() {
+  const rules = useSyncExternalStore(subscribePrefs, getMathRules)
+  const { rules: own, off } = parseRules(rules)
+  return (
+    <Setting
+      controlId="sumitex-library-rules"
+      label="Your math shortcuts"
+      description={
+        own.length || off.size
+          ? `${plural(own.length, 'rule')} of your own, ${off.size} built-in switched off`
+          : 'Add your own triggers, or switch built-in ones off'
+      }
+    >
+      <LibraryButton pane="rules" text="Edit…" />
+    </Setting>
   )
 }
 
@@ -230,18 +268,12 @@ export default function sumitexSettingsTabs(
     sections: [
       {
         key: 'sx-snippets',
-        title: 'Snippets',
+        title: 'Snippets & shortcuts',
         settings: [
-          own('sumitexSnippets', <PersonalSnippetsSetting />),
-          own('sumitexProjectSnippets', <ProjectSnippetsSetting />),
-        ],
-      },
-      {
-        key: 'sx-math',
-        title: 'Math shortcuts',
-        settings: [
+          own('sumitexSnippetLibrary', <SnippetLibrarySetting />),
+          own('sumitexSnippets', <YourSnippetsSetting />),
           own('sumitexMathExpand', <MathExpandSetting />),
-          own('sumitexMathRules', <MathRulesBlock />),
+          own('sumitexMathRules', <YourShortcutsSetting />),
         ],
       },
       {

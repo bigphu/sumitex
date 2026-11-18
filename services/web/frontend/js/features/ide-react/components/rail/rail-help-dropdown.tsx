@@ -7,6 +7,7 @@ import {
   OLDropdownItem,
   OLDropdownMenu,
 } from '@/shared/components/ol/ol-dropdown-menu'
+import { OPEN_SNIPPET_LIBRARY_EVENT } from '@modules/sumitex/frontend/js/completions/snippet-library' // SumiTeX
 
 export default function RailHelpDropdown() {
   const showSupport = getMeta('ol-showSupport')
@@ -24,6 +25,16 @@ export default function RailHelpDropdown() {
     <OLDropdownMenu>
       <OLDropdownItem onClick={openKeyboardShortcutsModal}>
         {t('keyboard_shortcuts')}
+      </OLDropdownItem>
+      {/* SumiTeX: the snippet library, next to the keys */}
+      <OLDropdownItem
+        onClick={() =>
+          window.dispatchEvent(
+            new CustomEvent(OPEN_SNIPPET_LIBRARY_EVENT, { detail: 'browse' })
+          )
+        }
+      >
+        Snippets &amp; shortcuts
       </OLDropdownItem>
       {showDocumentation && (
         <OLDropdownItem

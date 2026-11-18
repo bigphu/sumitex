@@ -47,9 +47,9 @@ export default function RemoveFromFolderButton() {
       variant="secondary"
       className="sx-remove-from-folder"
       onClick={remove}
-      translate="no"
     >
-      <FolderMinus aria-hidden="true" /> Remove from {folder.name}
+      <FolderMinus aria-hidden="true" /> Remove from{' '}
+      <span translate="no">{folder.name}</span>
     </OLButton>
   )
 }

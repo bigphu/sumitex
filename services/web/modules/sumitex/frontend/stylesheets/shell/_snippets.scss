@@ -252,3 +252,214 @@
     border-bottom: none;
   }
 }
+
+// The snippet library (completions/snippet-library.tsx): the shortcut
+// sheet's frame (index left, list right), as big as Settings
+.sx-shortcut-sheet.sx-snippet-library {
+  .modal-dialog {
+    max-width: 1180px;
+  }
+
+  .sx-sheet {
+    height: min(760px, calc(100vh - 150px));
+  }
+
+  .sx-sheet-index {
+    overflow-y: auto;
+    gap: 4px;
+  }
+}
+
+.sx-lib-index-title {
+  margin: 10px 10px 2px;
+  color: var(--sx-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sx-lib-group {
+  margin-top: 14px;
+
+  h3 {
+    margin: 0 0 2px;
+    color: var(--sx-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    line-height: 16px;
+    text-transform: uppercase;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+}
+
+.sx-lib-entry {
+  border-bottom: 1px solid var(--sx-border);
+
+  &.sx-lib-off .sx-lib-main,
+  &.sx-lib-replaced .sx-lib-main {
+    opacity: 0.5;
+  }
+
+  &.sx-lib-off .sx-lib-trigger {
+    text-decoration: line-through;
+  }
+}
+
+.sx-lib-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sx-lib-main {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(120px, 22%) 1fr auto;
+  gap: 16px;
+  align-items: center;
+  min-width: 0;
+  min-height: 34px;
+  padding: 5px 4px;
+  color: var(--sx-fg);
+  font-size: 13px;
+  line-height: 18px;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+
+  &:hover {
+    background: var(--sx-sunken);
+  }
+}
+
+.sx-lib-trigger,
+.sx-lib-detail code,
+.sx-lib-body {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-ligatures: none;
+}
+
+.sx-lib-trigger {
+  overflow: hidden;
+  color: var(--sx-accent);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sx-lib-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sx-lib-tags {
+  display: flex;
+  gap: 4px;
+
+  span {
+    padding: 0 6px;
+    color: var(--sx-muted);
+    font-size: 11px;
+    line-height: 18px;
+    border: 1px solid var(--sx-border);
+    border-radius: 9px;
+  }
+}
+
+.sx-lib-switch {
+  flex: none;
+  min-height: 0;
+  margin: 0;
+}
+
+.sx-lib-detail {
+  padding: 2px 4px 12px;
+  color: var(--sx-muted);
+  font-size: 12.5px;
+
+  p {
+    margin: 4px 0;
+  }
+
+  code {
+    color: var(--sx-fg);
+    font-size: 12px;
+  }
+}
+
+.sx-lib-body {
+  max-height: 260px;
+  margin: 6px 0;
+  padding: 8px 10px;
+  overflow: auto;
+  color: var(--sx-fg);
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre;
+  background: var(--sx-sunken);
+  border: 1px solid var(--sx-border);
+  border-radius: 6px;
+}
+
+// Your snippets and your shortcuts: the editor fills the pane
+.sx-lib-pane-wrap {
+  display: flex;
+  min-height: 0;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.sx-lib-pane {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: 16px 24px;
+  overflow-y: auto;
+}
+
+.sx-lib-yours .sx-snippet-editor {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+#sx-personal-snippets .sx-lib-yours .sx-snippet-editor .cm-editor {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+}
+
+.sx-lib-rules .sx-math-rules {
+  padding-top: 0;
+  border-bottom: 0;
+}
+
+.sx-lib-rules .sx-math-rules-input {
+  min-height: 320px;
+}
+
+.sx-lib-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 10px;
+}
+
+.sx-lib-link {
+  padding: 0;
+  font-size: inherit;
+  vertical-align: baseline;
+}

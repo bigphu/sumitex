@@ -5,7 +5,7 @@
  */
 import { COMMANDS, ENVIRONMENTS } from '../diagnostics/packages'
 import { codeOnly } from '../diagnostics/latex-text'
-import { PRESETS } from './presets'
+import { builtinMenuTriggers } from '../snippets/registry'
 
 export const SNIPPET_FILE = 'snippets.sxs'
 
@@ -15,23 +15,41 @@ export const OPEN_PROJECT_SNIPPETS_EVENT = 'sumitex:open-project-snippets'
 /** A snippet file: by its name, or by its \snippet … \endsnippet lines */
 export const isSnippetText = (text: string) =>
   /^[ \t]*\\endsnippet\b/m.test(text) ||
-  /^[ \t]*\\snippet\s*[[{]/m.test(text)
+  /^[ \t]*\\(?:snippet|shortcut)\s*[[{]/m.test(text)
 
-const builtInTriggers = () => PRESETS.map(preset => preset.trigger).join(' ')
+/** The built-in triggers, as comment lines of up to 72 characters */
+function builtInTriggers() {
+  const lines: string[] = []
+  for (const trigger of builtinMenuTriggers()) {
+    const lastLine = lines[lines.length - 1]
+    if (lastLine && lastLine.length + trigger.length < 72) {
+      lines[lines.length - 1] = `${lastLine} ${trigger}`
+    } else lines.push(`% ${trigger}`)
+  }
+  return lines.join('\n')
+}
 
 /** What a new snippets.sxs starts with: how it works, and one example */
 export const starterText = () => String.raw`% Snippets for this project, shared with everyone who works on it.
 % Type a trigger (\mytab below) in any .tex file and pick it from the menu.
 %
-%   \snippet{\trigger}{Label shown in the menu}[packages,it,needs]
+%   \snippet[options]{\trigger}{Label shown in the menu}[packages,it,needs]
 %   ...the text, inserted as written. #{name} is a placeholder that Tab
 %   moves to, #{} an empty one.
 %   \endsnippet
 %
-% \snippet[math]{...} is offered only inside math. The packages are added
-% to the preamble when the snippet is used, unless they're loaded already.
-% Reusing a built-in trigger replaces it in this project. Built-in ones:
-% ${builtInTriggers()}
+%   \shortcut{trigger}{output}      one line, expands as you type in math
+%
+% Options: math or any (where it's offered; text is the default), auto
+% (expands as you type) or tab (expands on Tab; the menu is the default).
+% Sizes: in \snippet{\grid#{r:1-9}x#{c:1-9}}{Grid}, a body line
+% \rows{r}{\cols{c}{#{}}} gives a row per r and a cell per c (\grid3x4).
+% \lines{n}{...} repeats a line, \repeat{n}{...} a piece of text.
+% \preamble{\newtheorem{lemma}{Lemma}} at the top of a body adds that line.
+% The packages are added to the preamble when the snippet is used, unless
+% they're loaded already. Reusing a built-in trigger replaces it in this
+% project. Built-in ones:
+${builtInTriggers()}
 %
 % Palette (Ctrl+Shift+P): "Snippets: New project snippet from selection"
 % turns selected text into a snippet here.

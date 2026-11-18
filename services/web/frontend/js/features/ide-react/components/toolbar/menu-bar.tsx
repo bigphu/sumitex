@@ -27,6 +27,7 @@ import EditorCloneProjectModalWrapper from '@/features/clone-project-modal/compo
 import useOpenProject from '@/shared/hooks/use-open-project'
 import importOverleafModules from '../../../../../macros/import-overleaf-module.macro'
 import ReviewModeOptions from './review-mode-options'
+import { OPEN_SNIPPET_LIBRARY_EVENT } from '@modules/sumitex/frontend/js/completions/snippet-library' // SumiTeX
 
 const menubarExtraComponents = importOverleafModules(
   'menubarExtraComponents'
@@ -327,6 +328,16 @@ export const ToolbarMenuBar = () => {
             eventKey="keyboard_shortcuts"
             title={t('keyboard_shortcuts')}
             onClick={openKeyboardShortcutsModal}
+          />
+          {/* SumiTeX: the snippet library, next to the keys */}
+          <MenuBarOption
+            eventKey="sumitex_snippet_library"
+            title="Snippets & shortcuts"
+            onClick={() =>
+              window.dispatchEvent(
+                new CustomEvent(OPEN_SNIPPET_LIBRARY_EVENT, { detail: 'browse' })
+              )
+            }
           />
           {showDocumentation && (
             <MenuBarOption

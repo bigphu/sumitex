@@ -8,11 +8,20 @@
 import { useEffect, useRef, useState } from 'react'
 import { getMathRules, setMathRules } from './prefs'
 import { hasAccount } from './account-prefs'
-import { BUILT_IN_RULES, parseRules } from '../editor/math-auto-expand'
+import { builtinShortcuts, parseRules } from '../snippets/registry'
 
-const shown = (replacement: string) => replacement.replace(/#\{\}/g, '▮')
+// A placeholder shows its text, or ▮ when it has none
+const shown = (replacement: string) =>
+  replacement.replace(/#\{([^}]*)\}/g, (_, name: string) => name || '▮')
 
-export function MathRulesEditor({ id }: { id: string }) {
+export function MathRulesEditor({
+  id,
+  showBuiltin = true,
+}: {
+  id: string
+  /** List the built-in rules under the box (the snippet library has its own) */
+  showBuiltin?: boolean
+}) {
   const [draft, setDraft] = useState(getMathRules)
   const { rules, off } = parseRules(draft)
 
@@ -48,30 +57,32 @@ export function MathRulesEditor({ id }: { id: string }) {
       />
       <p className="sx-math-rules-help">
         {rules.length} rule{rules.length === 1 ? '' : 's'} of your own
-        {off.size ? `, ${off.size} built-in switched off` : ''}. Built in:
+        {off.size ? `, ${off.size} built-in switched off` : ''}.
+        {showBuiltin && ' Built in:'}
       </p>
+      {showBuiltin && (
       <ul className="sx-math-rules-builtin">
-        {BUILT_IN_RULES.map(rule => {
-          const replaced = rules.some(own => own.trigger === rule.trigger)
+        {builtinShortcuts().map(rule => {
+          const replaced = rules.some(own => own.trigger === rule.key)
+          const switchedOff = off.has(rule.key) || off.has(rule.prefix)
           return (
             <li
-              key={rule.trigger}
-              className={
-                off.has(rule.trigger) || replaced ? 'sx-off' : undefined
-              }
+              key={rule.key}
+              className={switchedOff || replaced ? 'sx-off' : undefined}
               title={
-                off.has(rule.trigger)
+                switchedOff
                   ? 'Switched off'
                   : replaced
                     ? 'Replaced by yours'
                     : undefined
               }
             >
-              <code>{rule.trigger}</code> {shown(rule.replacement)}
+              <code>{rule.trigger}</code> {shown(rule.output)}
             </li>
           )
         })}
       </ul>
+      )}
     </div>
   )
 }
