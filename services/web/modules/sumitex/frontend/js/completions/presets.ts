@@ -6,6 +6,12 @@
  * them, in order of appearance) and `#{}` an empty one; the cursor ends at
  * the last. Everything else is literal (snippetTemplate, in
  * snippets-with-packages.ts, escapes it for CodeMirror).
+ *
+ * A snippet should compile as soon as it goes in, since auto-compile may
+ * run before anything is typed: images name mwe's example-image files
+ * (in TeX Live), and math never starts with an empty placeholder line,
+ * which TeX reads as a paragraph break. Triggers avoid real command names
+ * (\tikzpic, not \tikz, which draws inline pictures).
  */
 
 export type PresetContext = 'text' | 'math'
@@ -46,7 +52,7 @@ export const PRESETS: Preset[] = [
     packages: ['graphicx'],
     template: r`\begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\linewidth]{#{file}}
+  \includegraphics[width=0.8\linewidth]{#{example-image}}
   \caption{#{caption}}
   \label{fig:#{label}}
 \end{figure}
@@ -60,12 +66,12 @@ export const PRESETS: Preset[] = [
     template: r`\begin{figure}[htbp]
   \centering
   \begin{subfigure}{0.48\linewidth}
-    \includegraphics[width=\linewidth]{#{left}}
+    \includegraphics[width=\linewidth]{#{example-image-a}}
     \caption{#{left caption}}
   \end{subfigure}
   \hfill
   \begin{subfigure}{0.48\linewidth}
-    \includegraphics[width=\linewidth]{#{right}}
+    \includegraphics[width=\linewidth]{#{example-image-b}}
     \caption{#{right caption}}
   \end{subfigure}
   \caption{#{caption}}
@@ -80,7 +86,7 @@ export const PRESETS: Preset[] = [
     packages: ['graphicx', 'float'],
     template: r`\begin{figure}[H]
   \centering
-  \includegraphics[width=0.8\linewidth]{#{file}}
+  \includegraphics[width=0.8\linewidth]{#{example-image}}
   \caption{#{caption}}
   \label{fig:#{label}}
 \end{figure}
@@ -188,7 +194,7 @@ export const PRESETS: Preset[] = [
     category: 'math',
     packages: ['amsmath'],
     template: r`\begin{equation}
-  #{}
+  #{equation}
   \label{eq:#{label}}
 \end{equation}
 #{}`,
@@ -241,7 +247,7 @@ export const PRESETS: Preset[] = [
   },
   {
     trigger: r`\proof`,
-    label: 'Proof ending with ∎',
+    label: 'Proof ending with □',
     category: 'theorem',
     packages: ['amsthm'],
     template: r`\begin{proof}
@@ -264,7 +270,7 @@ export const PRESETS: Preset[] = [
     trigger: r`\code`,
     label: 'Code listing',
     category: 'code',
-    packages: ['listings', 'xcolor'],
+    packages: ['listings'],
     template: r`\begin{lstlisting}[language=#{Python}, caption={#{caption}}, numbers=left]
 #{}
 \end{lstlisting}
@@ -287,7 +293,7 @@ export const PRESETS: Preset[] = [
 #{}`,
   },
   {
-    trigger: r`\tikz`,
+    trigger: r`\tikzpic`,
     label: 'TikZ picture',
     category: 'diagram',
     packages: ['tikz'],
