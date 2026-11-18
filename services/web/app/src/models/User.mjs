@@ -89,7 +89,8 @@ export const UserSchema = new Schema(
     holdingAccount: { type: Boolean, default: false },
     ace: {
       mode: { type: String, default: 'none' },
-      theme: { type: String, default: 'textmate' },
+      // SumiTeX: the dark theme is the default, so its editor theme is too
+      theme: { type: String, default: 'sumitex_dark' },
       overallTheme: { type: String },
       // When overallTheme is `system`, we switch between `lightTheme` and `darkTheme` based on system settings
       // When overallTheme is `light-` or empty, we use the `theme` option.

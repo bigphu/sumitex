@@ -1473,7 +1473,7 @@ const defaultSettingsForAnonymousUser = userId => ({
   id: userId,
   ace: {
     mode: 'none',
-    theme: 'textmate',
+    theme: 'sumitex_dark', // SumiTeX
     lightTheme: 'sumitex_light', // SumiTeX
     darkTheme: 'sumitex_dark', // SumiTeX
     fontSize: '12',
