@@ -242,7 +242,7 @@ There are two kinds of folders. The design doc's main feature is the first.
 
 **How it's built.** A completion source in the `sourceEditorCompletionSources` slot. Presets are kept in a data file. It shares the "add package" helper with feature 6.
 
-**Built (Phase 4, 17 Nov 2026):** 19 presets from the catalogue below (`completions/presets.ts`): `\fig` `\subfig` `\herefig`, `\table` `\booktab` `\widetab`, `\ilist` `\elist` `\alist`, `\eq` `\align` `\cases` `\bmat`, `\thm` `\proof`, `\cref`, `\code` `\algo` `\tikz`. The menu says what a snippet will add ("Clean table with rules · adds booktabs"), and nothing that is already loaded. In a file with its own preamble, one Ctrl+Z takes back the snippet and its package lines. In a chapter, the packages go into the main file in one visit, then the snippet goes in; undo is then per file.
+**Built (Phase 4, 17 Nov 2026):** 19 presets from the catalogue below (`completions/presets.ts`): `\fig` `\subfig` `\herefig`, `\table` `\booktab` `\widetab`, `\ilist` `\elist` `\alist`, `\eq` `\align` `\cases` `\bmat`, `\thm` `\proof`, `\cref`, `\code` `\algo` `\tikzpic`. The menu says what a snippet will add ("Clean table with rules · adds booktabs"), and nothing that is already loaded. In a file with its own preamble, one Ctrl+Z takes back the snippet and its package lines. In a chapter, the packages go into the main file in one visit, then the snippet goes in; undo is then per file.
 
 ### Project snippets (decided 17 Nov 2026)
 
@@ -341,7 +341,7 @@ Your own snippets, in the same `\snippet … \endsnippet` text, offered in every
 
 | Trigger | Inserts | Packages |
 |---|---|---|
-| `\tikz` | empty `tikzpicture` with a helper grid | tikz |
+| `\tikzpic` | empty `tikzpicture` (not `\tikz`, which draws inline pictures) | tikz |
 | `\flow` | flowchart: 3 boxes and arrows | tikz (`positioning`, `arrows.meta`) |
 | `\tree` | simple tree diagram | tikz |
 | `\plot` | line plot of a function | pgfplots |
@@ -372,7 +372,7 @@ Your own snippets, in the same `\snippet … \endsnippet` text, offered in every
 | `\lem` `\cor` `\prop` | lemma / corollary / proposition | amsthm |
 | `\defn` | definition (upright style) | amsthm |
 | `\rem` `\ex` | remark / example | amsthm |
-| `\proof` | `proof` ending with ∎ | amsthm |
+| `\proof` | `proof` ending with □ | amsthm |
 | `\thmset` | the whole theorem setup (preamble) | amsthm, amssymb |
 
 **Citations and cross-references**
@@ -391,10 +391,10 @@ Your own snippets, in the same `\snippet … \endsnippet` text, offered in every
 
 | Trigger | Inserts | Packages |
 |---|---|---|
-| `\code` | code listing with language, caption, line numbers | listings, xcolor |
+| `\code` | code listing with language, caption, line numbers | listings |
 | `\mint` | syntax-coloured code | minted (needs `-shell-escape`) |
 | `\verb` | verbatim block | — |
-| `\algo` | pseudocode (if / for / while / return) | algorithm, algpseudocode |
+| `\algo` | pseudocode: a procedure with steps and a return | algorithm, algpseudocode |
 
 **Text, boxes and layout**
 
