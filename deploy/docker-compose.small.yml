@@ -1,0 +1,6 @@
+# For a small server (4 GB of memory): caps what MongoDB keeps in memory,
+# which otherwise takes up to half of the RAM. Add it to COMPOSE_FILE in
+# .env (see .env.example). Nothing else changes.
+services:
+  mongo:
+    command: --replSet overleaf --wiredTigerCacheSizeGB 0.5

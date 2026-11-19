@@ -62,6 +62,8 @@ Edit `.env`. At the least:
 
 - **`OVERLEAF_SECURE_COOKIE=true`**: uncomment it once the site is served over HTTPS (step 6). Any value turns it on, so keep the line commented out while you test over plain HTTP.
 
+On a server with 4 GB of memory, also add `docker-compose.small.yml` to `COMPOSE_FILE` (the line is in `.env.example`): it caps the memory MongoDB keeps, from up to half the RAM to 0.5 GB.
+
 The rest can stay as it is: the app name, the TeX Live images and email are explained in the file.
 
 ## 4. Get TeX Live
@@ -169,15 +171,19 @@ Run these from the `deploy` folder:
 
 ## Backups
 
-Everything lives in `SUMITEX_DATA_DIR`. The simplest safe backup stops SumiTeX for a moment:
+Everything lives in `SUMITEX_DATA_DIR`. `deploy/backup` stops SumiTeX for a minute, packs the data (projects, history, database; compile scratch files are left out), starts it again and keeps the newest 7 archives in `SUMITEX_DATA_DIR/backups`:
 
 ```bash
-docker compose stop
-sudo tar -czf sumitex-backup-$(date +%F).tar.gz -C /srv/sumitex .
-docker compose up -d
+sudo deploy/backup
 ```
 
-Keep backups somewhere other than the server. To restore, stop SumiTeX, unpack the archive into an empty `SUMITEX_DATA_DIR`, and start it again.
+Run it as root, since the containers write files as root. To run it every night at 04:30, add this to root's crontab (`sudo crontab -e`):
+
+```
+30 4 * * *  /home/you/sumitex/deploy/backup >> /var/log/sumitex-backup.log 2>&1
+```
+
+Copy the archives somewhere other than the server (another machine, or object storage). To restore, stop SumiTeX (`docker compose stop`), unpack an archive into an empty `SUMITEX_DATA_DIR`, and start it again.
 
 ## Upgrading
 
