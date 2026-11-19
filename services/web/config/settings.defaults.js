@@ -1383,6 +1383,7 @@ module.exports = {
   },
 
   moduleImportSequence: [
+    'sumitex', // SumiTeX: first, so it never conflicts with modules added at the end
     'history-v1',
     'launchpad',
     'learn',
