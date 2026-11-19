@@ -13,6 +13,11 @@
  * This runs before that route and reports no last updater for such a
  * visitor, which the route already accepts. Keeping it here leaves
  * Overleaf's own controller untouched.
+ *
+ * The same visitor also gets a bare-bones settings object for the editor
+ * (defaultSettingsForAnonymousUser in ProjectController) with no value for
+ * the equation preview, which the editor reads as off. The page's settings
+ * are completed here before the page is rendered.
  */
 
 export const ANONYMOUS_USER = 'anonymous-user'
@@ -29,12 +34,47 @@ export function noLastUpdaterForAnonymous(req, res, next) {
   next()
 }
 
+/**
+ * The editor settings a visitor with no account gets, with what Overleaf
+ * leaves out filled in: the equation preview, which is on for everyone else
+ *
+ * @param {Record<string, any>} settings
+ */
+export function withAnonymousDefaults(settings) {
+  if (settings.mathPreview != null) return settings
+  return { ...settings, mathPreview: true }
+}
+
+/**
+ * Completes the settings handed to the editor page, for anonymous visitors
+ *
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
+export function completeAnonymousSettings(req, res, next) {
+  const render = res.render
+  // @ts-ignore render's overloads
+  res.render = function (view, options, callback) {
+    if (options && options.anonymous === true && options.userSettings) {
+      options.userSettings = withAnonymousDefaults(options.userSettings)
+    }
+    return render.call(this, view, options, callback)
+  }
+  next()
+}
+
 export default {
   /**
    * @param {any} webRouter
    * @param {any} privateApiRouter
    */
   applyNonCsrfRouter(webRouter, privateApiRouter) {
+    // The editor page (and its detached PDF window)
+    webRouter.get(
+      /^\/[pP]roject\/[0-9a-f]{24}(\/(detacher|detached))?$/,
+      completeAnonymousSettings
+    )
     // Registered before Overleaf's own routes, so it runs first
     privateApiRouter.post(
       '/project/:Project_id/doc/:doc_id',
