@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Back up everything SumiTeX stores (projects, history, database, redis).
+#
+#   deploy/backup              archive into $SUMITEX_DATA_DIR/backups
+#   deploy/backup /some/dir    or into another folder
+#
+# Stops SumiTeX for a minute or so (for a copy that is consistent), packs
+# the data, starts it again, and keeps the newest 7 archives (set
+# SUMITEX_BACKUP_KEEP for another number). Compile scratch files are left
+# out. Run it as root (or a user that can read the data folder), for
+# example from root's crontab:
+#
+#   30 4 * * *  /home/you/sumitex/deploy/backup >> /var/log/sumitex-backup.log 2>&1
+#
+# Restoring: docker compose stop; unpack the archive into an empty
+# SUMITEX_DATA_DIR; docker compose up -d.
+set -euo pipefail
+
+cd "$(dirname "$0")"
+DATA=$(grep -E '^SUMITEX_DATA_DIR=' .env | tail -n1 | cut -d= -f2-)
+if [[ -z $DATA ]]; then
+  echo "SUMITEX_DATA_DIR is not set in deploy/.env" >&2
+  exit 1
+fi
+DEST=${1:-$DATA/backups}
+KEEP=${SUMITEX_BACKUP_KEEP:-7}
+FILE="$DEST/sumitex-$(date +%F-%H%M).tar.gz"
+
+mkdir -p "$DEST"
+echo "$(date -Is) stopping SumiTeX"
+docker compose stop
+# Whatever happens next, bring it back
+trap 'echo "$(date -Is) starting SumiTeX"; docker compose up -d' EXIT
+
+echo "$(date -Is) writing $FILE"
+tar -czf "$FILE.partial" -C "$DATA" \
+  --exclude='sumitex/data/compiles' \
+  --exclude='sumitex/data/output' \
+  --exclude='sumitex/data/cache' \
+  mongo redis sumitex
+mv "$FILE.partial" "$FILE"
+
+# Keep the newest few
+ls -1t "$DEST"/sumitex-*.tar.gz | tail -n +"$((KEEP + 1))" | xargs -r rm --
+echo "$(date -Is) done: $(du -h "$FILE" | cut -f1)"
