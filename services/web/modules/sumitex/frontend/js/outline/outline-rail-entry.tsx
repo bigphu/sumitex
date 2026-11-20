@@ -1,10 +1,9 @@
 /**
- * The Outline's own entry in the left strip (railEntries slot), under Files.
- * For now it shows the stock outline full height; the Outline with blocks
- * (guide 6c) will replace the panel's contents later.
+ * The Outline's own entry in the left strip (railEntries slot), under Files:
+ * the Outline with blocks (sumitex-outline.tsx), full height.
  */
 import MaterialIcon from '@/shared/components/material-icon'
-import { OutlineContainer } from '@/features/outline/components/outline-container'
+import SumitexOutline from './sumitex-outline'
 
 function OutlineIcon({ title }: { open: boolean; title: string }) {
   return (
@@ -19,7 +18,7 @@ function OutlineIcon({ title }: { open: boolean; title: string }) {
 function OutlinePanel() {
   return (
     <div className="sx-outline-panel">
-      <OutlineContainer />
+      <SumitexOutline />
     </div>
   )
 }

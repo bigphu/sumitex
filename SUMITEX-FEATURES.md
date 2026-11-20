@@ -536,6 +536,8 @@ Your own snippets, in the same `\snippet … \endsnippet` text, offered in every
 
 **How it's built.** A tested function finds the item's range. Keyboard commands swap neighbouring items in one edit. A drag grip is added to the Visual editor's list bullets (`visual/list-item-marker.ts`). The same logic powers the list pop-up opened from the Outline (feature 11).
 
+**Built (Phase 6, 20 Nov 2026), step 1:** Alt+↑/↓ on a line inside an `\item` moves the whole item, its wrapped lines, sub-lists and `\item[label]` included, as one undo step (`editor/list-items.ts`). The syntax tree finds the items, so an `\item` in a comment, in verbatim or in a nested list is never taken for one; in a sub-list, the inner item moves. At the first or last item nothing happens, so an item never leaves its list. Outside a list, and in lists written with several `\item` on one line, Alt+↑/↓ stays the plain line move. It follows the VS Code keys (off with Vim or Emacs). The shortcut sheet says "Move line (in a list: the whole item)". Not yet: the Visual-mode grip (step 2) and Tab/Shift+Tab nesting.
+
 ## 10 · Draggable table columns
 
 **What you see.** In Visual mode, a grip on each column header lets you drag the column left or right. A right-click menu offers Move left / Move right / Insert column / Delete column. In Source mode there are no grips (decided 14 Nov 2026): with the cursor in a cell, the palette's "Move column left/right" does the same, and the table pop-up from the Outline has draggable columns.
@@ -555,6 +557,8 @@ Your own snippets, in the same `\snippet … \endsnippet` text, offered in every
 1. Menu buttons.
 2. Drag.
 3. Merged cells.
+
+**Built (Phase 6, 20 Nov 2026), step 1 for Source mode:** the palette's **Table: Move column left / right** moves the column the cursor is in, in every row, and its entry in the column spec (`editor/table-columns.ts`). It works in `tabular`, `tabular*`, `tabularx`, `tabulary`, `longtable` and `array`; keeps rules (`\hline`, booktabs, `\cline`…) and row endings (`\\[2pt]`, `\\*`) where they are; treats `\&`, braces and comments as text; keeps `>{…}`/`<{…}` with their column and `|`, `@{…}` in place; spells out `*{3}{l}` so one column can move; leaves non-data rows (a longtable caption, `\endhead`) alone; and keeps the cursor in the cell it moved. One undo step. When it can't (a `\multicolumn` in a row the move touches, a row with too few cells, the first or last column, the cursor outside a table) a short message at the cursor says why (`editor/flash-message.ts`). Not yet: the Visual-mode menu and grips, and merged cells.
 
 ## 11 · Outline with blocks
 
@@ -650,6 +654,8 @@ Drag:     reorder (v3)
 | v2 | `@` search in the palette; edit pop-ups for sections, figures and equations; section right-click actions | Medium |
 | v3 | Drag to reorder; list and table pop-ups (with features 9 and 10); whole-project outline | Large |
 | v4 | Graph and table previews in hover cards, cropped from the PDF using SyncTeX | Optional |
+
+**Built (Phase 6, 20 Nov 2026), v1:** `outline/sumitex-outline.tsx` in the Outline rail entry. Blocks off (the default, per project) shows the stock section outline unchanged. Blocks on ([▦] in the header, or the palette's **Outline: Show/Hide blocks**, which also opens the Outline) adds rows under their sections, in file order, with a type filter that shows counts (All · Figures · Tables · Graphs · Lists · Equations · Code · Theorems · Notes · Problems only); sections always stay. The scanner (`outline/scan-blocks.ts`, environment names in `outline/block-types.ts`) reads the syntax tree about 0.6 s after typing stops (`outline/blocks-plugin.ts`): top-level blocks only (a tabular in a table, a subfigure or a picture in a figure, an equation in a proof count as the block around them), nothing in comments or verbatim. Row titles: the caption, else the label, else something useful (`enumerate (3)`, `2 × 3 table`, the image's file name, the formula, a theorem's `[name]`, a listing's caption or language, a `\todo` text). A dot marks a figure or table without a caption or label, or a label nothing in this file refers to (worded as a hint, since other files may). The hover card shows the caption, label, lines, a table's size, a list's items, the problems, and a preview: the image (from the project files) or the formula (MathJax). Click jumps to the block; double-click also shows it in the PDF. The row at the cursor is highlighted; a collapsed section shows how many blocks it holds. Upstream code untouched: the Files panel's lower outline was already hidden by CSS, and the rail entry existed. Not yet (v2+): `@` search in the palette, edit pop-ups, section right-click actions, drag to reorder, whole-project outline.
 
 ## 12 · Notion-like preview editing (deferred)
 

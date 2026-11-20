@@ -17,6 +17,11 @@ import { useRecordRecentFile } from '../palette/recent-files'
 import { useProjectPreamble } from '../diagnostics/use-project-preamble'
 import { gotoLine } from '@codemirror/search'
 import { toggleMathPreviewAt } from '@/features/source-editor/extensions/math-preview'
+import type { EditorView } from '@codemirror/view'
+import { moveColumn } from '../editor/table-columns'
+import { flashMessage } from '../editor/flash-message'
+import { getShowBlocks, setShowBlocks } from '../outline/blocks-store'
+import { useProjectContext } from '@/shared/context/project-context'
 import { useSnippetCommands } from '../completions/use-snippet-commands'
 
 // The layout Zen came from ('sideBySide' or 'flat'), to go back to when it
@@ -39,6 +44,17 @@ const writePrevLayout = (layout: IdeLayout | null) => {
   } catch {
     // storage blocked: Zen still works, the PDF just stays hidden after leaving
   }
+}
+
+/** Move the table column at the cursor, or say at the cursor why not */
+function moveColumnFromPalette(view: EditorView, direction: -1 | 1) {
+  // After the palette has closed and handed the focus back
+  window.setTimeout(() => {
+    view.focus()
+    const result = moveColumn(view.state, direction)
+    if ('error' in result) flashMessage(view, result.error as string)
+    else view.dispatch(result)
+  }, 60)
 }
 
 export default function SumitexBridge() {
@@ -93,7 +109,8 @@ export default function SumitexBridge() {
   }, [userSettings.mode])
 
   // Ctrl+K Ctrl+S, from the editor keymap: the keyboard shortcuts sheet
-  const { setActiveModal } = useRailContext()
+  const { setActiveModal, openTab } = useRailContext()
+  const { projectId } = useProjectContext()
   useEffect(() => {
     const show = () => setActiveModal('keyboard-shortcuts')
     window.addEventListener(SHOW_SHORTCUTS_EVENT, show)
@@ -128,6 +145,26 @@ export default function SumitexBridge() {
           }, 60),
       },
       {
+        id: 'sumitex-table-move-column-left',
+        label: 'Table: Move column left',
+        handler: () => moveColumnFromPalette(view, -1),
+      },
+      {
+        id: 'sumitex-table-move-column-right',
+        label: 'Table: Move column right',
+        handler: () => moveColumnFromPalette(view, 1),
+      },
+      {
+        id: 'sumitex-outline-toggle-blocks',
+        label: 'Outline: Show/Hide blocks',
+        // Showing them also opens the Outline, so the change is visible
+        handler: () => {
+          const on = !getShowBlocks(projectId)
+          setShowBlocks(projectId, on)
+          if (on) openTab('sumitex-outline')
+        },
+      },
+      {
         id: 'sumitex-toggle-equation-preview',
         label: 'Toggle equation preview',
         // The cursor has to be in an equation; the palette gives the focus back
@@ -143,7 +180,7 @@ export default function SumitexBridge() {
         handler: () => setActiveModal('keyboard-shortcuts'),
       },
     ],
-    [setFocusMode, setActiveModal, view]
+    [setFocusMode, setActiveModal, openTab, projectId, view]
   )
 
   return snippetDialog

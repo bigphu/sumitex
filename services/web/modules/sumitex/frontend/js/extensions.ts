@@ -13,6 +13,8 @@ import { projectChecks } from './editor/project-checks'
 import { snippetsWithPackagesExtension } from './completions/snippets-with-packages'
 import { snippetFileLint } from './completions/snippet-file-lint'
 import { mathAutoExpand } from './editor/math-auto-expand'
+import { flashMessageExtension } from './editor/flash-message'
+import { outlineBlocks } from './outline/blocks-plugin'
 
 export const extension = (): Extension => [
   zenMode(),
@@ -25,4 +27,6 @@ export const extension = (): Extension => [
   snippetsWithPackagesExtension(),
   snippetFileLint(),
   mathAutoExpand(),
+  flashMessageExtension(),
+  outlineBlocks(),
 ]
