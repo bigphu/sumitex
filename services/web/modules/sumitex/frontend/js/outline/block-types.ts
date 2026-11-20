@@ -95,6 +95,58 @@ export const ENVIRONMENT_KINDS: Record<string, BlockKind> = {
   tcolorbox: 'note',
 }
 
+/**
+ * What an environment is called in the Outline, in plain words, for
+ * people who don't know LaTeX names. Others take their kind's name.
+ */
+const ENVIRONMENT_NAMES: Record<string, string> = {
+  itemize: 'Bulleted list',
+  enumerate: 'Numbered list',
+  description: 'Description list',
+  wrapfigure: 'Figure',
+  subfigure: 'Sub-figure',
+  tabular: 'Table',
+  'tabular*': 'Table',
+  tabularx: 'Table',
+  tabulary: 'Table',
+  longtable: 'Long table',
+  tikzpicture: 'Drawing',
+  axis: 'Plot',
+  tikzcd: 'Diagram',
+  align: 'Equations',
+  'align*': 'Equations',
+  gather: 'Equations',
+  'gather*': 'Equations',
+  multline: 'Equation',
+  'multline*': 'Equation',
+  flalign: 'Equations',
+  'flalign*': 'Equations',
+  lstlisting: 'Code',
+  minted: 'Code',
+  algorithm: 'Algorithm',
+  'algorithm*': 'Algorithm',
+  lemma: 'Lemma',
+  corollary: 'Corollary',
+  proposition: 'Proposition',
+  definition: 'Definition',
+  defn: 'Definition',
+  remark: 'Remark',
+  example: 'Example',
+  conjecture: 'Conjecture',
+  claim: 'Claim',
+  proof: 'Proof',
+  thm: 'Theorem',
+  lem: 'Lemma',
+  tcolorbox: 'Box',
+  '\\todo': 'To do',
+}
+
+/** An environment's plain name: "itemize" → "Bulleted list" */
+export const friendlyName = (environment: string, kind: BlockKind) =>
+  ENVIRONMENT_NAMES[environment] ??
+  BLOCK_KINDS[kind]?.name ??
+  environment
+
 /** Which kinds can have a caption and a label worth asking for */
 export const NEEDS_CAPTION: ReadonlySet<BlockKind> = new Set([
   'figure',

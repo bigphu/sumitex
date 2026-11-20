@@ -14,7 +14,12 @@ import { EditorState } from '@codemirror/state'
 import { ensureSyntaxTree, syntaxTree } from '@codemirror/language'
 import { SyntaxNode, SyntaxNodeRef } from '@lezer/common'
 import { getEnvironmentName } from '@/features/source-editor/utils/tree-operations/environments'
-import { BlockKind, ENVIRONMENT_KINDS, NEEDS_CAPTION } from './block-types'
+import {
+  BlockKind,
+  ENVIRONMENT_KINDS,
+  friendlyName,
+  NEEDS_CAPTION,
+} from './block-types'
 import { parseSpec, tableAt } from '../editor/table-columns'
 
 export type Block = {
@@ -326,29 +331,33 @@ export function scanBlocks(state: EditorState): Block[] {
       if (block.caption) block.title = block.caption
       else if (block.kind === 'equation' && block.math) {
         block.title =
-          plainText(block.math.replace(/\\label\{[^}]*\}/g, '')) || block.name
+          plainText(block.math.replace(/\\label\{[^}]*\}/g, '')) ||
+          friendlyName(block.name, block.kind)
       } else if (block.kind === 'list') {
-        block.title = `${block.name} (${block.items ?? 0})`
+        const items = block.items ?? 0
+        block.title = `${friendlyName(block.name, block.kind)}, ${items} ${
+          items === 1 ? 'item' : 'items'
+        }`
       } else if (block.label) block.title = block.label
       else if (block.kind === 'table' && block.size) {
         block.title = `${block.size.rows} × ${block.size.columns} table`
       } else if (block.kind === 'figure' && block.image) {
         block.title = block.image.split('/').pop() ?? block.image
       }
-      else block.title = block.name
+      else block.title = friendlyName(block.name, block.kind)
     }
     block.title = shorten(block.title)
 
     if (NEEDS_CAPTION.has(block.kind)) {
       if (!block.caption) block.problems.push('No caption')
-      if (!block.label) block.problems.push('No label')
+      if (!block.label) block.problems.push('No label, so the text can’t refer to it')
     }
     if (
       block.label &&
       (NEEDS_CAPTION.has(block.kind) || block.kind === 'equation') &&
       !referenced.has(block.label)
     ) {
-      block.problems.push('Its label isn’t referred to in this file')
+      block.problems.push('The text never refers to it')
     }
   }
 

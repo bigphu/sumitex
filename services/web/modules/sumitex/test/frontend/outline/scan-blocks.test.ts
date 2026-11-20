@@ -47,11 +47,11 @@ describe('SumiTeX outline: scanning blocks', function () {
     expect(brief(blocks)).to.deep.equal([
       'figure:Setup photo',
       'equation:E = mc^2',
-      'list:enumerate (2)',
+      'list:Numbered list, 2 items',
       'equation:a^2 + b^2 = c^2',
       'code:Fibonacci',
       'theorem:Pythagoras',
-      'graph:tikzpicture',
+      'graph:Drawing',
       'note:check the numbers',
     ])
     expect(blocks[0]).to.include({
@@ -93,7 +93,7 @@ describe('SumiTeX outline: scanning blocks', function () {
     expect(brief(blocks)).to.deep.equal([
       'figure:Both sides',
       'table:Rates',
-      'list:itemize (1)',
+      'list:Bulleted list, 1 item',
     ])
     expect(blocks[1].size).to.deep.equal({ rows: 2, columns: 3 })
   })
@@ -110,9 +110,9 @@ describe('SumiTeX outline: scanning blocks', function () {
       '\\begin{equation} y \\end{equation}'
     )
     expect(blocks.map(block => block.problems)).to.deep.equal([
-      ['No caption', 'No label'],
-      ['Its label isn’t referred to in this file'],
-      ['Its label isn’t referred to in this file'],
+      ['No caption', 'No label, so the text can’t refer to it'],
+      ['The text never refers to it'],
+      ['The text never refers to it'],
       [],
     ])
   })

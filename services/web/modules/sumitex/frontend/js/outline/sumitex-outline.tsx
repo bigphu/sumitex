@@ -2,7 +2,9 @@
  * The Outline with blocks (guide Phase 6, features list 11, v1), in its
  * own entry of the left strip (outline-rail-entry.tsx).
  *
- * - Blocks off (the default): the stock section outline, unchanged.
+ * - Blocks off (the default): sections only, as the stock outline, but
+ *   drawn here so titles read as plain text ("Results & Outlook", not
+ *   "Results \& Outlook").
  * - Blocks on ([▦] in the header, or the palette's "Outline: Show/Hide
  *   blocks"): figures, tables, graphs, lists, equations, code, theorems
  *   and notes as rows under their section, with a type filter. Sections
@@ -32,15 +34,14 @@ import classNames from 'classnames'
 import MaterialIcon from '@/shared/components/material-icon'
 import { useOutlineContext } from '@/features/ide-react/context/outline-context'
 import useNestedOutline from '@/features/outline/hooks/use-nested-outline'
-import OutlineRoot from '@/features/outline/components/outline-root'
 import { OutlineItemToggleButton } from '@/features/outline/components/outline-item-toggle-button'
 import { OutlineItemData } from '@/features/ide-react/types/outline'
 import { useProjectContext } from '@/shared/context/project-context'
 import { useFileTreePathContext } from '@/features/file-tree/contexts/file-tree-path'
 import useEventListener from '@/shared/hooks/use-event-listener'
 import { loadMathJax } from '@/features/mathjax/load-mathjax'
-import { BLOCK_KINDS, KIND_ORDER } from './block-types'
-import type { Block } from './scan-blocks'
+import { BLOCK_KINDS, friendlyName, KIND_ORDER } from './block-types'
+import { plainText, type Block } from './scan-blocks'
 import {
   BlockFilter,
   getBlockFilter,
@@ -52,6 +53,9 @@ import {
 } from './blocks-store'
 
 const HOVER_DELAY_MS = 350
+
+/** A section title without its LaTeX: \& → &, \emph{x} → x */
+const sectionTitle = (title: string) => plainText(title) || title
 
 type JumpToLine = (line: number, syncToPdf: boolean) => void
 
@@ -146,7 +150,7 @@ function BlockCard({ card }: { card: Card }) {
     >
       <div className="sx-outline-card-head">
         <MaterialIcon type={kind.icon} />
-        <span>{kind.name}</span>
+        <span>{friendlyName(block.name, block.kind)}</span>
         <span className="sx-outline-card-env">{block.name}</span>
       </div>
       {block.caption && (
@@ -229,7 +233,12 @@ const BlockRow = memo(function BlockRow({
           onFocus={event => showCard(block, event.currentTarget)}
           onBlur={hideCard}
         >
-          <MaterialIcon type={kind.icon} className="sx-outline-block-icon" />
+          <MaterialIcon
+            type={
+              block.name === 'enumerate' ? 'format_list_numbered' : kind.icon
+            }
+            className="sx-outline-block-icon"
+          />
           <span className="sx-outline-block-title">{block.title}</span>
           {block.problems.length > 0 && (
             <span
@@ -311,7 +320,7 @@ function SectionRow({
       })}
       role="treeitem"
       aria-expanded={hasChildren ? expanded : undefined}
-      aria-label={item.title}
+      aria-label={sectionTitle(item.title)}
       translate="no"
     >
       <div className="outline-item-row">
@@ -327,7 +336,7 @@ function SectionRow({
           })}
           onClick={event => shared.jumpToLine(item.line, event.detail === 2)}
         >
-          {item.title}
+          {sectionTitle(item.title)}
         </button>
         {count > 0 && (
           <span className="sx-outline-count" title={`${count} blocks inside`}>
@@ -370,9 +379,10 @@ export default function SumitexOutline() {
     useCallback((event: CustomEvent) => setCursorLine(event.detail.row + 1), [])
   )
 
+  // Blocks off: sections only
   const blocks = useMemo(
-    () => allBlocks.filter(matches(filter)),
-    [allBlocks, filter]
+    () => (showBlocks ? allBlocks.filter(matches(filter)) : []),
+    [allBlocks, filter, showBlocks]
   )
   const owned = useMemo(
     () => attachBlocks(outline.items, blocks),
@@ -475,12 +485,14 @@ export default function SumitexOutline() {
           <p className="sx-outline-empty">
             Open a .tex file to see its outline.
           </p>
-        ) : !showBlocks || (!outline.items.length && !allBlocks.length) ? (
-          <OutlineRoot
-            outline={outline.items}
-            jumpToLine={jumpToLine}
-            highlightedLine={highlightedLine}
-          />
+        ) : !outline.items.length && !blocks.length ? (
+          // With a filter that hides every block, the note below says so
+          showBlocks && allBlocks.length ? null : (
+            <p className="sx-outline-empty">
+              This file has no sections yet. Add one with \section{'{…}'}
+              and it shows here.
+            </p>
+          )
         ) : (
           <ul className="outline-item-list outline-item-list-root" role="tree">
             <Children
