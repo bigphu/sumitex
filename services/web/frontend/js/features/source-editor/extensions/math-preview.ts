@@ -260,6 +260,10 @@ const renderer = ViewPlugin.fromClass(
     drawn: string | null = null
     wanted: string | null = null
     timer: number | null = null
+    /** Failed draws of the current equation, for the retries */
+    attempts = 0
+    /** Draws run one at a time: two at once can clash inside MathJax */
+    queue: Promise<void> = Promise.resolve()
 
     constructor(readonly view: EditorView) {
       this.sync()
@@ -282,6 +286,7 @@ const renderer = ViewPlugin.fromClass(
         this.from = container.from
         this.drawn = null
         this.wanted = null
+        this.attempts = 0
         host.replaceChildren()
         host.classList.add('sx-empty')
         host.classList.remove('sx-stale')
@@ -298,7 +303,7 @@ const renderer = ViewPlugin.fromClass(
       if (this.timer !== null) window.clearTimeout(this.timer)
       const draw = () => {
         this.timer = null
-        void this.draw(container, content)
+        this.queue = this.queue.then(() => this.draw(container, content))
       }
       if (this.drawn === null) draw()
       else this.timer = window.setTimeout(draw, RENDER_DELAY_MS)
@@ -318,10 +323,23 @@ const renderer = ViewPlugin.fromClass(
         host.replaceChildren(math)
         host.classList.remove('sx-empty', 'sx-stale')
         this.drawn = content
+        this.attempts = 0
         this.reveal()
       } catch (error) {
-        if (this.wanted === content) host.classList.add('sx-stale')
         debugConsole.debug('SumiTeX: equation preview', error)
+        if (this.wanted !== content || this.from !== container.from) return
+        host.classList.add('sx-stale')
+        // Forget that it was tried, so the next cursor move or edit draws it
+        // again (a failure used to leave the equation blank until its text
+        // changed), and try again soon by itself for a failure that was only
+        // a clash with another draw, or MathJax not being ready
+        this.wanted = null
+        if (++this.attempts < 3) {
+          this.timer = window.setTimeout(() => {
+            this.timer = null
+            this.sync()
+          }, 300 * this.attempts)
+        }
       }
     }
 
@@ -350,6 +368,15 @@ const renderer = ViewPlugin.fromClass(
   }
 )
 
+/** Show or hide the preview for the equation the cursor is in (Alt+P, and
+ * the palette's "Toggle equation preview"); false when there is none */
+export function toggleMathPreviewAt(view: EditorView): boolean {
+  const value = view.state.field(mathPreviewStateField, false)
+  if (!value?.container) return false
+  view.dispatch({ effects: toggleEffect.of(null) })
+  return true
+}
+
 const hideOnEvent = ViewPlugin.define(view => {
   const hideTooltip = () => {
     view.dispatch({ effects: hideTooltipEffect.of(null) })
@@ -377,12 +404,7 @@ const previewKeys = Prec.high(
     },
     {
       key: 'Alt-p',
-      run: view => {
-        const value = view.state.field(mathPreviewStateField, false)
-        if (!value?.container) return false
-        view.dispatch({ effects: toggleEffect.of(null) })
-        return true
-      },
+      run: toggleMathPreviewAt,
     },
   ])
 )

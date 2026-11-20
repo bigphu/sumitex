@@ -16,6 +16,7 @@ import { SHOW_SHORTCUTS_EVENT, setVscodeKeys } from '../editor/vscode-keymap'
 import { useRecordRecentFile } from '../palette/recent-files'
 import { useProjectPreamble } from '../diagnostics/use-project-preamble'
 import { gotoLine } from '@codemirror/search'
+import { toggleMathPreviewAt } from '@/features/source-editor/extensions/math-preview'
 import { useSnippetCommands } from '../completions/use-snippet-commands'
 
 // The layout Zen came from ('sideBySide' or 'flat'), to go back to when it
@@ -124,6 +125,16 @@ export default function SumitexBridge() {
           window.setTimeout(() => {
             view.focus()
             gotoLine(view)
+          }, 60),
+      },
+      {
+        id: 'sumitex-toggle-equation-preview',
+        label: 'Toggle equation preview',
+        // The cursor has to be in an equation; the palette gives the focus back
+        handler: () =>
+          window.setTimeout(() => {
+            view.focus()
+            toggleMathPreviewAt(view)
           }, 60),
       },
       {
