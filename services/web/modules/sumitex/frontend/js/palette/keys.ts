@@ -118,7 +118,7 @@ export function sheetGroups(options: { review: boolean }): SheetGroup[] {
   const vscodeEdit: SheetGroup = {
     title: 'Edit (VS Code)',
     rows: [
-      { label: 'Move line', keys: ['Alt+↑ / ↓'] },
+      { label: 'Move line (in a list: the whole item)', keys: ['Alt+↑ / ↓'] },
       { label: 'Copy line', keys: ['Shift+Alt+↑ / ↓'] },
       { label: 'Delete line', keys: ['Mod+Shift+K'] },
       { label: 'Select line', keys: ['Mod+L'] },

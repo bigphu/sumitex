@@ -16,6 +16,8 @@
  * - Shift+Alt+→/←   grow the selection to the enclosing group or
  *                   environment, and shrink it back
  * - Shift+F8        previous problem (F8, the next one, was already there)
+ * - Alt+↑/↓         on an \item line, move the whole list item
+ *                   (editor/list-items.ts); elsewhere, move the line
  *
  * Where VS Code and Overleaf disagree (decided 16 Nov 2026):
  * - Ctrl+D          VS Code: add the next match to the selection (Overleaf
@@ -47,6 +49,7 @@ import {
 import { selectParentSyntax } from '@codemirror/commands'
 import { foldAll, unfoldAll } from '@codemirror/language'
 import { previousDiagnostic } from '@codemirror/lint'
+import { moveListItem } from './list-items'
 
 let enabled = true
 
@@ -175,6 +178,18 @@ const showShortcuts: Command = () => {
   return true
 }
 
+// Alt+↑/↓ in a list moves the whole item; outside one, false lets the
+// stock "move line" run
+const moveItem =
+  (direction: -1 | 1): Command =>
+  view => {
+    if (view.state.readOnly) return false
+    const spec = moveListItem(view.state, direction)
+    if (spec === null) return false
+    if (spec !== 'edge') view.dispatch(spec)
+    return true
+  }
+
 // Returning false lets the key fall through to Vim, Emacs or the stock
 // binding when VS Code keys are off
 const whenOn =
@@ -198,6 +213,8 @@ export const vscodeKeymap = () =>
       { key: 'Shift-Alt-ArrowLeft', run: whenOn(shrinkSelection) },
       { key: 'Shift-F8', run: whenOn(previousDiagnostic) },
       { key: 'Mod-k Mod-s', run: whenOn(showShortcuts) },
+      { key: 'Alt-ArrowUp', run: whenOn(moveItem(-1)) },
+      { key: 'Alt-ArrowDown', run: whenOn(moveItem(1)) },
     ]),
     altClickAddsCursor,
     // Shift+Alt+drag selects a column (plain Alt+drag stays Overleaf's

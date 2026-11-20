@@ -1,0 +1,243 @@
+// The Outline with blocks (outline/sumitex-outline.tsx): a header with
+// the Blocks toggle and the type filter, then sections with block rows
+// under them, in the stock outline's look (the rows reuse its classes).
+// Colours only from the --sx- tokens, so both themes follow.
+
+.sx-outline {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.sx-outline-header {
+  display: flex;
+  flex: none;
+  gap: 6px;
+  align-items: center;
+  min-height: 36px;
+  padding: 4px 8px 4px 12px;
+  border-bottom: 1px solid var(--sx-border);
+}
+
+.sx-outline-title {
+  flex: 1;
+  color: var(--sx-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sx-outline-filter {
+  min-width: 0;
+  max-width: 150px;
+  padding: 2px 4px;
+  color: var(--sx-fg);
+  font-size: 12px;
+  background: var(--sx-sunken);
+  border: 1px solid var(--sx-border);
+  border-radius: 5px;
+
+  &:focus-visible {
+    outline: 2px solid var(--sx-accent);
+    outline-offset: 1px;
+  }
+}
+
+.sx-outline-toggle {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  color: var(--sx-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  cursor: pointer;
+
+  .material-symbols {
+    font-size: 18px;
+  }
+
+  &:hover {
+    color: var(--sx-fg);
+  }
+
+  &.sx-outline-toggle-on {
+    color: var(--sx-accent);
+    background: var(--sx-sunken);
+    border-color: var(--sx-border);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--sx-accent);
+    outline-offset: 1px;
+  }
+}
+
+.sx-outline-body {
+  flex: 1;
+  min-height: 0;
+  padding: 4px 0 12px;
+  overflow: auto;
+}
+
+.sx-outline-empty {
+  margin: 12px;
+  color: var(--sx-muted);
+  font-size: 12.5px;
+}
+
+// A block row: icon, title cut short, and the problem dot
+.sx-outline-block .sx-outline-block-link {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+  color: var(--sx-muted);
+}
+
+.sx-outline-block .sx-outline-block-link:hover,
+.sx-outline-block .sx-outline-block-link.outline-item-link-highlight {
+  color: var(--sx-fg);
+}
+
+.sx-outline-block-icon {
+  flex: none;
+  font-size: 15px;
+  opacity: 0.8;
+}
+
+.sx-outline-block-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sx-outline-dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  margin-right: 4px;
+  background: var(--sx-warning);
+  border-radius: 50%;
+}
+
+// How many blocks a collapsed section holds
+.sx-outline-count {
+  flex: none;
+  align-self: center;
+  min-width: 18px;
+  margin-right: 8px;
+  margin-left: auto;
+  padding: 0 6px;
+  color: var(--sx-muted);
+  font-size: 11px;
+  line-height: 16px;
+  text-align: center;
+  background: var(--sx-sunken);
+  border-radius: 8px;
+}
+
+// The hover card, beside the row
+.sx-outline-card {
+  position: fixed;
+  z-index: 1080;
+  width: 300px;
+  max-height: 360px;
+  padding: 10px 12px;
+  overflow: hidden;
+  color: var(--sx-fg);
+  font-size: 12.5px;
+  line-height: 1.45;
+  background: var(--sx-island-raised);
+  border: 1px solid var(--sx-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 30%);
+  pointer-events: none;
+
+  p {
+    margin: 4px 0;
+  }
+
+  code {
+    color: var(--sx-fg);
+    font-size: 12px;
+  }
+}
+
+.sx-outline-card-head {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-weight: 600;
+
+  .material-symbols {
+    font-size: 16px;
+  }
+}
+
+.sx-outline-card-env {
+  margin-left: auto;
+  color: var(--sx-muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.sx-outline-card-caption {
+  color: var(--sx-fg);
+}
+
+.sx-outline-card-facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 10px;
+  margin: 6px 0;
+
+  dt {
+    color: var(--sx-muted);
+    font-weight: 400;
+  }
+
+  dd {
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.sx-outline-card-problems {
+  margin: 6px 0;
+  padding-left: 16px;
+  color: var(--sx-warning);
+}
+
+.sx-outline-card-note {
+  color: var(--sx-muted);
+}
+
+.sx-outline-card-image {
+  display: block;
+  max-width: 100%;
+  max-height: 160px;
+  margin: 6px auto 0;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 4px;
+}
+
+.sx-outline-card-math {
+  max-height: 120px;
+  margin-top: 6px;
+  overflow: hidden;
+  text-align: center;
+}
