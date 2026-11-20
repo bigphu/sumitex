@@ -345,3 +345,264 @@ li.sx-edit-ghost > :not(.sx-edit-input, .sx-edit-readonly) {
     opacity: 1;
   }
 }
+
+// Equation and section pop-ups (mockup frames 16 and 18)
+.sx-edit-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 8px;
+
+  &.sx-edit-row-end {
+    align-items: flex-end;
+  }
+
+  .sx-edit-tabs {
+    margin-bottom: 0;
+  }
+}
+
+.sx-edit-grow {
+  flex: 1;
+}
+
+.sx-edit-body > .sx-edit-field + .sx-edit-field,
+.sx-edit-body > .sx-edit-field + .sx-edit-row,
+.sx-edit-body > .sx-edit-preview + .sx-edit-field {
+  margin-top: 10px;
+}
+
+.sx-edit-source {
+  font-family: var(--source-font-family, ui-monospace, monospace);
+  font-size: 12.5px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.sx-edit-preview {
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
+  min-height: 48px;
+  margin-top: 8px;
+  padding: 12px;
+  color: #1b1e23;
+  background: #fff;
+  border-radius: 8px;
+}
+
+.sx-edit-hint {
+  margin: 8px 0 0;
+  color: var(--sx-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.sx-edit-switch {
+  display: inline-flex;
+  flex: none;
+  gap: 8px;
+  align-items: center;
+  margin: 0;
+  color: var(--sx-fg);
+  font-size: 12.5px;
+  font-weight: normal;
+}
+
+.sx-edit-switch-track {
+  position: relative;
+  width: 32px;
+  height: 18px;
+  padding: 0;
+  background: var(--sx-border);
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+
+  &.sx-edit-switch-on {
+    background: var(--sx-accent-fill);
+  }
+}
+
+.sx-edit-switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.12s;
+
+  .sx-edit-switch-on & {
+    transform: translateX(14px);
+  }
+}
+
+// The equation pop-up's toolbar: structures, frequent symbols, More
+.sx-edit-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 3px;
+  background: var(--sx-island);
+  border-radius: 7px;
+}
+
+.sx-edit-toolbar-gap {
+  width: 1px;
+  height: 18px;
+  margin: 0 4px;
+  background: var(--sx-border);
+}
+
+.sx-edit-tool {
+  min-width: 28px;
+  height: 26px;
+  padding: 0 6px;
+  color: var(--sx-fg);
+  font-size: 13.5px;
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--sx-island-raised);
+  }
+
+  &.sx-edit-tool-more {
+    color: var(--sx-muted);
+    font-size: 12.5px;
+  }
+
+  &.sx-edit-tool-on {
+    color: var(--sx-selected-fg);
+    background: var(--sx-selected-bg);
+  }
+}
+
+// The symbol picker (js/editor/symbols/symbol-picker.tsx), in the pop-up
+// and at the cursor in the editor
+.sx-symbols {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.sx-symbols-popup {
+  position: fixed;
+  z-index: 1060;
+  width: 420px;
+  padding: 10px;
+  color: var(--sx-fg);
+  font-size: 13px;
+  background: var(--sx-island-raised);
+  border: 1px solid var(--sx-border);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 28%);
+
+  .sx-symbols {
+    margin-bottom: 0;
+  }
+}
+
+.sx-symbols-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.sx-symbols-group {
+  padding: 3px 9px;
+  color: var(--sx-muted);
+  font-size: 12.5px;
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+
+  &.sx-symbols-group-on {
+    color: var(--sx-fg);
+    background: var(--sx-island);
+  }
+}
+
+.sx-symbols-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.sx-symbols-cell {
+  height: 36px;
+  color: var(--sx-fg);
+  font-family: 'Latin Modern Math', 'STIX Two Math', 'Cambria Math', serif;
+  font-size: 18px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:hover,
+  &.sx-symbols-cell-on {
+    background: var(--sx-island);
+    border-color: var(--sx-accent);
+  }
+}
+
+.sx-symbols-none {
+  grid-column: 1 / -1;
+  margin: 6px 0;
+  color: var(--sx-muted);
+  font-size: 12px;
+}
+
+.sx-symbols-foot {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding-top: 6px;
+  color: var(--sx-muted);
+  font-size: 12px;
+  border-top: 1px solid var(--sx-border);
+
+  code {
+    color: var(--sx-accent);
+    background: transparent;
+  }
+}
+
+.sx-symbols-char {
+  color: var(--sx-fg);
+  font-size: 16px;
+}
+
+// The equation pop-up with all symbols open: the symbols in a column on
+// the right of the source and preview
+.sx-edit-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 16px;
+  align-items: start;
+}
+
+.sx-edit-side {
+  position: sticky;
+  top: 0;
+  padding-left: 16px;
+  border-left: 1px solid var(--sx-border);
+
+  .sx-symbols {
+    margin-bottom: 0;
+  }
+
+  .sx-symbols-grid {
+    max-height: 300px;
+  }
+}

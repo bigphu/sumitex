@@ -42,6 +42,7 @@ import useEventListener from '@/shared/hooks/use-event-listener'
 import { loadMathJax } from '@/features/mathjax/load-mathjax'
 import { BLOCK_KINDS, friendlyName, KIND_ORDER } from './block-types'
 import { plainText, type Block } from './scan-blocks'
+import { previewTex } from './math-text'
 import {
   BlockFilter,
   getBlockFilter,
@@ -53,7 +54,12 @@ import {
   setTipSeen,
   subscribeOutline,
 } from './blocks-store'
-import { EDITABLE_KINDS, requestEdit } from './edit/edit-requests'
+import {
+  EDITABLE_KINDS,
+  requestEdit,
+  requestEditLine,
+  type EditKind,
+} from './edit/edit-requests'
 
 const HOVER_DELAY_MS = 350
 
@@ -188,7 +194,7 @@ function BlockCard({ card }: { card: Card }) {
       )}
       {block.image && <ImagePreview path={block.image} />}
       {block.kind === 'equation' && block.math && (
-        <MathPreview math={block.math.replace(/\\label\{[^}]*\}/g, '')} />
+        <MathPreview math={previewTex(block.name, block.math)} />
       )}
     </div>,
     document.body
@@ -260,7 +266,7 @@ const BlockRow = memo(function BlockRow({
             onClick={() => {
               hideCard()
               jumpToLine(block.line, false)
-              requestEdit(block.from, block.kind === 'list' ? 'list' : 'table')
+              requestEdit(block.from, block.kind as EditKind)
             }}
           >
             <MaterialIcon type="edit" />
@@ -355,6 +361,18 @@ function SectionRow({
           onClick={event => shared.jumpToLine(item.line, event.detail === 2)}
         >
           {sectionTitle(item.title)}
+        </button>
+        <button
+          type="button"
+          className="sx-outline-edit"
+          title="Edit this section"
+          aria-label={`Edit ${sectionTitle(item.title)}`}
+          onClick={() => {
+            shared.jumpToLine(item.line, false)
+            requestEditLine(item.line, 'section')
+          }}
+        >
+          <MaterialIcon type="edit" />
         </button>
         {count > 0 && (
           <span className="sx-outline-count" title={`${count} blocks inside`}>

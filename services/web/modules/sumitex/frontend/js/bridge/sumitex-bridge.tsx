@@ -25,6 +25,9 @@ import { useProjectContext } from '@/shared/context/project-context'
 import { useSnippetCommands } from '../completions/use-snippet-commands'
 import { useImageUpload } from '../files/use-image-upload'
 import BlockEditor from '../outline/edit/block-editor'
+import SymbolPickerAtCursor, {
+  OPEN_SYMBOLS_EVENT,
+} from '../editor/symbols/symbol-picker-at-cursor'
 import { requestEdit } from '../outline/edit/edit-requests'
 
 // The layout Zen came from ('sideBySide' or 'flat'), to go back to when it
@@ -166,8 +169,17 @@ export default function SumitexBridge() {
         handler: () => openTab('sumitex-outline'),
       },
       {
+        id: 'sumitex-insert-symbol',
+        label: 'Insert symbol',
+        handler: () =>
+          window.setTimeout(() => {
+            view.focus()
+            window.dispatchEvent(new Event(OPEN_SYMBOLS_EVENT))
+          }, 60),
+      },
+      {
         id: 'sumitex-edit-block',
-        label: 'Edit table or list',
+        label: 'Edit table, list, equation or section',
         // The block at the cursor; the palette gives the focus back first
         handler: () =>
           window.setTimeout(
@@ -209,6 +221,7 @@ export default function SumitexBridge() {
       {snippetDialog}
       {/* The Outline's edit pop-ups (outline/edit/block-editor.tsx) */}
       <BlockEditor view={view} />
+      <SymbolPickerAtCursor view={view} />
     </>
   )
 }

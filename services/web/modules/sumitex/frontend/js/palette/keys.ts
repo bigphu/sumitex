@@ -31,6 +31,7 @@ export const COMMAND_KEYS: Record<string, string[]> = {
   'sumitex-toggle-problems': ['Mod+Shift+M'],
   'sumitex-open-outline': ['Mod+Shift+Y'],
   'sumitex-edit-block': ['Mod+K E'],
+  'sumitex-insert-symbol': ['Mod+K M'],
   'sumitex-table-move-column-left': [isMac ? 'Ctrl+Alt+←' : 'Alt+←'],
   'sumitex-table-move-column-right': [isMac ? 'Ctrl+Alt+→' : 'Alt+→'],
   'open-settings': ['Mod+,'],
@@ -126,7 +127,8 @@ export function sheetGroups(options: { review: boolean }): SheetGroup[] {
     title: 'Edit (VS Code)',
     rows: [
       { label: 'Move line (in a list: the whole item)', keys: ['Alt+↑ / ↓'] },
-      { label: 'Edit the table or list at the cursor', keys: ['Mod+K E'] },
+      { label: 'Edit the table, list, equation or section at the cursor', keys: ['Mod+K E'] },
+      { label: 'Insert a symbol', keys: ['Mod+K M'] },
       {
         label: 'In a table: move the column',
         keys: [isMac ? 'Ctrl+Alt+← / →' : 'Alt+← / →'],

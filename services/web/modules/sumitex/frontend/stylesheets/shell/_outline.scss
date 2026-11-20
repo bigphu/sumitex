@@ -246,14 +246,20 @@
 }
 
 .sx-outline-card-math {
-  max-height: 120px;
   margin-top: 6px;
-  overflow: hidden;
   text-align: center;
+
+  // A long formula shrinks to fit the card instead of being cut off
+  svg {
+    max-width: 100%;
+    height: auto;
+    max-height: 160px;
+  }
 }
 
-// ✎ on a table or list row: shown on hover, opens the edit pop-up
-.sx-outline-block .outline-item-row {
+// ✎ on a section, table, list or equation row: shown on hover, opens the
+// edit pop-up
+.sx-outline .outline-item-row {
   position: relative;
 }
 
@@ -282,7 +288,7 @@
   }
 }
 
-.sx-outline-block .outline-item-row:hover .sx-outline-edit,
+.sx-outline .outline-item-row:hover > .sx-outline-edit,
 .sx-outline-edit:focus-visible {
   display: grid;
 }
