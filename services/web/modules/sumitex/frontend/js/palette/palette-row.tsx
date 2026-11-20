@@ -3,8 +3,8 @@
  * marked lines in features/command-palette/components/command-palette-body:
  *
  * - a search icon and an "esc" key in the search box
- * - chips under it for the prefixes: @ sections, # labels, : line,
- *   > commands (click one to type it)
+ * - chips under it for the prefixes: @ sections, ! blocks, # labels,
+ *   : line, > commands (click one to type it)
  * - a heading above each group of results (Recent files, Commands…)
  * - per row: an icon, the title with the typed words highlighted, the
  *   folder or kind in grey, and keys or a file:line on the right
@@ -49,7 +49,7 @@ export function PaletteGroupHeader({
 // The words to highlight: the query without its prefix or a :line suffix
 const queryWords = (query: string) =>
   query
-    .replace(/^[>@#:]/, '')
+    .replace(/^[>@#:!]/, '')
     .replace(/:\d+(,\d+)?$/, '')
     .toLowerCase()
     .split(/\s+/)
@@ -119,6 +119,8 @@ export function PaletteResultContent({
     >
       {isFile ? (
         <FileIcon name={result.title} />
+      ) : extras.icon ? (
+        <MaterialIcon type={extras.icon} className="sx-palette-icon" />
       ) : (
         extras.glyph && (
           <span className="sx-palette-icon sx-palette-glyph">{extras.glyph}</span>
@@ -140,7 +142,8 @@ export function PaletteResultContent({
 }
 
 const CHIPS: { prefix: string; label: string }[] = [
-  { prefix: '@', label: 'sections & blocks' },
+  { prefix: '@', label: 'sections' },
+  { prefix: '!', label: 'blocks' },
   { prefix: '#', label: 'labels' },
   { prefix: ':', label: 'line' },
   { prefix: '>', label: 'commands' },

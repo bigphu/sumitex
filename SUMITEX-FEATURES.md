@@ -689,7 +689,7 @@ Drag:     reorder (v3)
 
 **Built (20 Nov 2026), v2 done: ⋯ actions and `@` search.**
 - **⋯ on every Outline row** (next to ✎, on hover): for a block, **Insert a reference at the cursor** and **Copy a reference** (when it has a label; written so the document reads it: `\cref{…}` with cleveref, else `Figure~\ref{…}`, `Lemma~\ref{…}`; equations `\eqref{…}` with amsmath), **Duplicate** (its labels get `-2`), **Delete** ("Ctrl+Z brings it back"); for a section also **Move up / Move down** among its neighbours (what each holds goes along) and **Promote / Demote** (the sections inside follow). `outline/edit/actions-model.ts` (tested), `block-actions.ts`.
-- **`@` in the palette** now finds the blocks of every .tex file in the project, after this file's sections: by title, kind or label; a first word naming a kind narrows to it (`@fig pipe`, `@eq`, `@thm`); picking one opens its file at the block (`palette/project-blocks.ts`, from the project snapshot, each file scanned again only when it changes).
+- **`!` in the palette** finds the blocks of every .tex file in the project (this file's first), with the Outline's icons: by title, kind or label; a first word naming a kind narrows to it (`!fig pipe`, `!eq`, `!thm`); picking one opens its file at the block (`palette/use-blocks-source.ts`, `palette/project-blocks.ts`, from the project snapshot, each file scanned again only when it changes). `@` stays the open file's sections.
 Not built (later, if wanted): a whole-project Outline panel.
 
 ## 12 · Notion-like preview editing (deferred)
