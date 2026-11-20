@@ -8,6 +8,7 @@
  *
  * Mounted by one marked line in ide-react/components/layout/main-layout.tsx.
  */
+import { useRef } from 'react'
 import classNames from 'classnames'
 import { TabsContainer } from '@/features/source-editor/components/tabs/tabs-container'
 import EditorSwitch from '@/features/source-editor/components/editor-switch'
@@ -19,6 +20,7 @@ import { useGlobalShortcuts } from './use-global-shortcuts'
 import { isMac } from '@/shared/utils/os'
 import PdfPillExtras from './pdf-pill-extras'
 import FileTreeExtras from '../files/file-tree-extras'
+import { useTabOverflow } from './use-tab-overflow'
 
 type LayoutChoice = 'source' | 'split' | 'pdf'
 
@@ -99,13 +101,15 @@ export default function WorkTabBar() {
   const narrow = useNarrowLayout() // below 900px: no Split, side panels as drawers
   useGlobalShortcuts(narrow) // Ctrl+1/2/3, Ctrl+Shift+E/H/M, Ctrl+, …
   const { focusMode } = useLayoutContext()
+  const tabsRef = useRef<HTMLDivElement>(null)
+  useTabOverflow(tabsRef, !focusMode) // no scrollbar: fade the side with hidden tabs
 
   // Zen has no tab bar (mockup frame 3); the PDF pill keeps its extras
   if (focusMode) return <PdfPillExtras />
 
   return (
     <div className="sx-work-tabbar">
-      <div className="sx-work-tabbar-tabs">
+      <div className="sx-work-tabbar-tabs" ref={tabsRef}>
         {tabsEnabled ? (
           <TabsContainer />
         ) : (

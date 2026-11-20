@@ -1,0 +1,67 @@
+\section{Văn bản đầu tiên}
+\label{sec:van-ban}
+
+\subsection{Tạo dự án}
+\begin{enumerate}
+  \item Tại trang \nut{Projects}, bạn nhấp vào nút \nut{New project}.
+  \item Chọn \nut{Blank project} để tạo dự án trống, hoặc chọn một mẫu có sẵn.
+  \item Nhập tên dự án rồi bấm \nut{Create}, không gian làm việc sẽ mở ra ngay
+    lập tức.
+\end{enumerate}
+
+\subsection{Khung của một tài liệu}
+Mọi tài liệu \LaTeX{} đều gồm hai phần chính: \emph{phần đầu} (nằm trước lệnh
+\lenh{begin\{document\}}) dùng để khai báo cấu hình, và \emph{phần thân} là nơi
+chứa nội dung bạn viết.
+
+\begin{ma}
+\documentclass{article}
+\usepackage[T5]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[vietnamese]{babel}
+
+\title{Báo cáo của tôi}
+\author{Nguyễn Văn A}
+
+\begin{document}
+\maketitle
+
+\section{Mở đầu}
+Đây là đoạn văn đầu tiên.
+
+\end{document}
+\end{ma}
+
+\begin{chuy}
+Ba dòng \lenh{usepackage} ở trên là bắt buộc để soạn thảo \textbf{tiếng Việt}.
+Nếu thiếu chúng, trình biên dịch sẽ báo lỗi ``Unicode character'' tại các ký tự
+có dấu (xem cách xử lý ở chương~\ref{sec:loi}).
+\end{chuy}
+
+\subsection{Biên dịch và xem PDF}
+Để xem kết quả, bạn nhấn \phim{Ctrl}+\phim{S} (hoặc bấm nút ▶). Sau vài giây,
+bản PDF sẽ xuất hiện ở khung bên phải. Mỗi khi chỉnh sửa nội dung, bạn chỉ cần
+biên dịch lại để cập nhật bản xem trước.
+
+\subsection{Chữ đậm, chữ nghiêng}
+\begin{itemize}
+  \item Dùng \lenh{textbf\{chữ đậm\}} (hoặc phím tắt \phim{Ctrl}+\phim{B}) để
+    tạo \textbf{chữ đậm}.
+  \item Dùng \lenh{emph\{nhấn mạnh\}} (hoặc phím tắt \phim{Ctrl}+\phim{I}) để
+    in nghiêng \emph{nhấn mạnh}.
+  \item Để ngắt sang đoạn mới, bạn cần chừa \textbf{một dòng trống} giữa hai
+    đoạn, vì việc xuống dòng một lần trong mã nguồn sẽ không tạo ra đoạn mới.
+\end{itemize}
+
+\begin{meo}
+Nếu không nhớ chính xác tên lệnh, bạn chỉ cần gõ dấu \texttt{\textbackslash}
+kèm vài chữ cái đầu để SumiTeX tự động gợi ý. Chẳng hạn, khi gõ
+\texttt{\textbackslash fig} rồi nhấn \phim{Enter}, hệ thống sẽ chèn sẵn một
+khung hình mẫu và tự thêm gói \texttt{graphicx} nếu tài liệu chưa có.
+\end{meo}
+
+\begin{thuchanh}[Bài 1]
+Mở tệp \texttt{bai-01.tex}, điền tên của bạn vào mục \lenh{author}, sau đó thêm
+một mục \lenh{section\{Giới thiệu\}} chứa một đoạn văn ngắn có ít nhất một từ
+in đậm rồi biên dịch để xem kết quả.
+\end{thuchanh}

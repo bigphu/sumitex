@@ -1,0 +1,53 @@
+\section{Công thức toán}
+\label{sec:cong-thuc}
+
+\begin{itemize}
+  \item Đối với công thức nằm cùng dòng với văn bản, bạn đặt nội dung giữa hai
+    dấu \texttt{\$}. Ví dụ, \verb|$a^2 + b^2 = c^2$| sẽ hiển thị thành
+    $a^2 + b^2 = c^2$.
+  \item Đối với công thức đứng riêng một dòng và có đánh số tự động, bạn dùng
+    môi trường \texttt{equation}:
+\end{itemize}
+\begin{ma}
+\begin{equation}
+  E = mc^2
+  \label{eq:einstein}
+\end{equation}
+\end{ma}
+
+\subsection{Ô sửa công thức}
+Để mở trình soạn thảo công thức trực quan, bạn bấm biểu tượng ✎ trên một công
+thức trong Mục lục hoặc nhấn \phim{Ctrl}+\phim{K} rồi \phim{E}:
+
+\anh[0.92\linewidth]{popup-cong-thuc}{Ô sửa công thức: bản xem trước ở phía
+trên, mã nguồn ở phía dưới, và nút Ω để mở bảng ký hiệu bên phải}
+
+\begin{itemize}
+  \item Thanh nút chức năng cung cấp sẵn phân số, căn thức, số mũ, chỉ số, tổng,
+    tích phân, ngoặc và chữ thường. Nếu bạn bôi đen một đoạn trước khi bấm nút
+    phân số, đoạn đó sẽ tự động được đưa lên tử số.
+  \item Nút \textbf{Ω} mở bảng ký hiệu toán học. Bạn chỉ cần gõ tên để tìm
+    nhanh, chẳng hạn gõ \texttt{lam} cho λ, \texttt{arrow} cho các mũi tên,
+    hoặc \texttt{real} cho ℝ.
+  \item Trong mục \nut{More}, bạn có thể chuyển đổi giữa môi trường
+    \texttt{equation} và \texttt{align}, cũng như bật hoặc tắt chế độ đánh số.
+\end{itemize}
+
+\begin{meo}
+Trong lúc gõ công thức, một số cụm ký tự sẽ tự động mở rộng thành lệnh
+\LaTeX{}: \texttt{//} thành \verb|\frac{}{}|, \texttt{@a} thành \verb|\alpha|,
+và \texttt{->} thành \verb|\to|. Nếu muốn giữ nguyên ký tự gốc vừa gõ, bạn chỉ
+cần nhấn \phim{Ctrl}+\phim{Z} ngay sau đó.
+\end{meo}
+
+\begin{meo}
+Tại bất kỳ vị trí nào trong văn bản, bạn có thể nhấn \phim{Ctrl}+\phim{K} rồi
+\phim{M} để mở bảng ký hiệu ngay tại con trỏ. Nếu con trỏ đang nằm ngoài môi
+trường toán, ký hiệu được chèn sẽ tự động bọc trong cặp dấu \texttt{\$…\$}.
+\end{meo}
+
+\begin{thuchanh}[Bài 5]
+Mở tệp \texttt{bai-05.tex}, viết công thức định lý Pythagoras, sau đó thêm một
+phân số bằng thanh nút chức năng, chèn ký hiệu α từ bảng ký hiệu, và cuối cùng
+dùng nút ⋯ để chèn tham chiếu tới công thức vừa tạo.
+\end{thuchanh}

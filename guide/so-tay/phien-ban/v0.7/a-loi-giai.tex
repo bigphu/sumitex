@@ -1,0 +1,68 @@
+\section{Lời giải bài tập}
+\label{sec:loi-giai}
+
+Bạn chỉ nên xem phần này sau khi đã tự mình làm thử nhé!
+
+\subsection*{Bài 1: Văn bản}
+\begin{ma}
+\author{Tên của bạn}
+...
+\section{Giới thiệu}
+Đây là \textbf{sân tập} của tôi.
+\end{ma}
+
+\subsection*{Bài 2: Danh sách}
+\begin{ma}
+\begin{enumerate}
+  \item Mở sổ tay
+  \item Mở sân tập
+  \item Làm bài
+\end{enumerate}
+\end{ma}
+
+\subsection*{Bài 3: Bảng}
+\begin{ma}
+\begin{table}[htbp]
+  \centering
+  \caption{Điểm của tôi}
+  \label{tab:diem}
+  \begin{tabular}{lc}
+    Môn & Điểm \\
+    Toán & 9 \\
+    Văn & 8 \\
+  \end{tabular}
+\end{table}
+\end{ma}
+
+\subsection*{Bài 4: Hình ảnh}
+Sau khi dán ảnh và chọn độ rộng ½, mã nguồn sẽ có dạng như sau:
+\begin{ma}
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\linewidth]{images/pasted-1.png}
+  \caption{Ảnh đầu tiên của tôi}
+  \label{fig:pasted-1}
+\end{figure}
+\end{ma}
+
+\subsection*{Bài 5: Công thức}
+\begin{ma}
+\begin{equation}
+  a^2 + b^2 = c^2
+  \label{eq:pythagoras}
+\end{equation}
+Với góc $\alpha$, ta có $\sin\alpha = \frac{a}{c}$.
+Theo \eqref{eq:pythagoras}, ...
+\end{ma}
+
+\subsection*{Bài 6: Sửa lỗi}
+\begin{itemize}
+  \item Lệnh \verb|\mathbb| yêu cầu phải có gói \texttt{amssymb}. Do sân tập đã
+    nạp sẵn gói này nên dòng mã không báo lỗi; tuy nhiên, khi làm việc trên tài
+    liệu riêng, bạn cần thêm \verb|\usepackage{amssymb}| (hoặc đặt con trỏ tại
+    dòng có \verb|\mathbb| rồi nhấn \phim{Ctrl}+\phim{.}).
+  \item Lệnh \verb|\textbf{quan trọng| bị thiếu dấu đóng ngoặc nhọn \} ở cuối.
+  \item Biểu thức \verb|x^2| cần được đặt trong môi trường toán học, tức là
+    \verb|$x^2$|.
+  \item Lệnh \verb|\secton| bị gõ sai chính tả; lệnh đúng là \verb|\section|.
+\end{itemize}

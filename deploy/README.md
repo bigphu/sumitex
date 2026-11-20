@@ -156,6 +156,29 @@ As the admin, open `/admin/register` (also under the **Admin** menu) to add acco
 
 Logging in with LDAP, SAML or OpenID Connect works as in AyakaLeaf Pro; see its [documentation](https://github.com/ayaka-notes/ayakaleaf-pro).
 
+## 8. The SumiTeX guide (optional)
+
+SumiTeX can give every user a Vietnamese handbook and a playground to practise in. The sources are in [`guide/`](../guide/README.md).
+
+1. **Zip the two projects** on your computer:
+   ```bash
+   cd guide/so-tay && zip -r ../so-tay.zip . && cd ../san-tap && zip -r ../san-tap.zip . && cd ../..
+   ```
+2. **Upload them as the admin:** **New project → Upload project**, once with `so-tay.zip` and once with `san-tap.zip`. Rename them "Sổ tay SumiTeX" and "Sân tập SumiTeX (gốc)".
+3. **Copy their ids** from the address bar (`/project/<id>`) into `.env`:
+   ```
+   SUMITEX_GUIDE_PROJECT_ID=<the handbook's id>
+   SUMITEX_PLAYGROUND_PROJECT_ID=<the playground's id>
+   ```
+4. **Restart:**
+   ```bash
+   docker compose up -d
+   ```
+
+From then on, each user's next sign-in shares the handbook with them read-only, under **Shared with you**. Admins get edit rights instead. The handbook has a bar with **Open my playground**, which makes the user's own copy of the playground. The dashboard, the Help menu and the command palette link to both.
+
+To update, edit the two projects as the admin; everyone sees handbook changes at once. After changing the exercises, bump the line `% Phiên bản sân tập: …` in the playground's `main.tex`; users then see **Get the new exercises**, and their old copy is kept. `guide/README.md` explains how to publish a new handbook version.
+
 ## Day to day
 
 Run these from the `deploy` folder:

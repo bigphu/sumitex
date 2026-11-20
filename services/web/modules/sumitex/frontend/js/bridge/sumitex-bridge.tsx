@@ -29,6 +29,8 @@ import SymbolPickerAtCursor, {
   OPEN_SYMBOLS_EVENT,
 } from '../editor/symbols/symbol-picker-at-cursor'
 import { requestEdit } from '../outline/edit/edit-requests'
+import { useGuideBanner } from '../guide/use-guide-banner'
+import { openGuide, openPlayground } from '../guide/guide-store'
 
 // The layout Zen came from ('sideBySide' or 'flat'), to go back to when it
 // ends. Kept in localStorage so that leaving Zen after a reload still
@@ -131,6 +133,9 @@ export default function SumitexBridge() {
 
   // Pasted and dropped images upload into images/ (editor/image-paste.ts)
   useImageUpload()
+
+  // The SumiTeX guide's bar in the handbook and the playground
+  useGuideBanner(view)
   const snippetDialog = useSnippetCommands(view)
 
   // Palette entries. Zen sits under View, next to the stock "Toggle focus
@@ -176,6 +181,18 @@ export default function SumitexBridge() {
             view.focus()
             window.dispatchEvent(new Event(OPEN_SYMBOLS_EVENT))
           }, 60),
+      },
+      {
+        id: 'sumitex-open-guide',
+        label: 'Open the SumiTeX guide',
+        handler: () => openGuide(),
+      },
+      {
+        id: 'sumitex-open-playground',
+        label: 'Open my playground',
+        handler: () => {
+          openPlayground().catch(error => window.alert(error.message))
+        },
       },
       {
         id: 'sumitex-edit-block',

@@ -8,12 +8,14 @@ import {
   OLDropdownMenu,
 } from '@/shared/components/ol/ol-dropdown-menu'
 import { OPEN_SNIPPET_LIBRARY_EVENT } from '@modules/sumitex/frontend/js/completions/snippet-library' // SumiTeX
+import { openGuide, useGuideInfo } from '@modules/sumitex/frontend/js/guide/guide-store' // SumiTeX
 
 export default function RailHelpDropdown() {
   const showSupport = getMeta('ol-showSupport')
   const showDocumentation = getMeta('ol-wikiEnabled')
   const { t } = useTranslation()
   const { setActiveModal } = useRailContext()
+  const guide = useGuideInfo() // SumiTeX
   const openKeyboardShortcutsModal = useCallback(() => {
     setActiveModal('keyboard-shortcuts')
   }, [setActiveModal])
@@ -36,6 +38,10 @@ export default function RailHelpDropdown() {
       >
         Snippets &amp; shortcuts
       </OLDropdownItem>
+      {/* SumiTeX: the guide, when this server has one */}
+      {guide.enabled && guide.guideProjectId && (
+        <OLDropdownItem onClick={openGuide}>SumiTeX guide</OLDropdownItem>
+      )}
       {showDocumentation && (
         <OLDropdownItem
           href="/learn"
