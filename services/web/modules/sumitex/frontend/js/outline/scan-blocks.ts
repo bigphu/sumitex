@@ -21,6 +21,7 @@ import {
   NEEDS_CAPTION,
 } from './block-types'
 import { parseSpec, tableAt } from '../editor/table-columns'
+import { mathTitle } from './math-text'
 
 export type Block = {
   kind: BlockKind
@@ -330,9 +331,9 @@ export function scanBlocks(state: EditorState): Block[] {
     if (!block.title) {
       if (block.caption) block.title = block.caption
       else if (block.kind === 'equation' && block.math) {
-        block.title =
-          plainText(block.math.replace(/\\label\{[^}]*\}/g, '')) ||
-          friendlyName(block.name, block.kind)
+        // Readable math (θ̂ = arg min …), not LaTeX with the commands
+        // stripped out
+        block.title = mathTitle(block.math) || friendlyName(block.name, block.kind)
       } else if (block.kind === 'list') {
         const items = block.items ?? 0
         block.title = `${friendlyName(block.name, block.kind)}, ${items} ${

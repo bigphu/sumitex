@@ -46,9 +46,9 @@ describe('SumiTeX outline: scanning blocks', function () {
     )
     expect(brief(blocks)).to.deep.equal([
       'figure:Setup photo',
-      'equation:E = mc^2',
+      'equation:E = mc²',
       'list:Numbered list, 2 items',
-      'equation:a^2 + b^2 = c^2',
+      'equation:a² + b² = c²',
       'code:Fibonacci',
       'theorem:Pythagoras',
       'graph:Drawing',

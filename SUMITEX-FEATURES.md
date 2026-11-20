@@ -670,7 +670,14 @@ Drag:     reorder (v3)
   - **Size:** a table's pop-up grows with its columns, past the editor over the PDF up to 90% of the window, and up to 80% of its height; the corner handle resizes it, the size is kept per kind, and a double-click on the handle goes back to automatic.
 - **One-time tip** in the Outline pointing at the Blocks toggle (Show blocks · Got it).
 - **Settings › Editor › Outline shows blocks**: the default for projects that haven't chosen.
-Next: equation and section pop-ups (frames 16, 18), ⋯ row actions, `@` search for blocks (frame 17).
+
+**Built (20 Nov 2026), v2 part 2: equation and section pop-ups (frames 16, 18).** Opened the same ways (✎ on the Outline row, now on section rows too; the editor's button, now also on an equation and on a section's line; Ctrl+K E; the palette).
+- **Equation** (`outline/edit/equation-model.ts`): equation or align (gather, multline, flalign shown when used); Numbered adds or removes the `*`; the source without its label, with a live MathJax preview; the label, saying whether this file refers to it. `\[ \]` reads as an unnumbered equation; numbering it or giving it a label makes it an `equation`.
+- **Section** (`outline/edit/section-model.ts`): title; level (chapter only in a document that has chapters), the sections inside moving with it, refused past `\subparagraph`; label (on the line after the command); Numbered (`\section*`); what it holds (equations, figures, tables).
+- **Equations read as math** (`outline/math-text.ts`): an equation's row reads as the mockup draws it (`θ̂ = arg min_θ 1/n Σᵢ₌₁ⁿ ℓ(f_θ(xᵢ), yᵢ)`): Greek, operators, arrows, sub- and superscripts in Unicode, an align's lines joined with " ; ". Previews (hover card, pop-up) draw align, flalign and eqnarray as aligned and gather as gathered, as LaTeX lays them out, so an align no longer shows "Misplaced &"; a long formula shrinks to fit the card.
+- **Symbols** (`editor/symbols/`): the equation pop-up has a toolbar of structures (fraction, root, super- and subscript, sum, integral, growing brackets, text; the cursor lands in the first box, a selection goes into it) and frequent symbols; **Ω More** opens the symbol picker in a column on the right: search by name, look or word ("lam", "λ", "real"), groups (Greek, Arrows, Operators, Relations, Misc, Recent), arrow keys and Enter. In the editor, **Ctrl+K M** (or the palette's **Insert symbol**) opens the same picker at the cursor; outside math the symbol goes in as inline math. A symbol from amssymb loads it: in the same change in a file with its own preamble, else in the main file (from the pop-up, when it closes). The mockup's Ctrl+Shift+Y is the Outline's key.
+- Typing in the pop-ups keeps a space at the end of a box (the text is read back from the document without them).
+Next: ⋯ row actions, `@` search for blocks (frame 17).
 
 ## 12 · Notion-like preview editing (deferred)
 

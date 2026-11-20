@@ -1,7 +1,8 @@
 /**
- * The Outline's edit pop-ups (mockup frames 14 and 15; Build Guide 6c):
- * a small editor over the text for a table or a list, opened from the
- * Outline's ✎ or the palette's "Edit table or list". Every change is
+ * The Outline's edit pop-ups (mockup frames 14, 15, 16 and 18; Build
+ * Guide 6c): a small editor over the text for a table, a list, an
+ * equation or a section, opened from the Outline's ✎, the editor's
+ * "✎ Edit" button, Ctrl+K E or the palette. Every change is
  * written straight into the LaTeX, so it shows in the editor at once,
  * one Ctrl+Z (in the pop-up too) takes it back, and collaborators see it
  * as any other edit. Esc or a click outside closes it.
@@ -11,8 +12,13 @@
  * after every change (table-model.ts, list-model.ts).
  */
 import {
+  Dispatch,
   DragEvent,
+  forwardRef,
+  SetStateAction,
+  InputHTMLAttributes,
   KeyboardEvent,
+  TextareaHTMLAttributes,
   ReactNode,
   useCallback,
   useEffect,
@@ -23,6 +29,7 @@ import {
 import { createPortal } from 'react-dom'
 import classNames from 'classnames'
 import type { EditorView } from '@codemirror/view'
+import type { EditorState } from '@codemirror/state'
 import { EditorView as View } from '@codemirror/view'
 import { redo, undo } from '@codemirror/commands'
 import MaterialIcon from '@/shared/components/material-icon'
@@ -31,7 +38,36 @@ import { flashMessage } from '../../editor/flash-message'
 import { packageInsertion, requestAddPackage } from '../../editor/add-package'
 import { preambleOf, stripComments } from '../../diagnostics/preamble'
 import { getProjectPreamble } from '../../diagnostics/preamble-store'
-import { onEditRequest, type EditKind } from './edit-requests'
+import { onEditRequest } from './edit-requests'
+import { blockAt, type Open, type OpenKind } from './block-at'
+import { loadMathJax } from '@/features/mathjax/load-mathjax'
+import { getBlocks } from '../blocks-store'
+import { previewTex } from '../math-text'
+import SymbolPicker from '../../editor/symbols/symbol-picker'
+import {
+  FREQUENT,
+  STRUCTURES,
+  symbolText,
+} from '../../editor/symbols/symbol-data'
+import { packageNeeded } from '../../editor/symbols/symbol-package'
+import {
+  EQUATION_KINDS,
+  readEquation,
+  setKind,
+  setLabel as setEquationLabel,
+  setNumbered as setEquationNumbered,
+  setSource,
+  type EquationModel,
+} from './equation-model'
+import {
+  LEVELS,
+  readSection,
+  setLabel as setSectionLabel,
+  setLevel,
+  setNumbered as setSectionNumbered,
+  setTitle,
+  type SectionModel,
+} from './section-model'
 import {
   addColumn,
   addRow,
@@ -67,6 +103,7 @@ const LIST_WIDTH = 480
 const MIN_WIDTH = 380
 const MIN_HEIGHT = 200
 const COLUMN_WIDTH = 120
+const SYMBOLS_WIDTH = 400
 const sizeKey = (kind: string) => `sumitex.edit-popup.size.${kind}`
 
 type Size = { width: number; height: number }
@@ -90,38 +127,46 @@ function saveSize(kind: string, size: Size | null) {
 }
 const ERROR_MS = 4000
 
-type Open = { anchor: number; kind: 'table' | 'list' }
+const readers: Record<OpenKind, (state: EditorState, pos: number) => unknown> = {
+  table: readTable,
+  list: readList,
+  equation: readEquation,
+  section: readSection,
+}
 
-/** Which block is at `pos`: the innermost table or list */
-function blockAt(view: EditorView, pos: number, kind: EditKind): Open | null {
-  const table = kind !== 'list' ? readTable(view.state, pos) : null
-  const list = kind !== 'table' ? readList(view.state, pos) : null
-  if (table && list) {
-    return list.list.from > table.tabular.from
-      ? { anchor: list.list.from, kind: 'list' }
-      : { anchor: table.tabular.from, kind: 'table' }
-  }
-  if (table) return { anchor: table.tabular.from, kind: 'table' }
-  if (list) return { anchor: list.list.from, kind: 'list' }
-  return null
+const WANTS: Record<OpenKind, number> = {
+  table: LIST_WIDTH,
+  list: LIST_WIDTH,
+  equation: 560,
+  section: 500,
 }
 
 export default function BlockEditor({ view }: { view: EditorView }) {
   const [open, setOpen] = useState<Open | null>(null)
+  // The equation pop-up's symbol column
+  const [symbols, setSymbols] = useState(false)
   const [, setVersion] = useState(0)
   const anchor = useRef(0)
 
   // Requests from the Outline and the palette
   useEffect(
     () =>
-      onEditRequest(({ pos, kind }) => {
-        const found = blockAt(view, pos, kind)
+      onEditRequest(({ pos, line, kind }) => {
+        const at =
+          line !== undefined
+            ? view.state.doc.line(Math.min(line, view.state.doc.lines)).from
+            : (pos ?? view.state.selection.main.head)
+        const found = blockAt(view.state, at, kind)
         if (!found) {
-          flashMessage(view, 'Put the cursor in a table or a list to edit it.')
+          flashMessage(
+            view,
+            'Put the cursor in a table, list or equation, or on a section’s line, to edit it.'
+          )
           return
         }
         anchor.current = found.anchor
         setOpen(found)
+        setSymbols(false)
         view.dispatch({
           effects: View.scrollIntoView(found.anchor, { y: 'start', yMargin: 60 }),
         })
@@ -150,10 +195,7 @@ export default function BlockEditor({ view }: { view: EditorView }) {
 
   if (!open) return null
   const state = view.state
-  const model =
-    open.kind === 'table'
-      ? readTable(state, anchor.current)
-      : readList(state, anchor.current)
+  const model = readers[open.kind](state, anchor.current)
   // The block is gone (deleted, or another file is open)
   if (!model) {
     queueMicrotask(() => setOpen(null))
@@ -169,13 +211,26 @@ export default function BlockEditor({ view }: { view: EditorView }) {
       wants={
         open.kind === 'table'
           ? 90 + (model as TableModel).columns * COLUMN_WIDTH
-          : LIST_WIDTH
+          : WANTS[open.kind] + (open.kind === 'equation' && symbols ? SYMBOLS_WIDTH : 0)
       }
     >
-      {open.kind === 'table' ? (
+      {open.kind === 'table' && (
         <TableEditor view={view} model={model as TableModel} close={close} />
-      ) : (
+      )}
+      {open.kind === 'list' && (
         <ListEditor view={view} model={model as ListModel} close={close} />
+      )}
+      {open.kind === 'equation' && (
+        <EquationEditor
+          view={view}
+          model={model as EquationModel}
+          close={close}
+          picker={symbols}
+          setPicker={setSymbols}
+        />
+      )}
+      {open.kind === 'section' && (
+        <SectionEditor view={view} model={model as SectionModel} close={close} />
       )}
     </Popup>,
     document.body
@@ -422,6 +477,34 @@ function useReorder(count: number, onMove: (from: number, to: number) => void) {
 const closestPicture = (selector: string) => (grip: HTMLElement) =>
   grip.closest<HTMLElement>(selector)
 
+/**
+ * A text box over a piece of the document. The pop-up reads the text back
+ * after each keystroke without the spaces at its ends, so the box keeps
+ * what was typed while it still matches (a space typed at the end stays
+ * until the next letter), and follows the document when it changes.
+ */
+const Draft = forwardRef<
+  HTMLInputElement & HTMLTextAreaElement,
+  {
+    value: string
+    onValue: (value: string) => void
+    multiline?: boolean
+  } & Omit<InputHTMLAttributes<HTMLInputElement> & TextareaHTMLAttributes<HTMLTextAreaElement>, 'value' | 'onChange'>
+>(({ value, onValue, multiline, ...rest }, ref) => {
+  const [draft, setDraft] = useState(value)
+  const shown = draft.trim() === value.trim() ? draft : value
+  const change = (next: string) => {
+    setDraft(next)
+    onValue(next)
+  }
+  return multiline ? (
+    <textarea {...rest} ref={ref} value={shown} onChange={event => change(event.target.value)} />
+  ) : (
+    <input {...rest} ref={ref} value={shown} onChange={event => change(event.target.value)} />
+  )
+})
+Draft.displayName = 'Draft'
+
 // ------------------------------------------------------------------ table
 
 const ALIGN_NEXT = { l: 'c', c: 'r', r: 'l' } as const
@@ -574,11 +657,11 @@ function TableEditor({
                       key={c}
                       className={classNames({ 'sx-edit-ghost-cell': columns.dragging === c })}
                     >
-                      <input
+                      <Draft
                         className="sx-edit-input"
                         value={row.cells[c]}
                         aria-label={`Row ${r + 1}, column ${c + 1}`}
-                        onChange={event => apply(setCell(model, r, c, event.target.value))}
+                        onValue={value => apply(setCell(model, r, c, value))}
                       />
                     </td>
                   ) : (
@@ -622,11 +705,11 @@ function TableEditor({
               Caption
               {!model.caption?.text && <em> · missing</em>}
             </span>
-            <input
+            <Draft
               className={classNames('sx-edit-input', { 'sx-edit-input-missing': !model.caption?.text })}
               value={model.caption?.text ?? ''}
               placeholder="Add a caption"
-              onChange={event => apply(setCaption(view.state, model, event.target.value))}
+              onValue={value => apply(setCaption(view.state, model, value))}
             />
           </label>
           <label className="sx-edit-field">
@@ -729,14 +812,14 @@ function ListEditor({
                 {model.type === 'enumerate' ? `${position + 1}.` : '•'}
               </span>
               {item.editable ? (
-                <input
+                <Draft
                   ref={element => {
                     inputs.current[i] = element
                   }}
                   className="sx-edit-input sx-edit-item-input"
                   value={item.text}
                   aria-label={`Item ${i + 1}`}
-                  onChange={event => apply(setItemText(model, i, event.target.value))}
+                  onValue={value => apply(setItemText(model, i, value))}
                   onKeyDown={event => {
                     if (event.key === 'Enter') {
                       event.preventDefault()
@@ -767,6 +850,386 @@ function ListEditor({
             + Item
           </button>
         </div>
+        {error && (
+          <p className="sx-edit-error" role="alert">
+            {error}
+          </p>
+        )}
+      </div>
+    </>
+  )
+}
+
+// --------------------------------------------------------------- switches
+
+function Switch({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string
+  checked: boolean
+  onChange: (on: boolean) => void
+}) {
+  return (
+    <label className="sx-edit-switch">
+      {label}
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        className={classNames('sx-edit-switch-track', { 'sx-edit-switch-on': checked })}
+        onClick={() => onChange(!checked)}
+      >
+        <span className="sx-edit-switch-knob" />
+      </button>
+    </label>
+  )
+}
+
+/** Where a label stands: missing, used in this file, or not (yet) */
+function labelStatus(label: { text: string } | null, referenced: boolean) {
+  if (!label?.text) return ' · missing'
+  return referenced ? ' · referred to in this file' : ' · not referred to in this file'
+}
+
+// --------------------------------------------------------------- equation
+
+function MathPreview({ tex }: { tex: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    let live = true
+    // Draw once typing pauses
+    const timer = window.setTimeout(() => {
+      loadMathJax()
+        .then(async MathJax => {
+          const node = await MathJax.tex2svgPromise(tex, { display: true })
+          if (live && ref.current) ref.current.replaceChildren(node)
+        })
+        .catch(() => {
+          if (live && ref.current) ref.current.textContent = tex
+        })
+    }, 250)
+    return () => {
+      live = false
+      window.clearTimeout(timer)
+    }
+  }, [tex])
+  return <div className="sx-edit-preview" ref={ref} aria-label="Preview" />
+}
+
+const EQUATION_TABS = ['equation', 'align'] as const
+
+function EquationEditor({
+  view,
+  model,
+  close,
+  picker,
+  setPicker,
+}: {
+  view: EditorView
+  model: EquationModel
+  close: () => void
+  /** All symbols showing on the right (the pop-up widens for them) */
+  picker: boolean
+  setPicker: Dispatch<SetStateAction<boolean>>
+}) {
+  const { apply, error } = useApply(view)
+  const source = useRef<HTMLInputElement & HTMLTextAreaElement>(null)
+  // Where the cursor goes in the source after an insert
+  const caret = useRef<number | null>(null)
+  // Packages the main file needs, loaded when the pop-up closes (going
+  // there now would close it)
+  const later = useRef(new Set<string>())
+
+  useLayoutEffect(() => {
+    const box = source.current
+    if (caret.current === null || !box) return
+    if (!picker) box.focus()
+    box.setSelectionRange(caret.current, caret.current)
+    caret.current = null
+  })
+
+  useEffect(
+    () => () => {
+      const [first, ...rest] = [...later.current]
+      if (first) void requestAddPackage(first, { alsoAdd: rest })
+    },
+    []
+  )
+
+  /** Put `tex` in at the source's cursor; | marks where the cursor goes */
+  const insert = (tex: string, pkg?: string) => {
+    const box = source.current
+    // What the box shows (it may end in a space the document lost)
+    const text = box?.value ?? model.source.text
+    const start = box ? box.selectionStart : text.length
+    const end = box ? box.selectionEnd : text.length
+    let piece: string
+    let at: number
+    if (tex.includes('|')) {
+      // A structure: what was selected goes in its first box
+      const selected = text.slice(start, end)
+      piece = tex.replace('|', selected)
+      at = start + tex.indexOf('|') + selected.length
+    } else {
+      piece = symbolText(tex, text.slice(end, end + 1))
+      at = start + piece.length - (piece.endsWith('{}') ? 1 : 0)
+    }
+    caret.current = at
+    apply(setSource(model, text.slice(0, start) + piece + text.slice(end)))
+    if (pkg) {
+      const needed = packageNeeded(view.state.doc.toString(), pkg)
+      if (needed === 'main') later.current.add(pkg)
+      else if (needed) view.dispatch({ changes: needed, userEvent: 'input.sumitex-symbol' })
+    }
+  }
+
+  const tabs: string[] = [...EQUATION_TABS]
+  if (!tabs.includes(model.kind)) tabs.push(model.kind)
+  // Drawn as LaTeX lays this kind out, so it matches the PDF
+  const tex = previewTex(model.kind, model.source.text)
+
+  return (
+    <>
+      <Head
+        title="Edit equation"
+        note={model.label?.text || (model.numbered ? 'no label yet' : 'unnumbered')}
+        close={close}
+      />
+      <div className={classNames('sx-edit-body', { 'sx-edit-split': picker })}>
+       <div className="sx-edit-main">
+        <div className="sx-edit-row">
+          <div className="sx-edit-tabs" role="tablist">
+            {tabs.map(kind => (
+              <button
+                key={kind}
+                type="button"
+                role="tab"
+                aria-selected={model.kind === kind && !model.bracket}
+                title={kind === 'align' ? 'Several lines, lined up at &' : `\\begin{${kind}}`}
+                className={classNames('sx-edit-tab', {
+                  'sx-edit-tab-on': model.kind === kind && !model.bracket,
+                })}
+                onClick={() =>
+                  (EQUATION_KINDS as readonly string[]).includes(kind) &&
+                  apply(setKind(model, kind as (typeof EQUATION_KINDS)[number]))
+                }
+              >
+                {kind}
+              </button>
+            ))}
+          </div>
+          <span className="sx-edit-spacer" />
+          <Switch
+            label="Numbered"
+            checked={model.numbered}
+            onChange={on => apply(setEquationNumbered(model, on))}
+          />
+        </div>
+        <div className="sx-edit-toolbar" role="toolbar" aria-label="Insert">
+          {STRUCTURES.map(item => (
+            <button
+              key={item.tex}
+              type="button"
+              className="sx-edit-tool"
+              title={item.title}
+              onMouseDown={event => event.preventDefault()}
+              onClick={() => insert(item.tex)}
+            >
+              {item.label}
+            </button>
+          ))}
+          {/* The picker on the right has these too; its room is theirs */}
+          {!picker && <span className="sx-edit-toolbar-gap" />}
+          {!picker && FREQUENT.map(symbol => (
+            <button
+              key={symbol.tex}
+              type="button"
+              className="sx-edit-tool"
+              title={symbol.tex}
+              onMouseDown={event => event.preventDefault()}
+              onClick={() => insert(symbol.tex, symbol.package)}
+            >
+              {symbol.char}
+            </button>
+          ))}
+          <span className="sx-edit-spacer" />
+          <button
+            type="button"
+            className={classNames('sx-edit-tool sx-edit-tool-more', { 'sx-edit-tool-on': picker })}
+            aria-expanded={picker}
+            title="All symbols (Ctrl+K M in the editor)"
+            onMouseDown={event => event.preventDefault()}
+            onClick={() => setPicker(on => !on)}
+          >
+            Ω More
+          </button>
+        </div>
+        <label className="sx-edit-field">
+          <span>Source</span>
+          <Draft
+            multiline
+            ref={source}
+            className="sx-edit-input sx-edit-source"
+            value={model.source.text}
+            rows={Math.min(8, Math.max(2, model.source.text.split('\n').length + 1))}
+            spellCheck={false}
+            onValue={value => apply(setSource(model, value))}
+          />
+        </label>
+        <MathPreview tex={tex} />
+        <label className="sx-edit-field">
+          <span>
+            Label
+            <em>{labelStatus(model.label, model.referenced)}</em>
+          </span>
+          <input
+            className="sx-edit-input"
+            value={model.label?.text ?? ''}
+            placeholder="eq:"
+            onChange={event => apply(setEquationLabel(model, event.target.value))}
+          />
+        </label>
+        {!model.numbered && model.label?.text && (
+          <p className="sx-edit-hint">
+            An unnumbered equation has no number for its label to show; turn
+            numbering on, or remove the label.
+          </p>
+        )}
+        {error && (
+          <p className="sx-edit-error" role="alert">
+            {error}
+          </p>
+        )}
+       </div>
+        {/* All symbols, in a column on the right */}
+        {picker && (
+          <aside className="sx-edit-side" aria-label="Symbols">
+            <SymbolPicker
+              onPick={symbol => insert(symbol.tex, symbol.package)}
+              onClose={() => {
+                setPicker(false)
+                source.current?.focus()
+              }}
+            />
+          </aside>
+        )}
+      </div>
+    </>
+  )
+}
+
+// ---------------------------------------------------------------- section
+
+const LEVEL_NAMES: Record<string, string> = {
+  part: 'part',
+  chapter: 'chapter',
+  section: 'section',
+  subsection: 'subsection',
+  subsubsection: 'subsubsection',
+  paragraph: 'paragraph',
+  subparagraph: 'subparagraph',
+}
+
+/** Whether this document has chapters to offer (book, report…) */
+function hasChapters(text: string) {
+  return (
+    /\\chapter\*?\s*[[{]/.test(text) ||
+    /\\documentclass\s*(\[[^\]]*\])?\s*\{(book|report|memoir|scrbook|scrreprt)\}/.test(text)
+  )
+}
+
+function SectionEditor({
+  view,
+  model,
+  close,
+}: {
+  view: EditorView
+  model: SectionModel
+  close: () => void
+}) {
+  const { apply, error } = useApply(view)
+  const levels: number[] = [2, 3, 4]
+  if (hasChapters(view.state.doc.toString())) levels.unshift(1)
+  if (!levels.includes(model.level)) levels.push(model.level)
+  levels.sort((a, b) => a - b)
+
+  // What it holds: the Outline's blocks in its range
+  const held = getBlocks().filter(
+    block => block.from >= model.range.from && block.from < model.range.to
+  )
+  const count = (kind: string, one: string, many: string) => {
+    const n = held.filter(block => block.kind === kind).length
+    return n ? `${n} ${n === 1 ? one : many}` : null
+  }
+  const holds = [
+    count('equation', 'equation', 'equations'),
+    count('figure', 'figure', 'figures'),
+    count('table', 'table', 'tables'),
+  ].filter(Boolean)
+  const command = `\\${LEVELS[model.level]}`
+
+  return (
+    <>
+      <Head
+        title={`Edit ${LEVEL_NAMES[LEVELS[model.level]]}`}
+        note={model.label?.text || 'no label yet'}
+        close={close}
+      />
+      <div className="sx-edit-body">
+        <label className="sx-edit-field">
+          <span>Title</span>
+          <Draft
+            className="sx-edit-input"
+            value={model.title.text}
+            onValue={value => apply(setTitle(model, value))}
+          />
+        </label>
+        <div className="sx-edit-field">
+          <span>
+            Level
+            {model.inner.length > 0 && <em> · the sections inside move with it</em>}
+          </span>
+          <div className="sx-edit-tabs" role="tablist">
+            {levels.map(level => (
+              <button
+                key={level}
+                type="button"
+                role="tab"
+                aria-selected={model.level === level}
+                className={classNames('sx-edit-tab', { 'sx-edit-tab-on': model.level === level })}
+                onClick={() => apply(setLevel(model, level))}
+              >
+                {LEVELS[level]}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="sx-edit-row sx-edit-row-end">
+          <label className="sx-edit-field sx-edit-grow">
+            <span>
+              Label
+              <em>{labelStatus(model.label, model.referenced)}</em>
+            </span>
+            <input
+              className="sx-edit-input"
+              value={model.label?.text ?? ''}
+              placeholder="sec:"
+              onChange={event => apply(setSectionLabel(model, event.target.value))}
+            />
+          </label>
+          <Switch
+            label="Numbered"
+            checked={model.numbered}
+            onChange={on => apply(setSectionNumbered(model, on))}
+          />
+        </div>
+        <p className="sx-edit-hint">
+          {holds.length ? `Holds ${holds.join(' and ').replace(/ and (?=.* and )/, ', ')}. ` : ''}
+          Turning numbering off writes {command}*, which has no number and
+          needs its label removed or kept by hand.
+        </p>
         {error && (
           <p className="sx-edit-error" role="alert">
             {error}
