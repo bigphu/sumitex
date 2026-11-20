@@ -71,7 +71,7 @@ Then open <http://localhost/launchpad> to create the first admin account. `bin/d
 | 3 | A live linter with one-click "add package" fixes, plain-language errors | Done, [v0.3.0](https://github.com/bigphu/sumitex/releases/tag/v0.3.0) |
 | 4 | Snippets that bring their packages, math auto-expansion | Done, [v0.4.0](https://github.com/bigphu/sumitex/releases/tag/v0.4.0) |
 | 5 | Folders for projects on the dashboard | Done, [v0.5.0](https://github.com/bigphu/sumitex/releases/tag/v0.5.0) |
-| 6 | Draggable lists and table columns, the Outline with blocks | Next |
+| 6 | Moving list items and table columns, the Outline with blocks, image paste and drop | Done, [v0.6.0](https://github.com/bigphu/sumitex/releases/tag/v0.6.0) |
 | 7 | Notion-like editing on the Visual editor | Later |
 
 ## Built on
