@@ -18,6 +18,9 @@
  * - Shift+F8        previous problem (F8, the next one, was already there)
  * - Alt+↑/↓         on an \item line, move the whole list item
  *                   (editor/list-items.ts); elsewhere, move the line
+ * - Alt+←/→         in a table cell, move its column (table-columns.ts);
+ *                   elsewhere, CodeMirror's own jump by syntax. On a Mac
+ *                   Ctrl+Option+←/→, as Option+←/→ moves by word there.
  *
  * Where VS Code and Overleaf disagree (decided 16 Nov 2026):
  * - Ctrl+D          VS Code: add the next match to the selection (Overleaf
@@ -50,6 +53,8 @@ import { selectParentSyntax } from '@codemirror/commands'
 import { foldAll, unfoldAll } from '@codemirror/language'
 import { previousDiagnostic } from '@codemirror/lint'
 import { moveListItem } from './list-items'
+import { moveColumn, tableAt } from './table-columns'
+import { flashMessage } from './flash-message'
 
 let enabled = true
 
@@ -190,6 +195,25 @@ const moveItem =
     return true
   }
 
+// Alt+←/→ in a table cell moves its column; when it can't, a message at
+// the cursor says why. Outside a table cell, false lets the stock key run.
+const moveTableColumn =
+  (direction: -1 | 1): Command =>
+  view => {
+    if (view.state.readOnly) return false
+    const table = tableAt(view.state, view.state.selection.main.head)
+    if (!table || 'error' in table) return false
+    const result = moveColumn(view.state, direction)
+    if ('error' in result) {
+      // On a rule line, not in a cell: leave the key alone
+      if (result.error.includes('not on a rule')) return false
+      flashMessage(view, result.error)
+    } else {
+      view.dispatch(result)
+    }
+    return true
+  }
+
 // Returning false lets the key fall through to Vim, Emacs or the stock
 // binding when VS Code keys are off
 const whenOn =
@@ -215,6 +239,17 @@ export const vscodeKeymap = () =>
       { key: 'Mod-k Mod-s', run: whenOn(showShortcuts) },
       { key: 'Alt-ArrowUp', run: whenOn(moveItem(-1)) },
       { key: 'Alt-ArrowDown', run: whenOn(moveItem(1)) },
+      // On a Mac, Option+←/→ moves by word, so Ctrl+Option there
+      {
+        key: 'Alt-ArrowLeft',
+        mac: 'Ctrl-Alt-ArrowLeft',
+        run: whenOn(moveTableColumn(-1)),
+      },
+      {
+        key: 'Alt-ArrowRight',
+        mac: 'Ctrl-Alt-ArrowRight',
+        run: whenOn(moveTableColumn(1)),
+      },
     ]),
     altClickAddsCursor,
     // Shift+Alt+drag selects a column (plain Alt+drag stays Overleaf's

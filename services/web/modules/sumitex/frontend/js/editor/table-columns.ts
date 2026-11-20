@@ -265,38 +265,50 @@ export function parseSpec(spec: string): SpecToken[] | { error: string } {
 
 const columnsOf = (tokens: SpecToken[]) => tokens.filter(token => token.column)
 
-/**
- * The edit that moves the column at the cursor one place left or right,
- * or a message saying why it can't
- */
-export function moveColumn(
-  state: EditorState,
-  direction: -1 | 1
-): TransactionSpec | { error: string } {
-  const head = state.selection.main.head
-  const table = tableAt(state, head)
-  if (!table) return { error: 'Put the cursor in a table cell first.' }
-  if ('error' in table) return table
+/** The list with the item at `from` taken out and put back at `to` */
+const reorder = <T>(list: T[], from: number, to: number) => {
+  const next = [...list]
+  const [moving] = next.splice(from, 1)
+  next.splice(to, 0, moving)
+  return next
+}
 
+/** Where the cursor is in a table: its row and column */
+function cellAt(table: Table, pos: number) {
   const row = table.rows.find(
     candidate =>
-      head >= candidate.cells[0].from &&
-      head <= candidate.cells[candidate.cells.length - 1].to
+      pos >= candidate.cells[0].from &&
+      pos <= candidate.cells[candidate.cells.length - 1].to
   )
-  if (!row) return { error: 'Put the cursor in a table cell, not on a rule.' }
-  const column = row.cells.findIndex(
-    cell => head >= cell.from && head <= cell.to
-  )
-  const target = column + direction
-  if (target < 0) return { error: 'This is already the first column.' }
+  if (!row) return null
+  return { row, column: row.cells.findIndex(c => pos >= c.from && pos <= c.to) }
+}
+
+/**
+ * Move column `column` of the table at `at` to position `target`, in every
+ * row and in the column spec; the columns between shift over by one, and
+ * rules and separators (|, @{…}) stay where they are. With `cursor`, the
+ * cursor stays in the text it was in.
+ */
+export function moveColumnTo(
+  state: EditorState,
+  at: number,
+  column: number,
+  target: number,
+  cursor?: number
+): TransactionSpec | { error: string } {
+  const table = tableAt(state, at)
+  if (!table) return { error: 'Put the cursor in a table cell first.' }
+  if ('error' in table) return table
 
   const specText = state.sliceDoc(table.spec.from, table.spec.to)
   const tokens = parseSpec(specText)
   if ('error' in tokens) return tokens
-  const columns = columnsOf(tokens)
-  if (target >= columns.length) {
-    return { error: 'This is already the last column.' }
+  const count = columnsOf(tokens).length
+  if (column < 0 || column >= count || target < 0 || target >= count) {
+    return { error: 'There is no column there.' }
   }
+  if (column === target) return {}
 
   const low = Math.min(column, target)
   const high = Math.max(column, target)
@@ -318,43 +330,69 @@ export function moveColumn(
     }
   }
 
-  // The spec: swap the two columns, keep what sits between them in place
+  // The spec: the columns reorder, what sits between them stays in place
   const order = tokens.map(token => token.text)
-  const indexOf = (n: number) => {
-    let seen = -1
-    return tokens.findIndex(token => token.column && ++seen === n)
-  }
-  const a = indexOf(low)
-  const b = indexOf(high)
-  ;[order[a], order[b]] = [order[b], order[a]]
+  const places = tokens.flatMap((token, i) => (token.column ? [i] : []))
+  const moved = reorder(
+    places.map(i => order[i]),
+    column,
+    target
+  )
+  places.forEach((place, k) => (order[place] = moved[k]))
   const changes = [
     { from: table.spec.from, to: table.spec.to, insert: order.join('') },
   ]
 
-  // Each row: swap the two cells' contents, keep their spacing
+  // Each row: the cells' contents reorder, their spacing stays
   for (const r of table.rows) {
     if (r.cells.length <= high) continue
-    const left = r.cells[low].content
-    const right = r.cells[high].content
-    changes.push(
-      { from: left.from, to: left.to, insert: text(right) },
-      { from: right.from, to: right.to, insert: text(left) }
-    )
+    const contents = r.cells.map(cell => text(cell.content))
+    const next = reorder(contents, column, target)
+    for (let k = low; k <= high; k++) {
+      if (next[k] !== contents[k]) {
+        const span = r.cells[k].content
+        changes.push({ from: span.from, to: span.to, insert: next[k] })
+      }
+    }
   }
 
-  // Keep the cursor in the text it was in, now one column over
-  const moving = row.cells[column].content
-  const offset = Math.max(
-    0,
-    Math.min(head - moving.from, moving.to - moving.from)
-  )
-  const destination = row.cells[target].content
-  const start = state.changes(changes).mapPos(destination.from, -1)
-
-  return {
+  const spec: TransactionSpec = {
     changes,
-    selection: EditorSelection.cursor(start + offset),
-    scrollIntoView: true,
     userEvent: 'input.sumitex-move-column',
   }
+  // Keep the cursor in the text it was in, now in its new column
+  const place = cursor === undefined ? null : cellAt(table, cursor)
+  if (cursor !== undefined && place && place.column === column) {
+    const moving = place.row.cells[column].content
+    const offset = Math.max(
+      0,
+      Math.min(cursor - moving.from, moving.to - moving.from)
+    )
+    const destination = place.row.cells[target].content
+    const start = state.changes(changes).mapPos(destination.from, -1)
+    spec.selection = EditorSelection.cursor(start + offset)
+    spec.scrollIntoView = true
+  }
+  return spec
+}
+
+/** Move the column the cursor is in one place left (-1) or right (1) */
+export function moveColumn(
+  state: EditorState,
+  direction: -1 | 1
+): TransactionSpec | { error: string } {
+  const head = state.selection.main.head
+  const table = tableAt(state, head)
+  if (!table) return { error: 'Put the cursor in a table cell first.' }
+  if ('error' in table) return table
+  const place = cellAt(table, head)
+  if (!place) return { error: 'Put the cursor in a table cell, not on a rule.' }
+  const target = place.column + direction
+  if (target < 0) return { error: 'This is already the first column.' }
+  const tokens = parseSpec(state.sliceDoc(table.spec.from, table.spec.to))
+  if ('error' in tokens) return tokens
+  if (target >= columnsOf(tokens).length) {
+    return { error: 'This is already the last column.' }
+  }
+  return moveColumnTo(state, head, place.column, target, head)
 }
