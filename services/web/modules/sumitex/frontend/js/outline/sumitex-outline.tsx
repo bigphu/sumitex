@@ -60,6 +60,7 @@ import {
   requestEditLine,
   type EditKind,
 } from './edit/edit-requests'
+import { requestAction, type ActionName } from './edit/block-actions'
 
 const HOVER_DELAY_MS = 350
 
@@ -203,6 +204,103 @@ function BlockCard({ card }: { card: Card }) {
 
 // ---------------------------------------------------------------------- rows
 
+type MenuItem = { action: ActionName; label: string; icon: string; danger?: boolean }
+
+const REFERENCE_ITEMS: MenuItem[] = [
+  { action: 'insert-ref', label: 'Insert a reference at the cursor', icon: 'link' },
+  { action: 'copy-ref', label: 'Copy a reference', icon: 'content_copy' },
+]
+
+const BLOCK_ITEMS: MenuItem[] = [
+  { action: 'duplicate', label: 'Duplicate', icon: 'library_add' },
+  { action: 'delete', label: 'Delete', icon: 'delete', danger: true },
+]
+
+const SECTION_ITEMS: MenuItem[] = [
+  { action: 'move-up', label: 'Move up', icon: 'arrow_upward' },
+  { action: 'move-down', label: 'Move down', icon: 'arrow_downward' },
+  { action: 'promote', label: 'Promote (one level up)', icon: 'format_indent_decrease' },
+  { action: 'demote', label: 'Demote (one level down)', icon: 'format_indent_increase' },
+]
+
+/** ⋯ on a row: a small menu of what can be done with the block */
+function RowMenu({
+  items,
+  run,
+}: {
+  items: MenuItem[]
+  run: (action: ActionName) => void
+}) {
+  const [at, setAt] = useState<DOMRect | null>(null)
+  const menu = useRef<HTMLUListElement>(null)
+
+  useEffect(() => {
+    if (!at) return
+    const down = (event: PointerEvent) => {
+      if (!menu.current?.contains(event.target as Node)) setAt(null)
+    }
+    const key = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setAt(null)
+    }
+    document.addEventListener('pointerdown', down, true)
+    window.addEventListener('keydown', key)
+    menu.current?.querySelector('button')?.focus()
+    return () => {
+      document.removeEventListener('pointerdown', down, true)
+      window.removeEventListener('keydown', key)
+    }
+  }, [at])
+
+  return (
+    <>
+      <button
+        type="button"
+        className={classNames('sx-outline-edit', { 'sx-outline-edit-open': at })}
+        title="More actions"
+        aria-label="More actions"
+        aria-haspopup="menu"
+        aria-expanded={Boolean(at)}
+        onClick={event => {
+          const rect = event.currentTarget.getBoundingClientRect()
+          setAt(at ? null : rect)
+        }}
+      >
+        <MaterialIcon type="more_horiz" />
+      </button>
+      {at &&
+        createPortal(
+          <ul
+            ref={menu}
+            className="sx-row-menu"
+            role="menu"
+            style={{
+              top: Math.min(at.bottom + 4, window.innerHeight - 40 * items.length - 12),
+              left: Math.max(8, at.right - 240),
+            }}
+          >
+            {items.map(item => (
+              <li key={item.action} role="none">
+                <button
+                  type="button"
+                  role="menuitem"
+                  className={classNames('sx-row-menu-item', { 'sx-row-menu-danger': item.danger })}
+                  onClick={() => {
+                    setAt(null)
+                    run(item.action)
+                  }}
+                >
+                  <MaterialIcon type={item.icon} />
+                  {item.label}
+                </button>
+              </li>
+            ))}
+          </ul>,
+          document.body
+        )}
+    </>
+  )
+}
+
 const BlockRow = memo(function BlockRow({
   block,
   current,
@@ -271,6 +369,19 @@ const BlockRow = memo(function BlockRow({
           >
             <MaterialIcon type="edit" />
           </button>
+        )}
+        {EDITABLE_KINDS.has(block.kind) && (
+          <RowMenu
+            items={[
+              // A block with a label can be referred to
+              ...(block.label ? REFERENCE_ITEMS : []),
+              ...BLOCK_ITEMS,
+            ]}
+            run={action => {
+              hideCard()
+              requestAction({ pos: block.from, kind: block.kind as EditKind, action })
+            }}
+          />
         )}
       </div>
     </li>
@@ -374,6 +485,10 @@ function SectionRow({
         >
           <MaterialIcon type="edit" />
         </button>
+        <RowMenu
+          items={[...REFERENCE_ITEMS, ...SECTION_ITEMS]}
+          run={action => requestAction({ line: item.line, kind: 'section', action })}
+        />
         {count > 0 && (
           <span className="sx-outline-count" title={`${count} blocks inside`}>
             {count}

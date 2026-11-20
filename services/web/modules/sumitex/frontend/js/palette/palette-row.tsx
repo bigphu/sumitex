@@ -140,7 +140,7 @@ export function PaletteResultContent({
 }
 
 const CHIPS: { prefix: string; label: string }[] = [
-  { prefix: '@', label: 'sections' },
+  { prefix: '@', label: 'sections & blocks' },
   { prefix: '#', label: 'labels' },
   { prefix: ':', label: 'line' },
   { prefix: '>', label: 'commands' },

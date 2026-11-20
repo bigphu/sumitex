@@ -25,6 +25,8 @@ type State = {
   currentPath: string | null
   /** The project's .sxs snippet files, one after another (root ones first) */
   snippets?: string | null
+  /** Every text file's contents, by project path (the palette's @ search) */
+  docs?: Map<string, string>
 }
 
 let state: State = {

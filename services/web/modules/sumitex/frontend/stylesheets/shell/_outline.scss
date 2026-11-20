@@ -334,3 +334,55 @@
   gap: 4px;
   justify-content: flex-end;
 }
+
+// ⋯ stays while its menu is open
+.sx-outline-edit.sx-outline-edit-open {
+  display: grid;
+  color: var(--sx-fg);
+  background: var(--sx-island-raised);
+}
+
+// The ⋯ menu on an Outline row
+.sx-row-menu {
+  position: fixed;
+  z-index: 1070;
+  width: 240px;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--sx-island-raised);
+  border: 1px solid var(--sx-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 25%);
+}
+
+.sx-row-menu-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  padding: 5px 8px;
+  color: var(--sx-fg);
+  font-size: 12.5px;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+
+  .material-symbols {
+    color: var(--sx-muted);
+    font-size: 16px;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: var(--sx-island);
+    outline: none;
+  }
+
+  &.sx-row-menu-danger,
+  &.sx-row-menu-danger .material-symbols {
+    color: var(--sx-danger);
+  }
+}

@@ -39,6 +39,7 @@ import { packageInsertion, requestAddPackage } from '../../editor/add-package'
 import { preambleOf, stripComments } from '../../diagnostics/preamble'
 import { getProjectPreamble } from '../../diagnostics/preamble-store'
 import { onEditRequest } from './edit-requests'
+import { onActionRequest, runAction } from './block-actions'
 import { blockAt, type Open, type OpenKind } from './block-at'
 import { loadMathJax } from '@/features/mathjax/load-mathjax'
 import { previewTex } from '../math-text'
@@ -226,6 +227,9 @@ export default function BlockEditor({ view }: { view: EditorView }) {
       }),
     [view]
   )
+
+  // The Outline's ⋯ actions run here, where the editor is
+  useEffect(() => onActionRequest(request => runAction(view, request)), [view])
 
   // Follow the text: keep the place through edits, and draw again
   useEffect(
