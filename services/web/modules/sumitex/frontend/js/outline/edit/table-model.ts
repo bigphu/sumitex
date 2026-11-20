@@ -16,6 +16,7 @@ import type { EditorState, TransactionSpec } from '@codemirror/state'
 import { ensureSyntaxTree, syntaxTree } from '@codemirror/language'
 import type { SyntaxNode } from '@lezer/common'
 import { getEnvironmentName } from '@/features/source-editor/utils/tree-operations/environments'
+import { captionAndLabel } from './parts'
 import {
   moveColumnTo,
   parseSpec,
@@ -93,37 +94,6 @@ function environmentsAround(state: EditorState, pos: number) {
     })
   }
   return { tabular: tabular as SyntaxNode | null, float }
-}
-
-/** The caption and label written directly in the float */
-function captionAndLabel(state: EditorState, float: SyntaxNode | null) {
-  let caption: TableModel['caption'] = null
-  let label: TableModel['label'] = null
-  if (!float) return { caption, label }
-  const inner = (node: SyntaxNode | null) =>
-    node && node.to - node.from >= 2
-      ? { from: node.from + 1, to: node.to - 1 }
-      : null
-  float.cursor().iterate(node => {
-    // Not inside the tabular or another environment
-    if (
-      node.type.is('$Environment') &&
-      (node.from !== float.from || node.to !== float.to)
-    ) {
-      return false
-    }
-    if (!caption && node.type.is('Caption')) {
-      const content = inner(node.node.getChild('TextArgument'))
-      if (content) caption = { text: state.sliceDoc(content.from, content.to), content }
-    }
-    if (!label && node.type.is('Label')) {
-      const content = inner(
-        node.node.getChild('LabelArgument')?.getChild('ShortTextArgument') ?? null
-      )
-      if (content) label = { text: state.sliceDoc(content.from, content.to), content }
-    }
-  })
-  return { caption, label }
 }
 
 /** The table at `pos` (on its float or its tabular), or null */
