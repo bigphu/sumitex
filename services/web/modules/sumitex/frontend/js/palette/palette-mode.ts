@@ -93,6 +93,7 @@ const ALL_GROUPS: PaletteGroup[] = [
   'Files',
   'Commands',
   'Sections in this file',
+  'Blocks in this project',
   'Labels in this file',
   'Go to line',
 ]
@@ -117,7 +118,7 @@ export function sortPaletteResults(
   results: CommandPaletteSearchResult[],
   query: string
 ) {
-  const prefix = query.match(/^[>@#:]/)?.[0] ?? ''
+  const prefix = query.match(/^[>@#:!]/)?.[0] ?? ''
   const typed = query.slice(prefix.length).trim()
   let shown = results
 
@@ -127,6 +128,7 @@ export function sortPaletteResults(
       const group = groupOf(result)
       if (
         group === 'Sections in this file' ||
+        group === 'Blocks in this project' ||
         group === 'Labels in this file' ||
         group === 'Go to line'
       )

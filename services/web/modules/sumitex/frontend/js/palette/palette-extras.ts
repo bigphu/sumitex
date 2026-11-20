@@ -19,6 +19,8 @@ export type PaletteExtras = {
   group?: PaletteGroup
   /** A short glyph shown before the title, such as § or # */
   glyph?: string
+  /** A Material icon shown before the title (blocks, as in the Outline) */
+  icon?: string
   /** Shown on the right in a mono font, e.g. 03-method.tex:20 */
   location?: string
   /** Indent level, for sections */
