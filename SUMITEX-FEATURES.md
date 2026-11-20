@@ -674,7 +674,7 @@ The design doc's priorities table holds more ideas than the twelve above. Each f
 | P0 | Persistent editor state ("Back where you left off") | 1–2 days |
 | P0 | Install as an app (see feature 1) | 1–2 days |
 | P1 | Inline math preview and hover (KaTeX decorations) | 3–5 days |
-| P1 | Image paste and drag with an automatic `\includegraphics` | 3–5 days |
+| P1 | Image paste and drag with an automatic `\includegraphics` | Built 20 Nov 2026 (below) |
 | P2 | Project-wide search and replace, go to definition, rename | 1–2 weeks |
 | P2 | DOI and arXiv paste to BibTeX; citation hover cards; bibliography health checks | 3–5 days each |
 | P2 | Named snapshots and side-by-side diff (optional latexdiff PDF) | 1–2 weeks |
@@ -687,6 +687,10 @@ The design doc's priorities table holds more ideas than the twelve above. Each f
 | P2 | Find what broke the build (history + compile); compile-finished notification | To estimate |
 | P3 | PDF click-to-source with a quick-edit popover; overfull-box markers on the PDF (spike first) | 1 week; spike |
 | P3 | Follow mode, beamer view, per-user dictionary, tablet support, image auto-optimize | To estimate |
+
+### Image paste and drop (built 20 Nov 2026)
+
+Paste an image (a screenshot) or drop image files into the editor, Code or Visual, and each becomes a figure with no dialog (decided 20 Nov 2026; Overleaf's own "Insert figure" dialog stays in the toolbar). The image uploads into `images/` (made when missing): a pasted one as `pasted-1.png`, `pasted-2.png`…, a dropped one under its own name made safe for LaTeX (`Kết quả.PNG` → `ket-qua.png`), never overwriting a file. WebP, GIF, SVG, BMP… go in as PNG. "Uploading image…" marks the place meanwhile. The figure goes on lines of its own with a blank line either side, written as the `\fig` snippet writes it, with a label of its own (`fig:pasted-1`) and the caption selected to type over. `graphicx` is loaded if missing: in the same change (one Ctrl+Z takes back both) in a file with its own preamble, else in the main file first. While the cursor is in a new figure, a bar above it sets the width (¼ · ½ · ¾ · Full). Text pasted along with an image (Word, a web page) stays a text paste; a failed upload says so at the cursor and changes nothing. Code: `editor/image-paste.ts`, `editor/image-paste-text.ts` (tested), `files/use-image-upload.ts`. Not yet: pasting an image from a web page together with its text, and a whole folder dropped at once.
 
 ## Suggested build order
 
