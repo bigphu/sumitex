@@ -47,10 +47,13 @@ import {
   getBlockFilter,
   getBlocks,
   getShowBlocks,
+  getTipSeen,
   setBlockFilter,
   setShowBlocks,
+  setTipSeen,
   subscribeOutline,
 } from './blocks-store'
+import { EDITABLE_KINDS, requestEdit } from './edit/edit-requests'
 
 const HOVER_DELAY_MS = 350
 
@@ -248,6 +251,21 @@ const BlockRow = memo(function BlockRow({
             />
           )}
         </button>
+        {EDITABLE_KINDS.has(block.kind) && (
+          <button
+            type="button"
+            className="sx-outline-edit"
+            title={`Edit this ${kind.name.toLowerCase()}`}
+            aria-label={`Edit ${block.title}`}
+            onClick={() => {
+              hideCard()
+              jumpToLine(block.line, false)
+              requestEdit(block.from, block.kind === 'list' ? 'list' : 'table')
+            }}
+          >
+            <MaterialIcon type="edit" />
+          </button>
+        )}
       </div>
     </li>
   )
@@ -371,6 +389,7 @@ export default function SumitexOutline() {
     getBlockFilter(projectId)
   )
   const allBlocks = useSyncExternalStore(subscribeOutline, getBlocks)
+  const tipSeen = useSyncExternalStore(subscribeOutline, getTipSeen)
 
   // The cursor's line, for the row to highlight
   const [cursorLine, setCursorLine] = useState(-1)
@@ -472,13 +491,41 @@ export default function SumitexOutline() {
                   ? 'Hide blocks: sections only'
                   : 'Show blocks: figures, tables, lists, equations…'
               }
-              onClick={() => setShowBlocks(projectId, !showBlocks)}
+              onClick={() => {
+                // Using the toggle is what the tip was for
+                if (!tipSeen) setTipSeen()
+                setShowBlocks(projectId, !showBlocks)
+              }}
             >
               <MaterialIcon type="view_agenda" />
             </button>
           </>
         )}
       </div>
+
+      {canShowOutline && !showBlocks && !tipSeen && (
+        <div className="sx-outline-tip" role="note">
+          <p>
+            Tip: show blocks to list figures, tables, lists and equations under
+            each section.
+          </p>
+          <div className="sx-outline-tip-actions">
+            <button
+              type="button"
+              className="sx-outline-tip-primary"
+              onClick={() => {
+                setTipSeen()
+                setShowBlocks(projectId, true)
+              }}
+            >
+              Show blocks
+            </button>
+            <button type="button" onClick={setTipSeen}>
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="sx-outline-body">
         {!canShowOutline ? (

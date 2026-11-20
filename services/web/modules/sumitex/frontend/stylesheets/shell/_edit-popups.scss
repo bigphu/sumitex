@@ -1,0 +1,347 @@
+// The Outline's edit pop-ups (js/outline/edit/block-editor.tsx), mockup
+// frames 14 and 15: a raised card over the editor. Colours only from the
+// --sx- tokens, so both themes follow.
+
+.sx-edit-popup {
+  position: fixed;
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  // Grows with its content to 80% of the window; the corner handle sets
+  // a size of its own
+  max-height: 80vh;
+  min-width: 380px;
+  min-height: 200px;
+  color: var(--sx-fg);
+  font-size: 13px;
+  background: var(--sx-island-raised);
+  border: 1px solid var(--sx-border);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 28%);
+}
+
+.sx-edit-head {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px 8px 14px;
+  border-bottom: 1px solid var(--sx-border);
+}
+
+.sx-edit-title {
+  font-weight: 600;
+}
+
+.sx-edit-note {
+  color: var(--sx-muted);
+  font-size: 11.5px;
+  background: transparent;
+}
+
+.sx-edit-spacer {
+  flex: 1;
+}
+
+.sx-edit-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 10px 14px 12px;
+}
+
+.sx-edit-foot {
+  padding: 7px 14px;
+  color: var(--sx-muted);
+  font-size: 11.5px;
+  border-top: 1px solid var(--sx-border);
+}
+
+.sx-edit-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  color: var(--sx-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+
+  .material-symbols {
+    font-size: 16px;
+  }
+
+  &:hover {
+    color: var(--sx-fg);
+    background: var(--sx-border);
+  }
+}
+
+// Shown where the pointer is
+.sx-edit-remove {
+  visibility: hidden;
+}
+
+tr:hover .sx-edit-remove,
+th:hover .sx-edit-remove,
+.sx-edit-item:hover .sx-edit-remove,
+.sx-edit-remove:focus-visible {
+  visibility: visible;
+}
+
+.sx-edit-grip {
+  color: var(--sx-muted);
+  font-size: 12px;
+  cursor: grab;
+  user-select: none;
+
+  &.sx-edit-grip-off {
+    cursor: not-allowed;
+    opacity: 0.35;
+  }
+}
+
+.sx-edit-input {
+  width: 100%;
+  min-width: 0;
+  padding: 4px 7px;
+  color: var(--sx-fg);
+  font: inherit;
+  background: var(--sx-island);
+  border: 1px solid var(--sx-border);
+  border-radius: 6px;
+
+  &:focus {
+    border-color: var(--sx-accent);
+    outline: none;
+  }
+
+  &.sx-edit-input-missing {
+    border-color: var(--sx-warning);
+  }
+}
+
+// Table
+.sx-edit-grid {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 4px;
+
+  th {
+    font-weight: normal;
+  }
+
+  td:first-child,
+  th:first-child {
+    width: 14px;
+  }
+}
+
+.sx-edit-colhead {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  justify-content: center;
+}
+
+.sx-edit-spec {
+  color: var(--sx-muted);
+  font-size: 11.5px;
+}
+
+.sx-edit-missing {
+  background: repeating-linear-gradient(
+    45deg,
+    transparent 0 4px,
+    var(--sx-border) 4px 5px
+  );
+  border-radius: 6px;
+}
+
+// While dragging, the dragged row, column or item is drawn where it would
+// land, as a faint dashed silhouette; the others have made room
+.sx-edit-ghost > td .sx-edit-input,
+.sx-edit-ghost-cell .sx-edit-input,
+li.sx-edit-ghost .sx-edit-input,
+li.sx-edit-ghost .sx-edit-readonly {
+  color: transparent;
+  background: transparent;
+  border: 1px dashed var(--sx-accent);
+}
+
+th.sx-edit-ghost .sx-edit-colhead,
+tr.sx-edit-ghost .sx-edit-grip,
+li.sx-edit-ghost > :not(.sx-edit-input, .sx-edit-readonly) {
+  opacity: 0.3;
+}
+
+// The picture of a dragged column that follows the pointer
+.sx-edit-dragimage {
+  position: fixed;
+  top: -1000px;
+  left: -1000px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 80px;
+  padding: 6px;
+  color: var(--sx-fg);
+  font-size: 13px;
+  background: var(--sx-island-raised);
+  border: 1px solid var(--sx-accent);
+  border-radius: 6px;
+
+  div {
+    padding: 2px 6px;
+    background: var(--sx-island);
+    border-radius: 4px;
+  }
+}
+
+.sx-edit-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 6px 0 2px;
+}
+
+.sx-edit-link {
+  padding: 2px 4px;
+  color: var(--sx-accent);
+  font-size: 12.5px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.sx-edit-chip {
+  padding: 3px 10px;
+  color: var(--sx-fg);
+  font-size: 12px;
+  background: var(--sx-island);
+  border: 1px solid var(--sx-border);
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--sx-accent);
+  }
+}
+
+.sx-edit-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.sx-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  color: var(--sx-muted);
+  font-size: 12px;
+  font-weight: normal;
+
+  em {
+    font-style: normal;
+  }
+}
+
+.sx-edit-error {
+  margin: 8px 0 0;
+  color: var(--sx-danger);
+  font-size: 12px;
+}
+
+// List
+.sx-edit-tabs {
+  display: inline-flex;
+  gap: 2px;
+  margin-bottom: 8px;
+  padding: 2px;
+  background: var(--sx-island);
+  border-radius: 7px;
+}
+
+.sx-edit-tab {
+  padding: 3px 10px;
+  color: var(--sx-muted);
+  font-size: 12.5px;
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+
+  &.sx-edit-tab-on {
+    color: var(--sx-fg);
+    background: var(--sx-island-raised);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 15%);
+  }
+}
+
+.sx-edit-items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sx-edit-item {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 2px 0;
+}
+
+.sx-edit-marker {
+  flex: none;
+  min-width: 16px;
+  color: var(--sx-muted);
+  text-align: right;
+}
+
+.sx-edit-readonly {
+  flex: 1;
+  overflow: hidden;
+  padding: 4px 7px;
+  color: var(--sx-fg);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  em {
+    color: var(--sx-muted);
+    font-size: 11.5px;
+    font-style: normal;
+  }
+}
+
+// Cells keep a usable width; a wide table scrolls inside the pop-up
+.sx-edit-grid td .sx-edit-input {
+  min-width: 72px;
+}
+
+// The corner handle that resizes the pop-up
+.sx-edit-resize {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+  background: linear-gradient(
+    135deg,
+    transparent 0 55%,
+    var(--sx-muted) 55% 62%,
+    transparent 62% 72%,
+    var(--sx-muted) 72% 79%,
+    transparent 79%
+  );
+  border-bottom-right-radius: 10px;
+  opacity: 0.6;
+
+  &:hover {
+    opacity: 1;
+  }
+}

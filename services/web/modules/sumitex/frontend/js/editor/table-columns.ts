@@ -36,8 +36,8 @@ const TABLE_ENVIRONMENTS = new Set([
 const WIDTH_FIRST = new Set(['tabular*', 'tabularx', 'tabulary'])
 
 type Span = { from: number; to: number }
-type Cell = Span & { content: Span }
-type Row = { cells: Cell[]; line: number }
+export type Cell = Span & { content: Span }
+export type Row = { cells: Cell[]; line: number }
 
 export type Table = {
   name: string
@@ -138,7 +138,8 @@ function splitRows(text: string, from: number, to: number) {
 /** The table environment around `pos`, parsed, or why not */
 export function tableAt(
   state: EditorState,
-  pos: number
+  pos: number,
+  options: { keepEmpty?: boolean } = {}
 ): Table | { error: string } | null {
   for (
     let node: SyntaxNode | null = tree(state).resolveInner(pos, 1);
@@ -181,8 +182,10 @@ export function tableAt(
       })
       // Not a data row: only rules, or one cell in a table of several
       // columns (a longtable caption, \endhead…)
+      // (With keepEmpty, a row of empty cells counts: the edit pop-up's
+      // new row starts that way.)
       const hasText = cells.some(cell => cell.content.to > cell.content.from)
-      if (!hasText || cells.length < 2) continue
+      if ((!hasText && !options.keepEmpty) || cells.length < 2) continue
       rows.push({ cells, line: state.doc.lineAt(cells[0].content.from).number })
     }
     return { name, spec: { from: spec.from + 1, to: spec.to - 1 }, rows }
@@ -190,7 +193,7 @@ export function tableAt(
   return null
 }
 
-type SpecToken = { text: string; column: boolean }
+export type SpecToken = { text: string; column: boolean }
 
 /** Split a column spec into columns and what sits between them */
 export function parseSpec(spec: string): SpecToken[] | { error: string } {

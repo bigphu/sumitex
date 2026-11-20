@@ -15,9 +15,11 @@ import type { SettingsSection } from '@/features/ide-settings/context/types'
 import {
   getCodeToolbar,
   getMathExpand,
+  getOutlineBlocksDefault,
   getMathRules,
   setCodeToolbar,
   setMathExpand,
+  setOutlineBlocksDefault,
   subscribePrefs,
 } from './prefs'
 import {
@@ -40,6 +42,19 @@ export function CodeToolbarSetting() {
       description="Show the bold, italic, insert… toolbar above the code. It always shows in Visual mode."
       checked={checked}
       onChange={setCodeToolbar}
+    />
+  )
+}
+
+export function OutlineBlocksSetting() {
+  const checked = useSyncExternalStore(subscribePrefs, getOutlineBlocksDefault)
+  return (
+    <ToggleSetting
+      id="sumitex-outline-blocks"
+      label="Outline shows blocks"
+      description="Figures, tables, lists and equations under each section. Each project can still switch it with the button in the Outline."
+      checked={checked}
+      onChange={setOutlineBlocksDefault}
     />
   )
 }

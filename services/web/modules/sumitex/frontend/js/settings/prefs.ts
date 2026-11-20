@@ -118,3 +118,17 @@ export const setCheckProject = (on: boolean) => {
   checkProjectNow = on
   write(CHECK_PROJECT_KEY, String(on))
 }
+
+// The Outline's Blocks toggle for a project that hasn't chosen yet
+// (outline/blocks-store.ts): off unless switched on, per browser
+const OUTLINE_BLOCKS_KEY = 'sumitex.outline.blocks-default'
+let outlineBlocksNow: boolean | null = null
+
+export const getOutlineBlocksDefault = () =>
+  outlineBlocksNow ??
+  (outlineBlocksNow = read(OUTLINE_BLOCKS_KEY) === 'true')
+
+export const setOutlineBlocksDefault = (on: boolean) => {
+  outlineBlocksNow = on
+  write(OUTLINE_BLOCKS_KEY, String(on))
+}
