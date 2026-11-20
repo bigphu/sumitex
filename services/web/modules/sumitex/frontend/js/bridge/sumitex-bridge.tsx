@@ -23,6 +23,7 @@ import { flashMessage } from '../editor/flash-message'
 import { getShowBlocks, setShowBlocks } from '../outline/blocks-store'
 import { useProjectContext } from '@/shared/context/project-context'
 import { useSnippetCommands } from '../completions/use-snippet-commands'
+import { useImageUpload } from '../files/use-image-upload'
 
 // The layout Zen came from ('sideBySide' or 'flat'), to go back to when it
 // ends. Kept in localStorage so that leaving Zen after a reload still
@@ -122,6 +123,9 @@ export default function SumitexBridge() {
 
   // The live linter's view of main.tex, and "Add package"
   useProjectPreamble(view)
+
+  // Pasted and dropped images upload into images/ (editor/image-paste.ts)
+  useImageUpload()
   const snippetDialog = useSnippetCommands(view)
 
   // Palette entries. Zen sits under View, next to the stock "Toggle focus
