@@ -155,6 +155,11 @@ export default function SumitexBridge() {
         handler: () => moveColumnFromPalette(view, 1),
       },
       {
+        id: 'sumitex-open-outline',
+        label: 'Outline: Open',
+        handler: () => openTab('sumitex-outline'),
+      },
+      {
         id: 'sumitex-outline-toggle-blocks',
         label: 'Outline: Show/Hide blocks',
         // Showing them also opens the Outline, so the change is visible

@@ -451,3 +451,16 @@
     font-size: 16px;
   }
 }
+
+// Chat bubbles in the SumiTeX colours, readable in both themes: others'
+// messages on a raised row, your own in the selection colour (upstream
+// left dark text on both, and a light grey bubble in the dark theme)
+.chat .message-content {
+  color: var(--sx-fg);
+  background-color: var(--sx-island-raised);
+}
+
+.chat .message-container.message-from-self .message-content {
+  color: var(--sx-selected-fg);
+  background-color: var(--sx-selected-bg);
+}

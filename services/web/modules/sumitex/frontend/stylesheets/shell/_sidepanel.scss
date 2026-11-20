@@ -126,3 +126,50 @@
     color: var(--sx-fg);
   }
 }
+
+// Every side panel's header in one look, the Files header's: Search,
+// Integrations (stock .rail-panel-header), the Outline, and Chat on the
+// right. 36px tall, an uppercase 11px muted label, 26px muted icon buttons.
+.rail-panel-header,
+.sx-outline-header {
+  min-height: 36px;
+  padding: 0 var(--spacing-03) 0 var(--spacing-04);
+  background: transparent;
+  border-bottom: 0;
+}
+
+.rail-panel-title,
+.sx-outline-title {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--sx-muted);
+}
+
+.rail-panel-header .rail-panel-header-button-subdued {
+  width: 26px;
+  height: 26px;
+  min-width: 0;
+  padding: 0;
+  color: var(--sx-muted);
+  border-radius: 5px;
+
+  .material-symbols {
+    font-size: 16px;
+  }
+
+  &:hover {
+    color: var(--sx-fg);
+    background: var(--sx-island-raised);
+  }
+}
+
+// In the left panel, as with Files and the Outline, the strip's icon opens
+// and closes the panel, so the stock × goes. Chat on the right keeps it.
+// (The close button is always the last of the header's actions.)
+// !important: the button carries Bootstrap's d-inline-grid
+[id^='ide-redesign-sidebar-panel'] .rail-panel-header-actions > :last-child {
+  display: none !important;
+}

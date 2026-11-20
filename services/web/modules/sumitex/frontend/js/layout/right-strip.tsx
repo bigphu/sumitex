@@ -104,7 +104,7 @@ export default function RightStrip() {
     setReviewPanelOpen,
     panelRef: leftPanelRef,
   } = useRailContext()
-  const { markMessagesAsRead } = useChatContext()
+  const { markMessagesAsRead, unreadMessageCount } = useChatContext()
   const dock = useAssistantDock()
   const [tab, setTab] = usePersistedState<RightTab | null>(
     'sumitex.right-panel',
@@ -196,6 +196,12 @@ export default function RightStrip() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reviewPanelOpen])
 
+  // The stock chat counts a message as read only while the left strip's
+  // Chat tab is open; here Chat is open on the right, so do that here
+  useEffect(() => {
+    if (chatOpen && unreadMessageCount > 0) markMessagesAsRead()
+  }, [chatOpen, unreadMessageCount, markMessagesAsRead])
+
   if (focusMode || view === 'history') return null
 
   // One panel at a time on the right: Chat and the AI assistant share it
@@ -245,7 +251,24 @@ export default function RightStrip() {
               data-empty-label="Open a file to review it"
             />
           ) : (
-            <div className="sx-right-panel">
+            <div
+              className="sx-right-panel"
+              onClickCapture={event => {
+                // The stock chat header's close button collapses the left
+                // side panel (it was written for the left strip): close
+                // the chat here instead
+                const button =
+                  event.target instanceof Element &&
+                  event.target.closest(
+                    '.rail-panel-header-actions .rail-panel-header-button-subdued'
+                  )
+                if (button && button.getAttribute('aria-label') === t('close')) {
+                  event.preventDefault()
+                  event.stopPropagation()
+                  setTab(null)
+                }
+              }}
+            >
               <ChatPane />
             </div>
           )}
