@@ -26,6 +26,7 @@ export const COMMAND_KEYS: Record<string, string[]> = {
   'change-layout-focus-mode': ['Mod+K Z'],
   'sumitex-toggle-zen-mode': ['Mod+K Z'],
   'sumitex-keyboard-shortcuts': ['Mod+K Mod+S'],
+  'sumitex-toggle-equation-preview': ['Alt+P'],
   'sumitex-go-to-line': ['Ctrl+G'],
   'sumitex-toggle-problems': ['Mod+Shift+M'],
   'open-settings': ['Mod+,'],
@@ -74,6 +75,7 @@ export function sheetGroups(options: { review: boolean }): SheetGroup[] {
       { label: 'Undo / redo', keys: ['Mod+Z / Mod+Y'] },
       { label: 'Bold / italic', keys: ['Mod+B / I'] },
       { label: 'Upper / lower case', keys: ['Ctrl+U / Ctrl+Shift+U'] },
+      { label: 'Show / hide the equation preview', keys: ['Alt+P'] },
       // Without VS Code keys these two are the stock ones
       ...(vscode
         ? []

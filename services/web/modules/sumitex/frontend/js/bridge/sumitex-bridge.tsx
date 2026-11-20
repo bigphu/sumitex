@@ -16,6 +16,7 @@ import { SHOW_SHORTCUTS_EVENT, setVscodeKeys } from '../editor/vscode-keymap'
 import { useRecordRecentFile } from '../palette/recent-files'
 import { useProjectPreamble } from '../diagnostics/use-project-preamble'
 import { gotoLine } from '@codemirror/search'
+import { toggleMathPreviewAt } from '@/features/source-editor/extensions/math-preview'
 import type { EditorView } from '@codemirror/view'
 import { moveColumn } from '../editor/table-columns'
 import { flashMessage } from '../editor/flash-message'
@@ -162,6 +163,16 @@ export default function SumitexBridge() {
           setShowBlocks(projectId, on)
           if (on) openTab('sumitex-outline')
         },
+      },
+      {
+        id: 'sumitex-toggle-equation-preview',
+        label: 'Toggle equation preview',
+        // The cursor has to be in an equation; the palette gives the focus back
+        handler: () =>
+          window.setTimeout(() => {
+            view.focus()
+            toggleMathPreviewAt(view)
+          }, 60),
       },
       {
         id: 'sumitex-keyboard-shortcuts',
