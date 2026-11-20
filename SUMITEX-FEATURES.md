@@ -686,7 +686,11 @@ Drag:     reorder (v3)
 - A `\label` written inside a caption is left out of the caption box (it has its own).
 
 **Quieter pop-ups (20 Nov 2026).** All pop-ups share one calm look, matching the side panels: a small uppercase title and ×, no footer (the × says Esc closes and Ctrl+Z undoes), field rows with a small label on the left whose box shows on hover and focus, problems as a small dot with a tooltip (a missing caption or label only for figures and tables; a label the text never refers to), and what fewer people change folded under **More**, remembered per kind: table — cleaner rules; equation — the type and numbering; section — numbering; figure — placement, centring and an exact width; code — line numbers. The equation pop-up leads with its preview; its toolbar keeps the structures and Ω (the frequent symbols live in the picker's Recent). A theorem's type is a list, with "Define it" when the preamble lacks it.
-Next: ⋯ row actions, `@` search for blocks (frame 17).
+
+**Built (20 Nov 2026), v2 done: ⋯ actions and `@` search.**
+- **⋯ on every Outline row** (next to ✎, on hover): for a block, **Insert a reference at the cursor** and **Copy a reference** (when it has a label; written so the document reads it: `\cref{…}` with cleveref, else `Figure~\ref{…}`, `Lemma~\ref{…}`; equations `\eqref{…}` with amsmath), **Duplicate** (its labels get `-2`), **Delete** ("Ctrl+Z brings it back"); for a section also **Move up / Move down** among its neighbours (what each holds goes along) and **Promote / Demote** (the sections inside follow). `outline/edit/actions-model.ts` (tested), `block-actions.ts`.
+- **`@` in the palette** now finds the blocks of every .tex file in the project, after this file's sections: by title, kind or label; a first word naming a kind narrows to it (`@fig pipe`, `@eq`, `@thm`); picking one opens its file at the block (`palette/project-blocks.ts`, from the project snapshot, each file scanned again only when it changes).
+Not built (later, if wanted): a whole-project Outline panel.
 
 ## 12 · Notion-like preview editing (deferred)
 

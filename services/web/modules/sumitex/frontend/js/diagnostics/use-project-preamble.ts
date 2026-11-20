@@ -107,6 +107,7 @@ export function useProjectPreamble(view: EditorView) {
         ),
         currentPath: currentDocumentId ? pathInFolder(currentDocumentId) : null,
         snippets: snippetPaths.length ? snippets : null,
+        docs,
       })
     },
     [projectSnapshot, mainPath, pathInFolder]

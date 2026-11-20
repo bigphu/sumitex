@@ -11,6 +11,7 @@ export type PaletteGroup =
   | 'Files'
   | 'Commands'
   | 'Sections in this file'
+  | 'Blocks in this project'
   | 'Labels in this file'
   | 'Go to line'
 

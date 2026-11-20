@@ -54,6 +54,9 @@ export type SectionModel = {
   indent: string
   /** The sections inside, which move with it */
   inner: Heading[]
+  /** The neighbours at the same level, for Move up and Move down */
+  previous: Span | null
+  next: Span | null
   referenced: boolean
 }
 
@@ -123,8 +126,24 @@ export function readSection(state: EditorState, pos: number): SectionModel | nul
     }
   })
 
+  // Neighbours: the nearest sections of the same kind in the same parent
+  const neighbour = (forward: boolean): Span | null => {
+    for (
+      let other = forward ? section!.nextSibling : section!.prevSibling;
+      other;
+      other = forward ? other.nextSibling : other.prevSibling
+    ) {
+      if (other.type.is('$Section')) {
+        return other.type.name === section!.type.name ? { from: other.from, to: other.to } : null
+      }
+    }
+    return null
+  }
+
   return {
     range: { from: section.from, to: section.to },
+    previous: neighbour(false),
+    next: neighbour(true),
     level,
     ctrl: { from: ctrl.from, to: ctrl.to },
     numbered: starAt < 0,
