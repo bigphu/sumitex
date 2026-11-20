@@ -4,8 +4,8 @@
  *
  * - Ctrl + digit         choose the view: 1 Source, 2 Split, 3 PDF
  * - Ctrl+Shift + letter  open a place outside the editor (press again to
- *                        close it): E Files, H History, M Problems and the
- *                        log. F (project search) is Overleaf's own, and
+ *                        close it): E Files, Y Outline, H History,
+ *                        M Problems and the log. F (project search) is Overleaf's own, and
  *                        O (jump to a section) opens the palette
  *                        (palette/palette-mode.ts).
  * - Ctrl+,               Settings
@@ -199,6 +199,8 @@ export function useGlobalShortcuts(narrow: boolean) {
             : changeLayout('flat', choice === 'pdf' ? 'pdf' : 'editor')
       } else if (event.shiftKey && !event.altKey) {
         if (event.code === 'KeyE') action = () => togglePanel('file-tree')
+        else if (event.code === 'KeyY')
+          action = () => togglePanel('sumitex-outline')
         else if (event.code === 'KeyH')
           action = () =>
             view === 'history' ? layout.restoreView() : layout.setView('history')

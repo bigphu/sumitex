@@ -50,6 +50,28 @@ body[data-theme] {
   --outline-item-highlight-bg: var(--sx-row-active);
   --outline-item-highlight-color: var(--sx-fg);
 
+  // The side panels sit on the island, in its colours, like the Outline:
+  // Files, Integrations, Chat (Search is set on itself, below)
+  --file-tree-bg: var(--sx-island);
+  --file-tree-item-color: var(--sx-fg);
+  --file-tree-icon-colour: var(--sx-muted);
+  --file-tree-expand-button-color: var(--sx-muted);
+  --integrations-panel-bg: var(--sx-island);
+  --integrations-panel-color: var(--sx-fg);
+  --integrations-panel-description-color: var(--sx-muted);
+  --integrations-panel-card-border: var(--sx-border);
+  --integrations-panel-card-button-background: var(--sx-island);
+  --integrations-panel-card-button-hover-background: var(--sx-island-raised);
+  --chat-bg: var(--sx-island);
+  --chat-color: var(--sx-fg);
+  --chat-instructions-color: var(--sx-muted);
+  --chat-new-message-bg: var(--sx-island);
+  --chat-new-message-border: var(--sx-border);
+  --chat-new-message-textarea-bg: var(--sx-sunken);
+  --chat-new-message-textarea-color: var(--sx-fg);
+  --chat-message-date-color: var(--sx-muted);
+  --chat-message-name-color: var(--sx-muted);
+
   // Error, warning and success colours (text and icons)
   --content-danger-themed: var(--sx-danger);
   --content-warning-themed: var(--sx-warning);
@@ -66,4 +88,24 @@ body[data-theme] {
 body[data-theme] .ide-redesign-main,
 .ide-redesign-main {
   --editor-resizer-bg-color: var(--sx-frame);
+}
+
+// Project search sets its colours on itself, per theme, so override them
+// there. The match highlight keeps upstream's yellow.
+body .full-project-search,
+body .full-project-search[data-bs-theme] {
+  --full-project-search-bg-color: var(--sx-island);
+  --full-project-search-color: var(--sx-fg);
+  --full-project-search-results-bg-color: var(--sx-island);
+  --full-project-search-border-color: var(--sx-border);
+  --full-project-search-selected-hit-bg-color: var(--sx-selected-bg);
+  --full-project-search-selected-hit-color: var(--sx-selected-fg);
+  --collapsible-file-header-count-color: var(--sx-fg);
+  --collapsible-file-header-count-bg-color: var(--sx-island-raised);
+  --collapsible-file-header-hover-bg: var(--sx-island-raised);
+  --matched-file-hit-hover-bg: var(--sx-island-raised);
+  --search-modifier-color: var(--sx-muted);
+  --search-modifier-hover-color: var(--sx-island-raised);
+  --search-modifier-checked-bg: var(--sx-selected-bg);
+  --search-modifier-checked-color: var(--sx-selected-fg);
 }
