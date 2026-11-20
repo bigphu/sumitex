@@ -59,7 +59,8 @@ const TABULARS = new Set([
 /** A caption or title as plain text: commands and braces taken out */
 export function plainText(latex: string) {
   return latex
-    .replace(/%[^\n]*/g, '')
+    // A comment, but not an escaped \% (it is a percent sign)
+    .replace(/(^|[^\\])%[^\n]*/g, '$1')
     .replace(/\\(label|ref|cref|Cref|eqref|cite)\*?\{[^}]*\}/g, '')
     .replace(/\\[a-zA-Z]+\*?(\[[^\]]*\])?/g, '')
     .replace(/\\(.)/g, '$1')

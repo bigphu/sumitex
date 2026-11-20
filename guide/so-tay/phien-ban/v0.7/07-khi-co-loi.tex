@@ -1,0 +1,50 @@
+\section{Khi có lỗi}
+\label{sec:loi}
+
+Gặp lỗi trong quá trình soạn thảo là điều hoàn toàn bình thường, và SumiTeX
+cung cấp sẵn các công cụ giúp bạn phát hiện cũng như khắc phục chúng nhanh
+chóng.
+
+\subsection{Lỗi ngay khi gõ}
+Nhiều lỗi cơ bản sẽ được phát hiện ngay trong lúc bạn gõ, trước cả khi biên
+dịch. Khi đó, một biểu tượng ⚠ sẽ xuất hiện ở đầu dòng kèm theo lời giải thích
+ngắn gọn ở cuối dòng.
+
+\anh[0.85\linewidth]{loi-goi}{Lệnh \lenh{mathbb} yêu cầu phải khai báo gói
+\texttt{amssymb}}
+
+Bạn chỉ cần đặt con trỏ tại dòng báo lỗi rồi nhấn \phim{Ctrl}+\phim{.}, SumiTeX
+sẽ tự động thêm gói còn thiếu vào phần đầu tài liệu.
+
+\subsection{Bảng lỗi}
+Sau khi biên dịch, bạn có thể mở bảng lỗi bằng cách nhấp vào đèn báo lỗi hoặc
+nhấn \phim{Ctrl}+\phim{Shift}+\phim{M}.
+
+\anh[0.75\linewidth]{van-de}{Bảng lỗi: mỗi dòng tương ứng với một lỗi, nhấp vào
+để nhảy thẳng tới vị trí sai}
+
+\begin{meo}
+\textbf{Hãy luôn sửa lỗi đầu tiên trước.} Một lỗi nhỏ ở trên thường kéo theo
+hàng loạt lỗi dây chuyền ở phía dưới; do đó, khi bạn sửa xong lỗi đầu tiên và
+biên dịch lại, phần lớn các lỗi còn lại sẽ tự biến mất. Ngoài ra, phím \phim{F8}
+giúp bạn di chuyển nhanh tới lỗi kế tiếp.
+\end{meo}
+
+\subsection{Các lỗi thường gặp}
+\begin{description}
+  \item[Unicode character …] Tài liệu chưa được cấu hình tiếng Việt. Bạn hãy
+    thêm đủ ba dòng \lenh{usepackage} như hướng dẫn ở chương~\ref{sec:van-ban}.
+  \item[Undefined control sequence] Bạn đã gõ sai tên lệnh hoặc quên khai báo
+    gói thư viện tương ứng. Hãy xem gợi ý sửa lỗi ở cuối dòng.
+  \item[Missing \$ inserted] Bạn đang dùng ký hiệu toán học (như \verb|^| hoặc
+    \verb|_|) ở ngoài môi trường toán. Hãy đặt biểu thức đó vào giữa hai dấu
+    \texttt{\$}.
+  \item[Missing \} inserted] Câu lệnh bị thiếu dấu đóng ngoặc nhọn \}.
+\end{description}
+
+\begin{thuchanh}[Bài 6]
+Bài 6 được cố ý tạo sẵn một số lỗi nên đang tạm tắt. Hãy mở tệp
+\texttt{main.tex}, xóa dấu \texttt{\%} ở đầu dòng có lệnh
+\texttt{\textbackslash input\{bai-06\}}, sau đó biên dịch và sửa dần từng lỗi
+cho đến khi bảng lỗi hoàn toàn trống.
+\end{thuchanh}

@@ -19,6 +19,7 @@ import { imagePaste } from './editor/image-paste'
 import { tableGrip } from './editor/table-grip'
 import { docUpdates } from './editor/doc-updates'
 import { editBlockButton } from './editor/edit-block-button'
+import { guideBanner } from './editor/guide-banner'
 
 export const extension = (): Extension => [
   zenMode(),
@@ -37,4 +38,5 @@ export const extension = (): Extension => [
   tableGrip(),
   docUpdates(),
   editBlockButton(),
+  guideBanner(),
 ]

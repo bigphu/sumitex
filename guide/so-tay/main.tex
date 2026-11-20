@@ -1,0 +1,29 @@
+% Sổ tay SumiTeX
+%
+% Mỗi phiên bản nằm trong một thư mục riêng: phien-ban/v0.7, phien-ban/v0.8…
+% Khi ra phiên bản mới: chép thư mục của phiên bản trước thành thư mục mới,
+% sửa nội dung trong đó, rồi đổi đúng một dòng bên dưới.
+%
+% (Each version lives in its own folder. To publish a new one: copy the
+% previous folder, edit it, then change the one line below.)
+
+\newcommand{\PhienBan}{v0.7}
+
+\documentclass[11pt]{article}
+\input{chung/preamble}
+\newcommand{\ThuMuc}{phien-ban/\PhienBan}
+\graphicspath{{phien-ban/\PhienBan/hinh/}}
+
+\title{Sổ tay SumiTeX}
+
+\begin{document}
+\trangbia{Sổ tay SumiTeX}
+  {Hướng dẫn sử dụng từng bước,\\ có sân tập để bạn tự thực hành}
+  {\PhienBan}
+\thispagestyle{plain}
+\tableofcontents
+\newpage
+
+\input{\ThuMuc/noi-dung}
+
+\end{document}

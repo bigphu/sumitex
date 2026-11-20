@@ -1,0 +1,65 @@
+\section{Danh sách, bảng và hình}
+\label{sec:khoi}
+
+\subsection{Danh sách}
+\begin{ma}
+\begin{itemize}        % gạch đầu dòng; dùng enumerate để đánh số
+  \item Ý thứ nhất
+  \item Ý thứ hai
+\end{itemize}
+\end{ma}
+
+\begin{meo}
+Khi đặt con trỏ tại một dòng \lenh{item}, bạn có thể nhấn \phim{Alt}+\phim{↑}
+hoặc \phim{Alt}+\phim{↓} để đổi chỗ cả mục đó (bao gồm các dòng con bên trong)
+với mục liền kề.
+\end{meo}
+
+\subsection{Bảng}
+Cách tạo bảng nhanh nhất là gõ \texttt{\textbackslash table} rồi nhấn
+\phim{Enter} để chèn một bảng mẫu, sau đó chỉnh sửa trực quan bằng hộp thoại
+bảng (qua biểu tượng ✎ trong Mục lục):
+
+\anh[0.62\linewidth]{popup-bang}{Ô sửa bảng: nhập nội dung trực tiếp, kéo ⠿ để
+đổi vị trí hàng hoặc cột, bấm \nut{+ Row} để thêm hàng}
+
+\begin{itemize}
+  \item Kéo biểu tượng ⠿ ở đầu hàng hoặc đầu cột để sắp xếp lại thứ tự; hệ
+    thống sẽ hiển thị trước vị trí mới trong lúc bạn kéo.
+  \item Nhấp vào biểu tượng căn lề trên đầu cột để chuyển đổi giữa căn trái,
+    giữa và phải.
+  \item Điền \nut{Caption} (chú thích) và \nut{Label} (nhãn) để thuận tiện cho
+    việc tham chiếu tới bảng trong bài viết.
+  \item Trong mục \nut{More}, chọn \nut{Cleaner rules} để định dạng đường kẻ
+    bảng gọn gàng theo chuẩn sách in.
+\end{itemize}
+
+\begin{meo}
+Ngay trong trình soạn thảo mã, khi đặt con trỏ vào một ô bất kỳ của bảng, bạn
+có thể dùng \phim{Alt}+\phim{←} hoặc \phim{Alt}+\phim{→} để di chuyển cả cột đó
+sang trái hoặc sang phải.
+\end{meo}
+
+\subsection{Hình ảnh}
+Bạn có thể \textbf{dán trực tiếp} bằng cách chụp màn hình rồi nhấn
+\phim{Ctrl}+\phim{V} vào trình soạn thảo, hoặc kéo thả tệp ảnh từ máy tính vào.
+SumiTeX sẽ tự động xử lý các bước sau:
+\begin{enumerate}
+  \item Tải ảnh lên thư mục \texttt{images/} với tên tệp hợp lệ.
+  \item Chèn sẵn một khối hình hoàn chỉnh và bôi đen phần chú thích để bạn gõ
+    đè ngay.
+  \item Bổ sung gói \texttt{graphicx} nếu tài liệu chưa khai báo.
+\end{enumerate}
+Ngoài ra, một thanh công cụ nhỏ phía trên khối hình sẽ giúp bạn chọn nhanh độ
+rộng theo các mức ¼ · ½ · ¾ · Full.
+
+\begin{chuy}
+Vì \LaTeX{} không hỗ trợ trực tiếp các định dạng WebP, GIF và SVG, SumiTeX sẽ
+tự động chuyển đổi chúng sang định dạng PNG khi bạn dán vào tài liệu.
+\end{chuy}
+
+\begin{thuchanh}[Bài 2, 3, 4]
+Hãy hoàn thành lần lượt các tệp \texttt{bai-02.tex} (tạo danh sách),
+\texttt{bai-03.tex} (tạo bảng) và \texttt{bai-04.tex} (dán một ảnh bất kỳ,
+chỉnh độ rộng ½ và thêm chú thích).
+\end{thuchanh}

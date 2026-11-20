@@ -27,6 +27,7 @@ import CookieBanner from '@/shared/components/cookie-banner'
 import NoProjects from '@/features/project-list/components/no-projects'
 import { useActiveOverallTheme } from '@/shared/hooks/use-active-overall-theme'
 import { useFeatureFlag } from '@/shared/context/split-test-context'
+import GuideWelcome from '@modules/sumitex/frontend/js/guide/guide-welcome' // SumiTeX
 
 export function ProjectListDsNav() {
   const navbarProps = getMeta('ol-navbar')
@@ -129,6 +130,7 @@ export function ProjectListDsNav() {
                   </div>
                 </div>
                 {showTrashHeader && <TrashPageTabs activeTab="projects" />}
+                {!showTrashHeader && <GuideWelcome />} {/* SumiTeX */}
                 {isSharedWorkspaceEnabled &&
                 selectedTagId === undefined &&
                 currentFilterProjectsCount === 0 ? (

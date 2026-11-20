@@ -727,6 +727,22 @@ The design doc's priorities table holds more ideas than the twelve above. Each f
 
 Paste an image (a screenshot) or drop image files into the editor, Code or Visual, and each becomes a figure with no dialog (decided 20 Nov 2026; Overleaf's own "Insert figure" dialog stays in the toolbar). The image uploads into `images/` (made when missing): a pasted one as `pasted-1.png`, `pasted-2.png`…, a dropped one under its own name made safe for LaTeX (`Kết quả.PNG` → `ket-qua.png`), never overwriting a file. WebP, GIF, SVG, BMP… go in as PNG. "Uploading image…" marks the place meanwhile. The figure goes on lines of its own with a blank line either side, written as the `\fig` snippet writes it, with a label of its own (`fig:pasted-1`) and the caption selected to type over. `graphicx` is loaded if missing: in the same change (one Ctrl+Z takes back both) in a file with its own preamble, else in the main file first. While the cursor is in a new figure, a bar above it sets the width (¼ · ½ · ¾ · Full). Text pasted along with an image (Word, a web page) stays a text paste; a failed upload says so at the cursor and changes nothing. Code: `editor/image-paste.ts`, `editor/image-paste-text.ts` (tested), `files/use-image-upload.ts`. Not yet: pasting an image from a web page together with its text, and a whole folder dropped at once.
 
+### The SumiTeX guide (built 20 Nov 2026)
+
+A Vietnamese handbook every user gets, and a playground each user practises in (`guide/`, set up as in the deploy guide's step 8). Off unless a server sets `SUMITEX_GUIDE_PROJECT_ID` and `SUMITEX_PLAYGROUND_PROJECT_ID` (or the `sumitexSettings` document).
+- **Handbook** (`guide/so-tay`): a LaTeX project in plain Vietnamese with screenshots, numbered callouts, Mẹo / Chú ý / Thực hành boxes, keys drawn as keys, and answers in an appendix. Each version is a folder (`phien-ban/v0.7`…); one line in `main.tex` picks it.
+- **Shared automatically, read-only** (`app/src/GuideManager.mjs`): on each user's first sign-in after it is set up, they are added to the handbook once, read-only (site admins as editors). It appears under Shared with you; someone who leaves it isn't added again.
+- **Playground** (`guide/san-tap`):
+  - six lessons, each task a `\todo`: an orange box in the PDF, a row in the Outline;
+  - **Open my playground** copies the master for the user the first time, then reopens the same copy;
+  - **Start over** keeps the old copy as "(cũ)" and makes a new one;
+  - when the master's version line is newer, the bar offers **Get the new exercises**.
+- **Where to find it:**
+  - a bar over the editor in the handbook and in the playground;
+  - a "New to SumiTeX?" strip at the top of the projects list;
+  - Help → SumiTeX guide;
+  - the palette's **Open the SumiTeX guide** and **Open my playground**.
+
 ## Suggested build order
 
 This follows the roadmap whiteboard's phases. A phase starts when the gate before it passes.

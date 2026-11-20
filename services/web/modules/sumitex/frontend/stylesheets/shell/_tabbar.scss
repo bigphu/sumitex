@@ -170,3 +170,40 @@
     }
   }
 }
+
+// The tab row scrolls sideways with the wheel or trackpad but shows no
+// scrollbar (the stock thin one, plus the up/down arrows some browsers add
+// because overflow-x: auto makes the row scrollable both ways). A fade on
+// the side with hidden tabs says there is more (js/layout/use-tab-overflow.ts).
+.sx-work-tabbar .editor-tabs-row {
+  --sx-tab-fade: 28px;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+  // keep the selected tab clear of the fade when it scrolls into view
+  scroll-padding-inline: var(--sx-tab-fade);
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &[data-more='right'] {
+    mask-image: linear-gradient(to right, #000 calc(100% - var(--sx-tab-fade)), transparent);
+  }
+
+  &[data-more='left'] {
+    mask-image: linear-gradient(to left, #000 calc(100% - var(--sx-tab-fade)), transparent);
+  }
+
+  &[data-more='both'] {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 var(--sx-tab-fade),
+      #000 calc(100% - var(--sx-tab-fade)),
+      transparent
+    );
+  }
+}

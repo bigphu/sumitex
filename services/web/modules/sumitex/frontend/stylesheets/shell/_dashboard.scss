@@ -440,3 +440,51 @@ body:has(.project-ds-nav-page) {
     }
   }
 }
+
+// The guide welcome at the top of the projects panel
+// (js/guide/guide-welcome.tsx). The buttons are the app's own, so only the
+// layout lives here.
+.sx-guide-welcome {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+  margin-bottom: var(--spacing-05);
+  padding: 10px 8px 10px 14px;
+  color: var(--sx-fg, inherit);
+  background: var(--sx-selected-bg, var(--bg-light-secondary));
+  border-radius: 10px;
+}
+
+.sx-guide-welcome-icon {
+  color: var(--sx-accent, var(--content-positive));
+  font-size: 22px;
+}
+
+.sx-guide-welcome-message {
+  display: flex;
+  flex: 1 1 260px;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.4;
+
+  span {
+    color: var(--sx-muted, inherit);
+    font-size: 13px;
+  }
+}
+
+.sx-guide-welcome-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sx-guide-welcome-dismiss {
+  align-self: flex-start;
+  padding: 2px 4px;
+
+  .material-symbols {
+    font-size: 18px;
+  }
+}

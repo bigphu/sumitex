@@ -133,3 +133,11 @@ describe('SumiTeX outline: scanning blocks', function () {
     )
   })
 })
+
+describe('SumiTeX outline: plain text keeps an escaped percent sign', function () {
+  it('reads \\% as % and drops a real comment', function () {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { plainText } = require('../../../frontend/js/outline/scan-blocks')
+    expect(plainText('Bỏ dấu \\% trước dòng % a comment')).to.equal('Bỏ dấu % trước dòng')
+  })
+})

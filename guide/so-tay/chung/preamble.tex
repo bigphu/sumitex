@@ -1,0 +1,210 @@
+% Kiểu dáng chung của sổ tay, dùng cho mọi phiên bản.
+% (The handbook's shared styles, for every version.)
+
+% --- Tiếng Việt với pdfLaTeX
+\usepackage[T5]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[vietnamese]{babel}
+
+% --- Phông chữ: Charter cho thân bài, Heros (giống Helvetica) cho tiêu đề và
+% tên nút. Cả hai đều có đủ dấu tiếng Việt.
+\renewcommand{\rmdefault}{bch}
+\renewcommand{\sfdefault}{qhv}
+\linespread{1.08}
+
+% Ký hiệu của giao diện, gõ thẳng trong bài (✎ ⠿ ⋯ ▶ ⚠ ✓, mũi tên, chữ Hy Lạp)
+\usepackage{amssymb}
+\usepackage{pifont}
+\DeclareUnicodeCharacter{270E}{\ding{46}}
+\DeclareUnicodeCharacter{2713}{\ding{51}}
+\DeclareUnicodeCharacter{283F}{\raisebox{-0.2ex}{$\vdots\!\vdots$}}
+\DeclareUnicodeCharacter{22EF}{\ensuremath{\cdots}}
+\DeclareUnicodeCharacter{25B6}{\ensuremath{\blacktriangleright}}
+\DeclareUnicodeCharacter{26A0}{\ensuremath{\blacktriangle}}
+\DeclareUnicodeCharacter{211D}{\ensuremath{\mathbb{R}}}
+\DeclareUnicodeCharacter{03BB}{\ensuremath{\lambda}}
+\DeclareUnicodeCharacter{03A9}{\ensuremath{\Omega}}
+\DeclareUnicodeCharacter{03B1}{\ensuremath{\alpha}}
+\DeclareUnicodeCharacter{2191}{\ensuremath{\uparrow}}
+\DeclareUnicodeCharacter{2193}{\ensuremath{\downarrow}}
+\DeclareUnicodeCharacter{2190}{\ensuremath{\leftarrow}}
+\DeclareUnicodeCharacter{2192}{\ensuremath{\rightarrow}}
+
+% --- Trang, màu, hình
+\usepackage[a4paper,top=2.6cm,bottom=2.6cm,left=2.5cm,right=2.5cm,
+  headheight=14pt,headsep=0.9cm,footskip=1.2cm]{geometry}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage[most]{tcolorbox}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{colortbl}
+\usepackage{amsmath}
+\usepackage{fancyvrb}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+
+% Bảng màu theo giao diện SumiTeX
+\definecolor{muc}{HTML}{1F2430}       % mực: chữ chính
+\definecolor{sumi}{HTML}{3B5BDB}      % màu nhấn
+\definecolor{sumi-dam}{HTML}{2B44B0}
+\definecolor{sumi-nhat}{HTML}{EEF2FF}
+\definecolor{meo}{HTML}{2F9E44}
+\definecolor{meo-nhat}{HTML}{EFFAF1}
+\definecolor{chuy}{HTML}{D9480F}
+\definecolor{chuy-nhat}{HTML}{FFF4E6}
+\definecolor{chu-mo}{HTML}{6B7280}    % chữ phụ
+\definecolor{vien}{HTML}{E3E6EC}      % đường viền nhạt
+\definecolor{vien-dam}{HTML}{C5CAD3}
+\definecolor{nen-ma}{HTML}{F5F6F8}    % nền khung mã
+\AtBeginDocument{\color{muc}}
+
+% --- Đoạn văn và danh sách
+\setlength{\parskip}{5pt}
+\setlength{\parindent}{0pt}
+
+% Danh sách canh trái (không dàn đều) để tên nút dài không làm giãn chữ
+\setlist{itemsep=3pt,topsep=4pt,leftmargin=1.6em,before=\raggedright}
+\setlist[itemize]{label={\color{sumi}\small\raisebox{0.1ex}{\textbullet}}}
+\setlist[enumerate]{label={\color{sumi}\sffamily\bfseries\arabic*.}}
+\setlist[description]{font={\sffamily\bfseries\color{muc}},leftmargin=1.2em}
+% Cho phép giãn dòng thêm một chút để đoạn mã dài không tràn lề
+\setlength{\emergencystretch}{3em}
+% Logo LaTeX căn lại cho hợp với phông Charter
+\DeclareRobustCommand{\LaTeX}{L\kern-.22em\raisebox{.32ex}{\scriptsize A}\kern-.1em\TeX}
+% Bảng: đường kẻ nhạt, hàng đầu chữ không chân
+\arrayrulecolor{vien-dam}
+\renewcommand{\arraystretch}{1.25}
+
+% --- Đầu trang, chân trang
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\sffamily\footnotesize\color{chu-mo}Sổ tay SumiTeX}
+\fancyhead[R]{\sffamily\footnotesize\color{chu-mo}\leftmark}
+\fancyfoot[C]{\sffamily\footnotesize\color{chu-mo}\thepage}
+\renewcommand{\headrule}{{\color{vien}\hrule height 0.6pt}}
+\renewcommand{\sectionmark}[1]{\markboth{#1}{}}
+\fancypagestyle{plain}{\fancyhf{}\renewcommand{\headrule}{}%
+  \fancyfoot[C]{\sffamily\footnotesize\color{chu-mo}\thepage}}
+
+% --- Tiêu đề: số chương nằm trong một ô màu nhấn, kẻ một đường mảnh bên dưới
+\usepackage{titlesec}
+\newcommand{\ochuong}[1]{\tikz[baseline=(s.base)]\node[fill=sumi,text=white,
+  rounded corners=4pt,inner xsep=7pt,inner ysep=4pt,minimum width=2em,
+  font=\sffamily\large\bfseries](s){#1};}
+\titleformat{\section}[block]{\sffamily\LARGE\bfseries\color{muc}}
+  {\ochuong{\thesection}}{0.55em}{}[\vspace{6pt}{\color{vien}\titlerule[0.8pt]}]
+\titleformat{name=\section,numberless}[block]{\sffamily\LARGE\bfseries\color{muc}}
+  {}{0pt}{}[\vspace{6pt}{\color{vien}\titlerule[0.8pt]}]
+\titlespacing*{\section}{0pt}{22pt plus 4pt minus 2pt}{12pt}
+\titleformat{\subsection}{\sffamily\large\bfseries\color{muc}}
+  {\textcolor{sumi}{\thesubsection}}{0.6em}{}
+\titlespacing*{\subsection}{0pt}{16pt plus 3pt minus 2pt}{6pt}
+
+% --- Mục lục
+\usepackage[titles]{tocloft}
+\setlength{\cftbeforesecskip}{0.5em}
+\renewcommand{\cftsecfont}{\sffamily\bfseries}
+\renewcommand{\cftsecpagefont}{\sffamily\bfseries\color{sumi}}
+\renewcommand{\cftsecleader}{\hfill}
+\renewcommand{\cftsubsecfont}{\color{muc}}
+\renewcommand{\cftsubsecpagefont}{\color{chu-mo}}
+\renewcommand{\cftdot}{\textcolor{vien-dam}{.}}
+\setlength{\cftsecnumwidth}{2em}
+
+% --- Khung: Mẹo, Lưu ý, Thực hành
+% Cùng một dáng: nền nhạt, vạch màu bên trái, nhãn nhỏ có biểu tượng ở trên.
+\newcommand{\bieutuong}[2]{\tikz[baseline=-0.6ex]\node[circle,fill=#1,text=white,
+  inner sep=0pt,minimum size=1.15em,font=\sffamily\bfseries\scriptsize]{#2};}
+% Bút chì đặc, vẽ bằng tikz cho cùng dáng với ★ và ! (ký tự ✎ quá mảnh)
+\newcommand{\bieutuongbut}[1]{\tikz[baseline=-0.6ex]{%
+  \fill[#1] (0,0) circle (0.575em);
+  \begin{scope}[rotate=45,white]
+    \fill (-0.30em,-0.10em) rectangle (0.20em,0.10em);   % thân
+    \fill (-0.42em,-0.10em) rectangle (-0.34em,0.10em);  % tẩy
+    \fill (0.24em,-0.10em) -- (0.42em,0) -- (0.24em,0.10em) -- cycle; % ngòi
+  \end{scope}}}
+% \nhankhung{màu}{ký tự trong vòng tròn}{nhãn}; \nhankhungve{màu}{hình}{nhãn}
+\newcommand{\nhankhungve}[3]{{\sffamily\bfseries\small\color{#1}#2\
+  #3}\par\vspace{3pt}}
+\newcommand{\nhankhung}[3]{\nhankhungve{#1}{\bieutuong{#1}{#2}}{#3}}
+\tcbset{khung/.style={enhanced,breakable,frame hidden,boxrule=0pt,arc=5pt,
+  colback=#1-nhat,borderline west={3pt}{0pt}{#1},
+  left=12pt,right=12pt,top=8pt,bottom=9pt,before skip=12pt,after skip=12pt,
+  parbox=false}}
+\newtcolorbox{meo}{khung=meo,before upper={\nhankhung{meo}{\ding{72}}{Mẹo}}}
+\newtcolorbox{chuy}{khung=chuy,before upper={\nhankhung{chuy}{!}{Lưu ý}}}
+\newtcolorbox{thuchanh}[1][]{khung=sumi,
+  before upper={\nhankhungve{sumi}{\bieutuongbut{sumi}}{Thực hành\ifx\relax#1\relax\else
+    \ \textcolor{chu-mo}{·}\ #1\fi}}}
+
+% --- Khung mã: nền xám nhạt, bo góc. Dùng \begin{ma} … \end{ma}
+\newtcolorbox{khungma}{enhanced,breakable,frame hidden,boxrule=0pt,arc=5pt,
+  colback=nen-ma,left=10pt,right=10pt,top=6pt,bottom=6pt,
+  before skip=8pt,after skip=10pt}
+\newenvironment{ma}{\VerbatimEnvironment\begin{khungma}%
+  \begin{Verbatim}[fontsize=\small,formatcom=\color{muc}]}%
+  {\end{Verbatim}\end{khungma}}
+
+% --- Phím và nút
+% \phim{Ctrl}+\phim{S}: vẽ một phím. \nut{Download}: tên một nút trên màn hình.
+\newcommand{\phim}[1]{\tikz[baseline=(k.base)]{\node[fill=vien-dam,
+  rounded corners=2.5pt,inner xsep=3.5pt,inner ysep=1.6pt,yshift=-0.7pt,
+  font=\footnotesize\sffamily]{\strut\phantom{#1}};
+  \node[draw=vien-dam,fill=white,rounded corners=2.5pt,inner xsep=3.5pt,
+  inner ysep=1.6pt,font=\footnotesize\sffamily,text=muc](k){\strut#1};}}
+\newtcbox{\nut}{on line,enhanced,frame hidden,boxrule=0pt,arc=3pt,
+  colback=sumi-nhat,coltext=sumi-dam,boxsep=0pt,left=2.2pt,right=2.2pt,
+  top=1.2pt,bottom=1.2pt,fontupper=\sffamily\bfseries\small}
+\newcommand{\lenh}[1]{\texttt{\textcolor{sumi-dam}{\textbackslash#1}}}
+
+% --- Ảnh chụp màn hình
+% \khunganh{độ rộng}{tệp}: ảnh trong một khung bo góc, viền nhạt
+\newcommand{\khunganh}[2]{\tikz\node[draw=vien-dam,line width=0.6pt,
+  rounded corners=5pt,inner sep=3pt,fill=white]
+  {\includegraphics[width=\dimexpr#1-6.6pt\relax]{#2}};}
+\newcommand{\chuthichanh}[1]{\par\vspace{4pt}{\sffamily\small\color{chu-mo}#1}}
+% \anh[độ rộng]{tên tệp}{chú thích}
+\newcommand{\anh}[3][\linewidth]{%
+  \begin{center}
+    \khunganh{#1}{#2}\chuthichanh{#3}
+  \end{center}}
+
+% Một con số tròn đặt lên ảnh, toạ độ từ 0 đến 1 tính từ góc trái dưới:
+% \chuthich{x}{y}{số}
+\newcommand{\chuthich}[3]{%
+  \node[circle,fill=sumi,text=white,font=\footnotesize\bfseries\sffamily,
+    inner sep=1.5pt,minimum size=14pt,draw=white,line width=1pt]
+    at (#1,#2) {#3};}
+
+% \anhcochuthich{độ rộng}{tệp}{các \chuthich}{chú thích}
+\newcommand{\anhcochuthich}[4]{%
+  \begin{center}
+    \begin{tikzpicture}
+      \node[anchor=south west,inner sep=0] (anh) at (0,0)
+        {\includegraphics[width=\dimexpr#1-10pt\relax]{#2}};
+      \draw[vien-dam,line width=0.6pt,rounded corners=5pt]
+        ([shift={(-3pt,-3pt)}]anh.south west) rectangle
+        ([shift={(3pt,3pt)}]anh.north east);
+      \begin{scope}[x={(anh.south east)},y={(anh.north west)}]
+        #3
+      \end{scope}
+    \end{tikzpicture}\chuthichanh{#4}
+  \end{center}}
+
+% --- Trang bìa: \trangbia{tiêu đề}{dòng phụ}{phiên bản}
+% Chỉ có chữ: tiêu đề, dòng phụ, phiên bản, một dòng ghi chú ở cuối trang.
+\newcommand{\trangbia}[3]{%
+  \begin{titlepage}
+  \vspace*{5.5cm}
+  {\sffamily\bfseries\fontsize{40}{44}\selectfont\color{muc}#1\par}
+  \vspace{12pt}
+  {\sffamily\Large\color{chu-mo}#2\par}
+  \vspace{20pt}
+  {\sffamily\bfseries\color{sumi}Phiên bản #3\par}
+  \vfill
+  {\color{vien}\rule{\linewidth}{0.6pt}}\par\vspace{6pt}
+  {\sffamily\small\color{chu-mo}Tài liệu chỉ đọc, luôn là bản mới nhất.
+    Bài tập nằm trong sân tập riêng của bạn.\par}
+  \end{titlepage}}
