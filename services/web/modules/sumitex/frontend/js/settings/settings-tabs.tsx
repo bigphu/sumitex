@@ -26,7 +26,11 @@ import type {
   SettingsSection,
   SettingsTab,
 } from '@/features/ide-settings/context/types'
-import { CodeToolbarSetting, MathExpandSetting } from './editor-settings-section'
+import {
+  CodeToolbarSetting,
+  MathExpandSetting,
+  OutlineBlocksSetting,
+} from './editor-settings-section'
 import {
   getCheckPackages,
   getCheckProject,
@@ -245,6 +249,7 @@ export default function sumitexSettingsTabs(
         'nonBlinkingCursor'
       ),
       own('sumitexCodeToolbar', <CodeToolbarSetting />),
+      own('sumitexOutlineBlocks', <OutlineBlocksSetting />),
       ...take('pdfViewer'),
     ],
   }

@@ -17,6 +17,8 @@ import { flashMessageExtension } from './editor/flash-message'
 import { outlineBlocks } from './outline/blocks-plugin'
 import { imagePaste } from './editor/image-paste'
 import { tableGrip } from './editor/table-grip'
+import { docUpdates } from './editor/doc-updates'
+import { editBlockButton } from './editor/edit-block-button'
 
 export const extension = (): Extension => [
   zenMode(),
@@ -33,4 +35,6 @@ export const extension = (): Extension => [
   outlineBlocks(),
   imagePaste(),
   tableGrip(),
+  docUpdates(),
+  editBlockButton(),
 ]

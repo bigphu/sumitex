@@ -42,7 +42,10 @@ const blank = (state: EditorState, a: number, b: number) =>
   /^[ \t]*$/.test(state.sliceDoc(a, b))
 
 /** The items of one list environment, or null if they aren't one per line */
-function itemsOf(state: EditorState, list: SyntaxNode): ItemRange[] | null {
+export function itemsOf(
+  state: EditorState,
+  list: SyntaxNode
+): ItemRange[] | null {
   const end = list.getChild('EndEnv')
   if (!end) return null
   const starts: number[] = []
@@ -134,5 +137,45 @@ export function moveListItem(
     ),
     scrollIntoView: true,
     userEvent: 'move.line',
+  }
+}
+
+/** The innermost list (written one \item per line) around `pos` */
+export function listAt(state: EditorState, pos: number) {
+  for (
+    let node: SyntaxNode | null = tree(state).resolveInner(pos, 1);
+    node;
+    node = node.parent
+  ) {
+    if (!node.type.is('ListEnvironment')) continue
+    const items = itemsOf(state, node)
+    if (items) return { node, items }
+  }
+  return null
+}
+
+/**
+ * The edit that moves item `index` to position `target` (the items
+ * between shift over), in one change
+ */
+export function moveListItemTo(
+  state: EditorState,
+  items: ItemRange[],
+  index: number,
+  target: number
+): TransactionSpec | null {
+  if (target === index || target < 0 || target >= items.length) return null
+  const low = Math.min(index, target)
+  const high = Math.max(index, target)
+  const texts = items.map(item => state.sliceDoc(item.from, item.to))
+  const [moving] = texts.splice(index, 1)
+  texts.splice(target, 0, moving)
+  return {
+    changes: {
+      from: items[low].from,
+      to: items[high].to,
+      insert: texts.slice(low, high + 1).join(''),
+    },
+    userEvent: 'move.sumitex-list-item',
   }
 }

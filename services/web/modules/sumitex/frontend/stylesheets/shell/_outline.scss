@@ -251,3 +251,80 @@
   overflow: hidden;
   text-align: center;
 }
+
+// ✎ on a table or list row: shown on hover, opens the edit pop-up
+.sx-outline-block .outline-item-row {
+  position: relative;
+}
+
+.sx-outline-edit {
+  display: none;
+  flex: none;
+  align-self: center;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-right: 4px;
+  padding: 0;
+  color: var(--sx-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+
+  .material-symbols {
+    font-size: 15px;
+  }
+
+  &:hover {
+    color: var(--sx-fg);
+    background: var(--sx-island-raised);
+  }
+}
+
+.sx-outline-block .outline-item-row:hover .sx-outline-edit,
+.sx-outline-edit:focus-visible {
+  display: grid;
+}
+
+// The one-time tip that points at the Blocks toggle
+.sx-outline-tip {
+  margin: 6px 8px 4px;
+  padding: 8px 10px;
+  color: var(--sx-fg);
+  font-size: 12px;
+  line-height: 1.45;
+  background: var(--sx-island-raised);
+  border: 1px solid var(--sx-border);
+  border-radius: 8px;
+
+  p {
+    margin: 0 0 6px;
+  }
+
+  button {
+    padding: 2px 8px;
+    color: var(--sx-muted);
+    font-size: 12px;
+    background: transparent;
+    border: 0;
+    border-radius: 5px;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--sx-fg);
+      background: var(--sx-border);
+    }
+  }
+
+  .sx-outline-tip-primary {
+    color: var(--sx-accent);
+    font-weight: 600;
+  }
+}
+
+.sx-outline-tip-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}

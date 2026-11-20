@@ -24,6 +24,8 @@ import { getShowBlocks, setShowBlocks } from '../outline/blocks-store'
 import { useProjectContext } from '@/shared/context/project-context'
 import { useSnippetCommands } from '../completions/use-snippet-commands'
 import { useImageUpload } from '../files/use-image-upload'
+import BlockEditor from '../outline/edit/block-editor'
+import { requestEdit } from '../outline/edit/edit-requests'
 
 // The layout Zen came from ('sideBySide' or 'flat'), to go back to when it
 // ends. Kept in localStorage so that leaving Zen after a reload still
@@ -164,6 +166,16 @@ export default function SumitexBridge() {
         handler: () => openTab('sumitex-outline'),
       },
       {
+        id: 'sumitex-edit-block',
+        label: 'Edit table or list',
+        // The block at the cursor; the palette gives the focus back first
+        handler: () =>
+          window.setTimeout(
+            () => requestEdit(view.state.selection.main.head),
+            60
+          ),
+      },
+      {
         id: 'sumitex-outline-toggle-blocks',
         label: 'Outline: Show/Hide blocks',
         // Showing them also opens the Outline, so the change is visible
@@ -192,5 +204,11 @@ export default function SumitexBridge() {
     [setFocusMode, setActiveModal, openTab, projectId, view]
   )
 
-  return snippetDialog
+  return (
+    <>
+      {snippetDialog}
+      {/* The Outline's edit pop-ups (outline/edit/block-editor.tsx) */}
+      <BlockEditor view={view} />
+    </>
+  )
 }
