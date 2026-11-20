@@ -16,6 +16,7 @@ import { mathAutoExpand } from './editor/math-auto-expand'
 import { flashMessageExtension } from './editor/flash-message'
 import { outlineBlocks } from './outline/blocks-plugin'
 import { imagePaste } from './editor/image-paste'
+import { tableGrip } from './editor/table-grip'
 
 export const extension = (): Extension => [
   zenMode(),
@@ -31,4 +32,5 @@ export const extension = (): Extension => [
   flashMessageExtension(),
   outlineBlocks(),
   imagePaste(),
+  tableGrip(),
 ]

@@ -30,6 +30,8 @@ export const COMMAND_KEYS: Record<string, string[]> = {
   'sumitex-go-to-line': ['Ctrl+G'],
   'sumitex-toggle-problems': ['Mod+Shift+M'],
   'sumitex-open-outline': ['Mod+Shift+Y'],
+  'sumitex-table-move-column-left': [isMac ? 'Ctrl+Alt+←' : 'Alt+←'],
+  'sumitex-table-move-column-right': [isMac ? 'Ctrl+Alt+→' : 'Alt+→'],
   'open-settings': ['Mod+,'],
   show_version_history: ['Mod+Shift+H'],
   'synctex-sync-to-pdf': ['Mod+Alt+J'],
@@ -123,6 +125,10 @@ export function sheetGroups(options: { review: boolean }): SheetGroup[] {
     title: 'Edit (VS Code)',
     rows: [
       { label: 'Move line (in a list: the whole item)', keys: ['Alt+↑ / ↓'] },
+      {
+        label: 'In a table: move the column',
+        keys: [isMac ? 'Ctrl+Alt+← / →' : 'Alt+← / →'],
+      },
       { label: 'Copy line', keys: ['Shift+Alt+↑ / ↓'] },
       { label: 'Delete line', keys: ['Mod+Shift+K'] },
       { label: 'Select line', keys: ['Mod+L'] },

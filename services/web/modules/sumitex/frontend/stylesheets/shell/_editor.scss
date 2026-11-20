@@ -47,3 +47,20 @@ body:not(.sx-code-toolbar):not(.sx-visual)
     color: var(--sx-fg);
   }
 }
+
+// Dragging a Visual table column (js/editor/table-grip.ts): the line that
+// shows where the column will land, drawn over the page
+.sx-column-drop {
+  position: fixed;
+  z-index: 1000;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--sx-accent);
+  pointer-events: none;
+}
+
+body.sx-column-dragging,
+body.sx-column-dragging * {
+  cursor: grabbing !important;
+  user-select: none;
+}

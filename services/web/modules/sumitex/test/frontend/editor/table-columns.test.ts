@@ -4,6 +4,7 @@ import { LanguageSupport, ensureSyntaxTree } from '@codemirror/language'
 import { LaTeXLanguage } from '@/features/source-editor/languages/latex/latex-language'
 import {
   moveColumn,
+  moveColumnTo,
   parseSpec,
   tableAt,
 } from '../../../frontend/js/editor/table-columns'
@@ -187,5 +188,60 @@ describe('SumiTeX table columns: moving a column', function () {
       const transaction = state.update(result)
       expect(transaction.docChanged).to.equal(true)
     }
+  })
+})
+
+describe('SumiTeX table columns: moving a column several places (drag)', function () {
+  const table = lines(
+    '\\begin{tabular}{|l|c|r|}',
+    '\\hline',
+    'A1 & B1 & C1 \\\\',
+    'A2 & B2 & C2 \\\\',
+    '\\hline',
+    '\\end{tabular}'
+  )
+  const dragged = (column: number, target: number) => {
+    const state = makeState(table, '\\begin')
+    const result = moveColumnTo(state, 0, column, target)
+    if ('error' in result) return result.error
+    return state.update(result).state.doc.toString()
+  }
+
+  it('moves the first column to the end, the others shifting left', function () {
+    expect(dragged(0, 2)).to.equal(
+      lines(
+        '\\begin{tabular}{|c|r|l|}',
+        '\\hline',
+        'B1 & C1 & A1 \\\\',
+        'B2 & C2 & A2 \\\\',
+        '\\hline',
+        '\\end{tabular}'
+      )
+    )
+  })
+
+  it('moves the last column to the front', function () {
+    expect(dragged(2, 0)).to.equal(
+      lines(
+        '\\begin{tabular}{|r|l|c|}',
+        '\\hline',
+        'C1 & A1 & B1 \\\\',
+        'C2 & A2 & B2 \\\\',
+        '\\hline',
+        '\\end{tabular}'
+      )
+    )
+  })
+
+  it('refuses past a merged cell, and changes nothing in place', function () {
+    const merged = lines(
+      '\\begin{tabular}{lcr}',
+      '\\multicolumn{2}{c}{AB} & C1 \\\\',
+      'A2 & B2 & C2 \\\\',
+      '\\end{tabular}'
+    )
+    const state = makeState(merged, '\\begin')
+    expect(moveColumnTo(state, 0, 0, 2)).to.have.property('error')
+    expect(moveColumnTo(state, 0, 2, 2)).to.deep.equal({})
   })
 })
