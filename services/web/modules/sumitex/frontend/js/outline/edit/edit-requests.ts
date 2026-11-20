@@ -4,7 +4,17 @@
  * the pop-up. A window event, as the two sit in different parts of the
  * page. The Outline knows sections by line, the rest by position.
  */
-export type EditKind = 'table' | 'list' | 'equation' | 'section' | 'any'
+export type EditKind =
+  | 'table'
+  | 'list'
+  | 'equation'
+  | 'section'
+  | 'figure'
+  | 'graph'
+  | 'theorem'
+  | 'note'
+  | 'code'
+  | 'any'
 export type EditRequest = { pos?: number; line?: number; kind: EditKind }
 
 const EVENT = 'sumitex:edit-block'
@@ -24,4 +34,13 @@ export function onEditRequest(listener: (request: EditRequest) => void) {
 }
 
 /** Which Outline block kinds have a pop-up so far */
-export const EDITABLE_KINDS = new Set(['table', 'list', 'equation'])
+export const EDITABLE_KINDS = new Set([
+  'table',
+  'list',
+  'equation',
+  'figure',
+  'graph',
+  'theorem',
+  'note',
+  'code',
+])

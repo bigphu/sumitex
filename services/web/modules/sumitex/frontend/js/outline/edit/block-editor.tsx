@@ -41,15 +41,57 @@ import { getProjectPreamble } from '../../diagnostics/preamble-store'
 import { onEditRequest } from './edit-requests'
 import { blockAt, type Open, type OpenKind } from './block-at'
 import { loadMathJax } from '@/features/mathjax/load-mathjax'
-import { getBlocks } from '../blocks-store'
 import { previewTex } from '../math-text'
 import SymbolPicker from '../../editor/symbols/symbol-picker'
+import { STRUCTURES, symbolText } from '../../editor/symbols/symbol-data'
+import { packageNeeded, hasOwnPreamble } from '../../editor/symbols/symbol-package'
+import { isReferenced } from './parts'
+import { useFileTreeData } from '@/shared/context/file-tree-data-context'
+import { useFileTreePathContext } from '@/features/file-tree/contexts/file-tree-path'
+import type { Folder } from '../../../../../../types/folder'
+import { uploadImages } from '../../editor/image-paste'
+import { parseFile } from '../../diagnostics/preamble'
 import {
-  FREQUENT,
-  STRUCTURES,
-  symbolText,
-} from '../../editor/symbols/symbol-data'
-import { packageNeeded } from '../../editor/symbols/symbol-package'
+  PLACEMENTS,
+  placementOf,
+  readFigure,
+  setCaption as setFigureCaption,
+  setCentering,
+  setImage,
+  setLabel as setFigureLabel,
+  setPlacement,
+  setWidth,
+  widthFraction,
+  widthValue,
+  type FigureModel,
+} from './figure-model'
+import {
+  missingDefinition,
+  readTheorem,
+  setBody as setTheoremBody,
+  setLabel as setTheoremLabel,
+  setTitle as setTheoremTitle,
+  setType as setTheoremType,
+  THEOREM_TYPES,
+  type TheoremModel,
+} from './theorem-model'
+import {
+  readNote,
+  removeTodo,
+  setBoxTitle,
+  setNoteText,
+  type NoteModel,
+} from './note-model'
+import {
+  LANGUAGES,
+  readCode,
+  setCaption as setCodeCaption,
+  setCode,
+  setLabel as setCodeLabel,
+  setLanguage,
+  setNumbered as setCodeNumbered,
+  type CodeModel,
+} from './code-model'
 import {
   EQUATION_KINDS,
   readEquation,
@@ -132,6 +174,10 @@ const readers: Record<OpenKind, (state: EditorState, pos: number) => unknown> = 
   list: readList,
   equation: readEquation,
   section: readSection,
+  figure: readFigure,
+  theorem: readTheorem,
+  note: readNote,
+  code: readCode,
 }
 
 const WANTS: Record<OpenKind, number> = {
@@ -139,10 +185,16 @@ const WANTS: Record<OpenKind, number> = {
   list: LIST_WIDTH,
   equation: 560,
   section: 500,
+  figure: 560,
+  theorem: 540,
+  note: 460,
+  code: 620,
 }
 
 export default function BlockEditor({ view }: { view: EditorView }) {
   const [open, setOpen] = useState<Open | null>(null)
+  // Each opening is a new pop-up (its focus, its size)
+  const [opened, setOpened] = useState(0)
   // The equation pop-up's symbol column
   const [symbols, setSymbols] = useState(false)
   const [, setVersion] = useState(0)
@@ -166,6 +218,7 @@ export default function BlockEditor({ view }: { view: EditorView }) {
         }
         anchor.current = found.anchor
         setOpen(found)
+        setOpened(n => n + 1)
         setSymbols(false)
         view.dispatch({
           effects: View.scrollIntoView(found.anchor, { y: 'start', yMargin: 60 }),
@@ -204,6 +257,7 @@ export default function BlockEditor({ view }: { view: EditorView }) {
 
   return createPortal(
     <Popup
+      key={opened}
       view={view}
       close={close}
       anchor={anchor.current}
@@ -231,6 +285,18 @@ export default function BlockEditor({ view }: { view: EditorView }) {
       )}
       {open.kind === 'section' && (
         <SectionEditor view={view} model={model as SectionModel} close={close} />
+      )}
+      {open.kind === 'figure' && (
+        <FigureEditor view={view} model={model as FigureModel} close={close} />
+      )}
+      {open.kind === 'theorem' && (
+        <TheoremEditor view={view} model={model as TheoremModel} close={close} />
+      )}
+      {open.kind === 'note' && (
+        <NoteEditor view={view} model={model as NoteModel} close={close} />
+      )}
+      {open.kind === 'code' && (
+        <CodeEditor view={view} model={model as CodeModel} close={close} />
       )}
     </Popup>,
     document.body
@@ -293,6 +359,22 @@ function Popup({
     }
   })
 
+  // The focus moves into the pop-up, to its first box, so typing and Esc
+  // go to it (opening from the Outline moves the editor to the block,
+  // which takes the focus first)
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const first = ref.current?.querySelector<HTMLElement>(
+        '.sx-edit-body input:not([type=file]), .sx-edit-body textarea, .sx-edit-body button'
+      )
+      first?.focus({ preventScroll: true })
+    }, 80)
+    return () => window.clearTimeout(timer)
+    // Once per opening (the pop-up is new each time): an edit that moves
+    // the block must not move the focus
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // A click outside closes it (but not the Outline's ✎, which reopens it)
   useEffect(() => {
     const down = (event: PointerEvent) => {
@@ -344,9 +426,6 @@ function Popup({
       onKeyDown={keyDown}
     >
       {children}
-      <div className="sx-edit-foot">
-        Changes rewrite the LaTeX in place · Ctrl+Z undoes · Esc closes
-      </div>
       <div
         className="sx-edit-resize"
         title="Drag to resize; double-click for the automatic size"
@@ -385,14 +464,19 @@ function Popup({
   )
 }
 
-function Head({ title, note, close }: { title: string; note?: string; close?: () => void }) {
+function Head({ title, close }: { title: string; close?: () => void }) {
   return (
     <div className="sx-edit-head">
       <span className="sx-edit-title">{title}</span>
-      {note && <code className="sx-edit-note">{note}</code>}
       <span className="sx-edit-spacer" />
       {close && (
-        <button type="button" className="sx-edit-icon" aria-label="Close" onClick={close}>
+        <button
+          type="button"
+          className="sx-edit-icon"
+          aria-label="Close"
+          title="Close (Esc) · Ctrl+Z undoes a change"
+          onClick={close}
+        >
           <MaterialIcon type="close" />
         </button>
       )}
@@ -505,6 +589,154 @@ const Draft = forwardRef<
 })
 Draft.displayName = 'Draft'
 
+// ------------------------------------------------------------ quiet parts
+
+/** A small dot that says, on hover, what is missing or unused */
+function Problem({ text }: { text: string | null }) {
+  return text ? <span className="sx-q-dot" title={text} aria-label={text} /> : null
+}
+
+/** One row: a small label on the left, the control on the right */
+function Field({
+  label,
+  problem,
+  top,
+  children,
+}: {
+  label: string
+  problem?: string | null
+  /** The label above a tall control (text, code) */
+  top?: boolean
+  children: ReactNode
+}) {
+  return (
+    <div className={classNames('sx-q-field', { 'sx-q-field-top': top })}>
+      <span className="sx-q-label">
+        {label}
+        <Problem text={problem ?? null} />
+      </span>
+      <div className="sx-q-control">{children}</div>
+    </div>
+  )
+}
+
+/** The caption box; for figures and tables, a missing one is a problem */
+function CaptionField({
+  text,
+  required,
+  onValue,
+}: {
+  text: string | undefined
+  required?: boolean
+  onValue: (value: string) => void
+}) {
+  return (
+    <Field label="Caption" problem={text || !required ? null : 'No caption yet'}>
+      <Draft
+        className="sx-edit-input"
+        value={text ?? ''}
+        placeholder="Add a caption"
+        aria-label="Caption"
+        onValue={onValue}
+      />
+    </Field>
+  )
+}
+
+/** The label box; for figures and tables, a missing one is a problem */
+function LabelField({
+  label,
+  referenced,
+  required,
+  placeholder,
+  onValue,
+}: {
+  label: { text: string } | null
+  referenced: boolean
+  required?: boolean
+  placeholder: string
+  onValue: (value: string) => void
+}) {
+  const problem = !label?.text
+    ? required
+      ? 'No label, so the text can’t refer to it'
+      : null
+    : referenced
+      ? null
+      : 'The text never refers to it'
+  return (
+    <Field label="Label" problem={problem}>
+      <input
+        className="sx-edit-input"
+        value={label?.text ?? ''}
+        placeholder={placeholder}
+        aria-label="Label"
+        onChange={event => onValue(event.target.value)}
+      />
+    </Field>
+  )
+}
+
+/** What fewer people change, folded away; open or shut is remembered */
+function More({ kind, summary, children }: { kind: string; summary: string; children: ReactNode }) {
+  const key = `sumitex.edit-popup.more.${kind}`
+  const [open, setOpen] = useState(() => {
+    try {
+      return localStorage.getItem(key) === 'true'
+    } catch {
+      return false
+    }
+  })
+  const toggle = () =>
+    setOpen(was => {
+      try {
+        localStorage.setItem(key, String(!was))
+      } catch {
+        // storage blocked: it stays open until the pop-up closes
+      }
+      return !was
+    })
+  return (
+    <div className="sx-q-more">
+      <button type="button" className="sx-q-more-toggle" aria-expanded={open} onClick={toggle}>
+        <MaterialIcon type={open ? 'expand_more' : 'chevron_right'} />
+        More
+        {!open && <span className="sx-q-more-summary">{summary}</span>}
+      </button>
+      {open && <div className="sx-q-more-body">{children}</div>}
+    </div>
+  )
+}
+
+/** Segmented choices */
+function Choice<T extends string>({
+  options,
+  value,
+  onChange,
+}: {
+  options: { value: T; label: string; title?: string }[]
+  value: string
+  onChange: (value: T) => void
+}) {
+  return (
+    <div className="sx-edit-tabs" role="tablist">
+      {options.map(option => (
+        <button
+          key={option.value}
+          type="button"
+          role="tab"
+          title={option.title}
+          aria-selected={value === option.value}
+          className={classNames('sx-edit-tab', { 'sx-edit-tab-on': value === option.value })}
+          onClick={() => onChange(option.value)}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 // ------------------------------------------------------------------ table
 
 const ALIGN_NEXT = { l: 'c', c: 'r', r: 'l' } as const
@@ -564,7 +796,7 @@ function TableEditor({
 
   return (
     <>
-      <Head title="Edit table" note={model.label?.text || 'no label yet'} close={close} />
+      <Head title="Table" close={close} />
       <div className="sx-edit-body">
         <table
           className="sx-edit-grid"
@@ -687,8 +919,17 @@ function TableEditor({
           <button type="button" className="sx-edit-link" onClick={() => apply(addRow(view.state, model))}>
             + Row
           </button>
-          <span className="sx-edit-spacer" />
-          {model.hlines.length > 0 && (
+        </div>
+        <CaptionField required text={model.caption?.text} onValue={value => apply(setCaption(view.state, model, value))} />
+        <LabelField
+          label={model.label}
+          referenced={isReferenced(view.state, model.label?.text)}
+          required
+          placeholder="tab:"
+          onValue={value => apply(setLabel(view.state, model, cleanLabel(value)))}
+        />
+        {model.hlines.length > 0 && (
+          <More kind="table" summary="cleaner rules">
             <button
               type="button"
               className="sx-edit-chip"
@@ -697,34 +938,8 @@ function TableEditor({
             >
               Cleaner rules (booktabs)
             </button>
-          )}
-        </div>
-        <div className="sx-edit-fields">
-          <label className="sx-edit-field">
-            <span>
-              Caption
-              {!model.caption?.text && <em> · missing</em>}
-            </span>
-            <Draft
-              className={classNames('sx-edit-input', { 'sx-edit-input-missing': !model.caption?.text })}
-              value={model.caption?.text ?? ''}
-              placeholder="Add a caption"
-              onValue={value => apply(setCaption(view.state, model, value))}
-            />
-          </label>
-          <label className="sx-edit-field">
-            <span>
-              Label
-              {!model.label?.text && <em> · missing</em>}
-            </span>
-            <input
-              className={classNames('sx-edit-input', { 'sx-edit-input-missing': !model.label?.text })}
-              value={model.label?.text ?? ''}
-              placeholder="tab:"
-              onChange={event => apply(setLabel(view.state, model, cleanLabel(event.target.value)))}
-            />
-          </label>
-        </div>
+          </More>
+        )}
         {error && (
           <p className="sx-edit-error" role="alert">
             {error}
@@ -774,7 +989,7 @@ function ListEditor({
 
   return (
     <>
-      <Head title="Edit list" close={close} />
+      <Head title="List" close={close} />
       <div className="sx-edit-body">
         <div className="sx-edit-tabs" role="tablist">
           {LIST_TYPES.map(type => (
@@ -830,7 +1045,7 @@ function ListEditor({
                 />
               ) : (
                 <span className="sx-edit-readonly" title="This item runs over several lines; edit it in the editor">
-                  {item.text || '…'} <em>(more in the editor)</em>
+                  {item.text || '…'}
                 </span>
               )}
               <button
@@ -887,11 +1102,6 @@ function Switch({
   )
 }
 
-/** Where a label stands: missing, used in this file, or not (yet) */
-function labelStatus(label: { text: string } | null, referenced: boolean) {
-  if (!label?.text) return ' · missing'
-  return referenced ? ' · referred to in this file' : ' · not referred to in this file'
-}
 
 // --------------------------------------------------------------- equation
 
@@ -992,118 +1202,79 @@ function EquationEditor({
 
   return (
     <>
-      <Head
-        title="Edit equation"
-        note={model.label?.text || (model.numbered ? 'no label yet' : 'unnumbered')}
-        close={close}
-      />
+      <Head title="Equation" close={close} />
       <div className={classNames('sx-edit-body', { 'sx-edit-split': picker })}>
-       <div className="sx-edit-main">
-        <div className="sx-edit-row">
-          <div className="sx-edit-tabs" role="tablist">
-            {tabs.map(kind => (
+        <div className="sx-edit-main">
+          <MathPreview tex={tex} />
+          <div className="sx-edit-toolbar" role="toolbar" aria-label="Insert">
+            {STRUCTURES.map(item => (
               <button
-                key={kind}
+                key={item.tex}
                 type="button"
-                role="tab"
-                aria-selected={model.kind === kind && !model.bracket}
-                title={kind === 'align' ? 'Several lines, lined up at &' : `\\begin{${kind}}`}
-                className={classNames('sx-edit-tab', {
-                  'sx-edit-tab-on': model.kind === kind && !model.bracket,
-                })}
-                onClick={() =>
-                  (EQUATION_KINDS as readonly string[]).includes(kind) &&
-                  apply(setKind(model, kind as (typeof EQUATION_KINDS)[number]))
-                }
+                className="sx-edit-tool"
+                title={item.title}
+                onMouseDown={event => event.preventDefault()}
+                onClick={() => insert(item.tex)}
               >
-                {kind}
+                {item.label}
               </button>
             ))}
+            <span className="sx-edit-spacer" />
+            <button
+              type="button"
+              className={classNames('sx-edit-tool sx-edit-tool-more', { 'sx-edit-tool-on': picker })}
+              aria-expanded={picker}
+              title="Symbols (Ctrl+K M in the editor)"
+              onMouseDown={event => event.preventDefault()}
+              onClick={() => setPicker(on => !on)}
+            >
+              Ω
+            </button>
           </div>
-          <span className="sx-edit-spacer" />
-          <Switch
-            label="Numbered"
-            checked={model.numbered}
-            onChange={on => apply(setEquationNumbered(model, on))}
-          />
-        </div>
-        <div className="sx-edit-toolbar" role="toolbar" aria-label="Insert">
-          {STRUCTURES.map(item => (
-            <button
-              key={item.tex}
-              type="button"
-              className="sx-edit-tool"
-              title={item.title}
-              onMouseDown={event => event.preventDefault()}
-              onClick={() => insert(item.tex)}
-            >
-              {item.label}
-            </button>
-          ))}
-          {/* The picker on the right has these too; its room is theirs */}
-          {!picker && <span className="sx-edit-toolbar-gap" />}
-          {!picker && FREQUENT.map(symbol => (
-            <button
-              key={symbol.tex}
-              type="button"
-              className="sx-edit-tool"
-              title={symbol.tex}
-              onMouseDown={event => event.preventDefault()}
-              onClick={() => insert(symbol.tex, symbol.package)}
-            >
-              {symbol.char}
-            </button>
-          ))}
-          <span className="sx-edit-spacer" />
-          <button
-            type="button"
-            className={classNames('sx-edit-tool sx-edit-tool-more', { 'sx-edit-tool-on': picker })}
-            aria-expanded={picker}
-            title="All symbols (Ctrl+K M in the editor)"
-            onMouseDown={event => event.preventDefault()}
-            onClick={() => setPicker(on => !on)}
-          >
-            Ω More
-          </button>
-        </div>
-        <label className="sx-edit-field">
-          <span>Source</span>
           <Draft
             multiline
             ref={source}
             className="sx-edit-input sx-edit-source"
             value={model.source.text}
+            aria-label="Source"
             rows={Math.min(8, Math.max(2, model.source.text.split('\n').length + 1))}
             spellCheck={false}
             onValue={value => apply(setSource(model, value))}
           />
-        </label>
-        <MathPreview tex={tex} />
-        <label className="sx-edit-field">
-          <span>
-            Label
-            <em>{labelStatus(model.label, model.referenced)}</em>
-          </span>
-          <input
-            className="sx-edit-input"
-            value={model.label?.text ?? ''}
+          <LabelField
+            label={model.label}
+            referenced={model.referenced}
             placeholder="eq:"
-            onChange={event => apply(setEquationLabel(model, event.target.value))}
+            onValue={value => apply(setEquationLabel(model, value))}
           />
-        </label>
-        {!model.numbered && model.label?.text && (
-          <p className="sx-edit-hint">
-            An unnumbered equation has no number for its label to show; turn
-            numbering on, or remove the label.
-          </p>
-        )}
-        {error && (
-          <p className="sx-edit-error" role="alert">
-            {error}
-          </p>
-        )}
-       </div>
-        {/* All symbols, in a column on the right */}
+          <More kind="equation" summary={`${model.kind} · ${model.numbered ? 'numbered' : 'unnumbered'}`}>
+            <div className="sx-edit-row">
+              <Choice
+                options={tabs.map(kind => ({
+                  value: kind,
+                  label: kind,
+                  title: kind === 'align' ? 'Several lines, lined up at &' : `\\begin{${kind}}`,
+                }))}
+                value={model.bracket ? '' : model.kind}
+                onChange={kind =>
+                  (EQUATION_KINDS as readonly string[]).includes(kind) &&
+                  apply(setKind(model, kind as (typeof EQUATION_KINDS)[number]))
+                }
+              />
+              <span className="sx-edit-spacer" />
+              <Switch
+                label="Numbered"
+                checked={model.numbered}
+                onChange={on => apply(setEquationNumbered(model, on))}
+              />
+            </div>
+          </More>
+          {error && (
+            <p className="sx-edit-error" role="alert">
+              {error}
+            </p>
+          )}
+        </div>
         {picker && (
           <aside className="sx-edit-side" aria-label="Symbols">
             <SymbolPicker
@@ -1155,81 +1326,494 @@ function SectionEditor({
   if (!levels.includes(model.level)) levels.push(model.level)
   levels.sort((a, b) => a - b)
 
-  // What it holds: the Outline's blocks in its range
-  const held = getBlocks().filter(
-    block => block.from >= model.range.from && block.from < model.range.to
-  )
-  const count = (kind: string, one: string, many: string) => {
-    const n = held.filter(block => block.kind === kind).length
-    return n ? `${n} ${n === 1 ? one : many}` : null
-  }
-  const holds = [
-    count('equation', 'equation', 'equations'),
-    count('figure', 'figure', 'figures'),
-    count('table', 'table', 'tables'),
-  ].filter(Boolean)
   const command = `\\${LEVELS[model.level]}`
 
   return (
     <>
-      <Head
-        title={`Edit ${LEVEL_NAMES[LEVELS[model.level]]}`}
-        note={model.label?.text || 'no label yet'}
-        close={close}
-      />
+      <Head title={LEVEL_NAMES[LEVELS[model.level]].replace(/^./, c => c.toUpperCase())} close={close} />
       <div className="sx-edit-body">
-        <label className="sx-edit-field">
-          <span>Title</span>
+        <Field label="Title">
           <Draft
             className="sx-edit-input"
             value={model.title.text}
+            aria-label="Title"
             onValue={value => apply(setTitle(model, value))}
           />
-        </label>
-        <div className="sx-edit-field">
-          <span>
-            Level
-            {model.inner.length > 0 && <em> · the sections inside move with it</em>}
-          </span>
-          <div className="sx-edit-tabs" role="tablist">
-            {levels.map(level => (
-              <button
-                key={level}
-                type="button"
-                role="tab"
-                aria-selected={model.level === level}
-                className={classNames('sx-edit-tab', { 'sx-edit-tab-on': model.level === level })}
-                onClick={() => apply(setLevel(model, level))}
-              >
-                {LEVELS[level]}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="sx-edit-row sx-edit-row-end">
-          <label className="sx-edit-field sx-edit-grow">
-            <span>
-              Label
-              <em>{labelStatus(model.label, model.referenced)}</em>
-            </span>
-            <input
-              className="sx-edit-input"
-              value={model.label?.text ?? ''}
-              placeholder="sec:"
-              onChange={event => apply(setSectionLabel(model, event.target.value))}
-            />
-          </label>
+        </Field>
+        <Field label="Level">
+          <Choice
+            options={levels.map(level => ({
+              value: String(level),
+              label: LEVELS[level],
+              title: model.inner.length ? 'The sections inside move with it' : undefined,
+            }))}
+            value={String(model.level)}
+            onChange={level => apply(setLevel(model, Number(level)))}
+          />
+        </Field>
+        <LabelField
+          label={model.label}
+          referenced={model.referenced}
+          placeholder="sec:"
+          onValue={value => apply(setSectionLabel(model, value))}
+        />
+        <More kind="section" summary={model.numbered ? 'numbered' : 'unnumbered'}>
           <Switch
-            label="Numbered"
+            label={`Numbered (${command}* has no number)`}
             checked={model.numbered}
             onChange={on => apply(setSectionNumbered(model, on))}
           />
-        </div>
-        <p className="sx-edit-hint">
-          {holds.length ? `Holds ${holds.join(' and ').replace(/ and (?=.* and )/, ', ')}. ` : ''}
-          Turning numbering off writes {command}*, which has no number and
-          needs its label removed or kept by hand.
-        </p>
+        </More>
+        {error && (
+          <p className="sx-edit-error" role="alert">
+            {error}
+          </p>
+        )}
+      </div>
+    </>
+  )
+}
+
+// ----------------------------------------------------------------- figure
+
+const IMAGE_FILE = /\.(png|jpe?g|pdf|eps|svg|gif|webp)$/i
+
+/** Every image in the project, by path */
+function projectImages(root: Folder | undefined) {
+  const found: string[] = []
+  const walk = (folder: Folder, prefix: string) => {
+    for (const file of folder.fileRefs) {
+      if (IMAGE_FILE.test(file.name)) found.push(prefix + file.name)
+    }
+    for (const sub of folder.folders) walk(sub, `${prefix}${sub.name}/`)
+  }
+  if (root) walk(root, '')
+  return found.sort()
+}
+
+/** A path as written (maybe without its extension) to a file of the project */
+function resolveImage(path: string, images: string[]) {
+  if (images.includes(path)) return path
+  return images.find(image => image.replace(/\.[^./]+$/, '') === path) ?? null
+}
+
+function Thumbnail({ path, images }: { path: string; images: string[] }) {
+  const { previewByPath } = useFileTreePathContext()
+  const file = resolveImage(path, images)
+  const preview = file ? previewByPath(file) : null
+  if (!preview) {
+    return <div className="sx-edit-thumb sx-edit-thumb-missing">{file ? 'No preview' : 'Not in the project'}</div>
+  }
+  if (!/^(png|jpe?g|gif|svg|webp)$/i.test(preview.extension)) {
+    return <div className="sx-edit-thumb sx-edit-thumb-missing">{preview.extension.toUpperCase()}</div>
+  }
+  return <img className="sx-edit-thumb" src={preview.url} alt="" />
+}
+
+const WIDTHS: { value: string; label: string }[] = [
+  { value: '0.25', label: '¼' },
+  { value: '0.5', label: '½' },
+  { value: '0.75', label: '¾' },
+  { value: '1', label: 'Full' },
+]
+
+function FigureEditor({
+  view,
+  model,
+  close,
+}: {
+  view: EditorView
+  model: FigureModel
+  close: () => void
+}) {
+  const { apply, error } = useApply(view)
+  const { fileTreeData } = useFileTreeData()
+  const images = projectImages(fileTreeData as Folder | undefined)
+  const [choosing, setChoosing] = useState<number | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+  const fileInput = useRef<HTMLInputElement>(null)
+  const placement = placementOf(view.state, model)
+
+  const upload = async (index: number, files: File[], pasted: boolean) => {
+    if (!files.length) return
+    setBusy(true)
+    setUploadError(null)
+    try {
+      const [first] = await uploadImages(files.slice(0, 1), pasted)
+      const fresh = readFigure(view.state, model.range.from)
+      if (first && fresh) apply(setImage(fresh, index, first.path))
+      setChoosing(null)
+    } catch (e) {
+      setUploadError(
+        e instanceof Error && e.message.startsWith('SumiTeX: ')
+          ? e.message.slice('SumiTeX: '.length)
+          : 'The image couldn’t be uploaded.'
+      )
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const placementName =
+    PLACEMENTS.find(p => p.value === placement)?.label.toLowerCase() ?? (placement ? `[${placement}]` : 'default place')
+
+  return (
+    <>
+      <Head title={model.name ? 'Figure' : 'Drawing'} close={close} />
+      <div className="sx-edit-body">
+        {model.images.map((image, i) => {
+          const fraction = widthFraction(image.width)
+          return (
+            <div
+              key={i}
+              className="sx-edit-image"
+              onPaste={event => {
+                const files = [...event.clipboardData.files].filter(f => f.type.startsWith('image/'))
+                if (files.length) {
+                  event.preventDefault()
+                  void upload(i, files, true)
+                }
+              }}
+            >
+              <Thumbnail path={image.path.text} images={images} />
+              <div className="sx-edit-image-side">
+                <div className="sx-edit-row">
+                  <code className="sx-edit-path" title={image.path.text}>
+                    {image.path.text}
+                  </code>
+                  <span className="sx-edit-spacer" />
+                  <button
+                    type="button"
+                    className="sx-edit-link"
+                    onClick={() => setChoosing(choosing === i ? null : i)}
+                  >
+                    Replace
+                  </button>
+                </div>
+                <Choice
+                  options={WIDTHS}
+                  value={fraction ?? ''}
+                  onChange={value => apply(setWidth(view.state, model, i, widthValue(value)))}
+                />
+                {choosing === i && (
+                  <div className="sx-edit-choose">
+                    <select
+                      className="sx-edit-input"
+                      aria-label="An image from the project"
+                      value=""
+                      onChange={event => {
+                        if (!event.target.value) return
+                        apply(setImage(model, i, event.target.value))
+                        setChoosing(null)
+                      }}
+                    >
+                      <option value="">An image from the project…</option>
+                      {images.map(path => (
+                        <option key={path} value={path}>
+                          {path}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      className="sx-edit-link"
+                      disabled={busy}
+                      title="Or paste an image here"
+                      onClick={() => fileInput.current?.click()}
+                    >
+                      {busy ? 'Uploading…' : 'Upload'}
+                    </button>
+                    <input
+                      ref={fileInput}
+                      type="file"
+                      accept="image/*,.pdf,.eps"
+                      hidden
+                      onChange={event => {
+                        void upload(i, [...(event.target.files ?? [])], false)
+                        event.target.value = ''
+                      }}
+                    />
+                    {uploadError && <p className="sx-edit-error">{uploadError}</p>}
+                  </div>
+                )}
+              </div>
+            </div>
+          )
+        })}
+        <CaptionField required text={model.caption?.text} onValue={value => apply(setFigureCaption(view.state, model, value))} />
+        <LabelField
+          label={model.label}
+          referenced={model.referenced}
+          required
+          placeholder="fig:"
+          onValue={value => apply(setFigureLabel(view.state, model, value))}
+        />
+        {(model.images.length > 0 || (model.name && model.name !== 'wrapfigure')) && (
+          <More
+            kind="figure"
+            summary={[
+              model.name && model.name !== 'wrapfigure' ? placementName : null,
+              model.name ? (model.centering ? 'centred' : 'not centred') : null,
+              model.images.length ? 'exact width' : null,
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          >
+            {model.name && model.name !== 'wrapfigure' && (
+              <Field label="Place">
+                <Choice options={PLACEMENTS} value={placement} onChange={value => apply(setPlacement(model, value))} />
+              </Field>
+            )}
+            {model.name && (
+              <Field label="">
+                <Switch
+                  label="Centred"
+                  checked={Boolean(model.centering)}
+                  onChange={on => apply(setCentering(view.state, model, on))}
+                />
+              </Field>
+            )}
+            {model.images.map((image, i) => (
+              <Field key={i} label={model.images.length > 1 ? `Width ${i + 1}` : 'Width'}>
+                <Draft
+                  className="sx-edit-input sx-edit-width"
+                  value={image.width ?? ''}
+                  placeholder="natural size, or 5cm…"
+                  aria-label="Width as written"
+                  onValue={value => apply(setWidth(view.state, model, i, value.trim()))}
+                />
+              </Field>
+            ))}
+          </More>
+        )}
+        {error && (
+          <p className="sx-edit-error" role="alert">
+            {error}
+          </p>
+        )}
+      </div>
+    </>
+  )
+}
+
+// ---------------------------------------------------------------- theorem
+
+/** What the preamble in effect defines, or null when it can't be read */
+function definedNames(text: string) {
+  if (hasOwnPreamble(text)) return parseFile(preambleOf(text)).defined
+  return getProjectPreamble().preamble?.defined ?? null
+}
+
+function TheoremEditor({
+  view,
+  model,
+  close,
+}: {
+  view: EditorView
+  model: TheoremModel
+  close: () => void
+}) {
+  const { apply, error } = useApply(view)
+  const types = THEOREM_TYPES.map(t => ({ name: t.name, title: t.title }))
+  if (!types.some(t => t.name === model.type)) types.push({ name: model.type, title: model.type })
+  const missing = missingDefinition(model.type, definedNames(view.state.doc.toString()))
+  const title = THEOREM_TYPES.find(t => t.name === model.type)?.title ?? model.type
+
+  return (
+    <>
+      <Head title={title} close={close} />
+      <div className="sx-edit-body">
+        <Field label="Type" problem={missing ? `${title} isn’t defined in the preamble yet, so it won’t compile` : null}>
+          <div className="sx-edit-row">
+            <select
+              className="sx-edit-input sx-q-select"
+              aria-label="Type"
+              value={model.type}
+              onChange={event => apply(setTheoremType(model, event.target.value))}
+            >
+              {types.map(t => (
+                <option key={t.name} value={t.name}>
+                  {t.title}
+                </option>
+              ))}
+            </select>
+            {missing && (
+              <button
+                type="button"
+                className="sx-edit-link"
+                title={`Adds ${missing} to the preamble`}
+                onClick={() => void requestAddPackage('amsthm', { preambleLines: [missing] })}
+              >
+                Define it
+              </button>
+            )}
+          </div>
+        </Field>
+        <Field label="Name">
+          <Draft
+            className="sx-edit-input"
+            value={model.title?.text ?? ''}
+            placeholder="optional, e.g. Pythagoras"
+            aria-label="Name"
+            onValue={value => apply(setTheoremTitle(model, value))}
+          />
+        </Field>
+        <Field label="Text" top>
+          <Draft
+            multiline
+            className="sx-edit-input sx-edit-body-text"
+            value={model.body.text}
+            aria-label="Text"
+            rows={Math.min(8, Math.max(3, model.body.text.split('\n').length + 1))}
+            onValue={value => apply(setTheoremBody(model, value))}
+          />
+        </Field>
+        {model.type !== 'proof' && (
+          <LabelField
+            label={model.label}
+            referenced={model.referenced}
+            placeholder={`${model.type.slice(0, 3)}:`}
+            onValue={value => apply(setTheoremLabel(model, value))}
+          />
+        )}
+        {error && (
+          <p className="sx-edit-error" role="alert">
+            {error}
+          </p>
+        )}
+      </div>
+    </>
+  )
+}
+
+// ------------------------------------------------------------------- note
+
+function NoteEditor({
+  view,
+  model,
+  close,
+}: {
+  view: EditorView
+  model: NoteModel
+  close: () => void
+}) {
+  const { apply, error } = useApply(view)
+  const text = model.kind === 'todo' ? model.text.text : model.body.text
+  return (
+    <>
+      <Head title={model.kind === 'todo' ? 'To-do' : 'Box'} close={close} />
+      <div className="sx-edit-body">
+        {model.kind === 'box' && (
+          <Field label="Title">
+            <Draft
+              className="sx-edit-input"
+              value={model.title}
+              placeholder="no title"
+              aria-label="Title"
+              onValue={value => apply(setBoxTitle(view.state, model, value))}
+            />
+          </Field>
+        )}
+        <Draft
+          multiline
+          className="sx-edit-input sx-edit-body-text"
+          value={text}
+          aria-label={model.kind === 'todo' ? 'To do' : 'Text'}
+          rows={Math.min(8, Math.max(2, text.split('\n').length + 1))}
+          onValue={value => apply(setNoteText(model, value))}
+        />
+        {model.kind === 'todo' && (
+          <div className="sx-edit-actions">
+            <span className="sx-edit-spacer" />
+            <button
+              type="button"
+              className="sx-edit-chip"
+              title="Remove this \todo from the text"
+              onClick={() => {
+                apply(removeTodo(view.state, model))
+                close()
+              }}
+            >
+              ✓ Done
+            </button>
+          </div>
+        )}
+        {error && (
+          <p className="sx-edit-error" role="alert">
+            {error}
+          </p>
+        )}
+      </div>
+    </>
+  )
+}
+
+// ------------------------------------------------------------------- code
+
+function CodeEditor({
+  view,
+  model,
+  close,
+}: {
+  view: EditorView
+  model: CodeModel
+  close: () => void
+}) {
+  const { apply, error } = useApply(view)
+  const isAlgorithm = model.name.startsWith('algorithm')
+  return (
+    <>
+      <Head title={isAlgorithm ? 'Algorithm' : 'Code'} close={close} />
+      <div className="sx-edit-body">
+        {!isAlgorithm && (
+          <Field label="Language">
+            <Draft
+              className="sx-edit-input"
+              value={model.language}
+              list="sx-edit-languages"
+              placeholder={model.name === 'minted' ? 'python' : 'Python'}
+              aria-label="Language"
+              onValue={value => apply(setLanguage(view.state, model, value.trim()))}
+            />
+            <datalist id="sx-edit-languages">
+              {LANGUAGES.map(language => (
+                <option key={language} value={model.name === 'minted' ? language.toLowerCase() : language} />
+              ))}
+            </datalist>
+          </Field>
+        )}
+        {model.code && (
+          <Draft
+            multiline
+            className="sx-edit-input sx-edit-source"
+            value={model.code.text}
+            aria-label="Code"
+            rows={Math.min(14, Math.max(3, model.code.text.split('\n').length + 1))}
+            spellCheck={false}
+            onValue={value => apply(setCode(model, value))}
+          />
+        )}
+        {model.captionIn && (
+          <>
+            <CaptionField text={model.caption?.text} onValue={value => apply(setCodeCaption(view.state, model, value))} />
+            <LabelField
+              label={model.label}
+              referenced={model.referenced}
+              placeholder={isAlgorithm ? 'alg:' : 'lst:'}
+              onValue={value => apply(setCodeLabel(view.state, model, value))}
+            />
+          </>
+        )}
+        {!isAlgorithm && (
+          <More kind="code" summary={model.numbered ? 'line numbers' : 'no line numbers'}>
+            <Switch
+              label="Line numbers"
+              checked={model.numbered}
+              onChange={on => apply(setCodeNumbered(view.state, model, on))}
+            />
+          </More>
+        )}
         {error && (
           <p className="sx-edit-error" role="alert">
             {error}

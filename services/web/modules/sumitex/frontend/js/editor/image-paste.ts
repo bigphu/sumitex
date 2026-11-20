@@ -53,6 +53,10 @@ type Uploader = (files: File[], pasted: boolean) => Promise<Uploaded[]>
 
 // The bridge supplies it (it knows the project and its files)
 let uploader: Uploader | null = null
+/** Upload images into images/ (the figure pop-up's Replace) */
+export const uploadImages = (files: File[], pasted = false) =>
+  uploader ? uploader(files, pasted) : Promise.reject(new Error('SumiTeX: uploads aren’t ready yet.'))
+
 export const setImageUploader = (next: Uploader | null) => {
   uploader = next
 }
