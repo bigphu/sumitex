@@ -12,14 +12,18 @@ $sx-pdf-pane: '.ide-redesign-pdf-container';
   .pdf .toolbar.toolbar-pdf {
     position: absolute;
     bottom: var(--spacing-05);
-    left: 50%;
-    transform: translateX(-50%);
+    // Centred by auto margins across the whole pane, at its own width.
+    // (It used to be left: 50% and a -50% shift, which lays the pill out
+    // in half the pane, so its controls spilled out of a narrow one.)
+    right: 0;
+    left: 0;
     z-index: 3;
     display: flex;
     flex-wrap: nowrap;
     gap: var(--spacing-02);
-    width: auto;
+    width: fit-content;
     max-width: calc(100% - 2 * var(--spacing-05));
+    margin-inline: auto;
     height: 34px;
     padding: 0 var(--spacing-03);
     // visible, so the zoom menu and the compact ⋯ menu aren't clipped
@@ -90,6 +94,12 @@ $sx-pdf-pane: '.ide-redesign-pdf-container';
   .toolbar-pdf-left {
     order: 2;
   }
+
+  // Before the first PDF the controls are empty: drop them, so the pill's
+  // gap doesn't leave a space before Download
+  .toolbar-pdf-right:not(:has(button, input, a)) {
+    display: none;
+  }
 }
 
 // The jump arrows on the divider became ⌖ in the pill
@@ -121,5 +131,67 @@ $sx-pdf-pane: '.ide-redesign-pdf-container';
 
   .material-symbols {
     font-size: 18px;
+  }
+}
+
+// Download: a real button in the accent colour with a word on it, so it
+// stands out from the pill's quiet controls (it is what most people come
+// to the PDF for). Quiet until there is a PDF.
+.ide-redesign-pdf-container .toolbar-pdf a.pdf-toolbar-btn[download] {
+  display: inline-flex !important;
+  gap: 4px;
+  align-items: center;
+  width: auto;
+  height: 28px;
+  padding: 0 10px 0 8px;
+  color: #fff !important; // 5.3:1 or better on the fill (tokens/_themes)
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none;
+  background: var(--sx-accent-fill) !important;
+  border-radius: 999px;
+
+  &::after {
+    content: 'Download';
+  }
+
+  .material-symbols {
+    font-size: 17px;
+    color: inherit;
+  }
+
+  &:hover:not(:disabled, [data-disabled='true']) {
+    background: var(--sx-accent-fill-hover) !important;
+  }
+
+  // No PDF yet: a quiet outline, not a faded blue blob (which read as
+  // broken); its tooltip says to compile first
+  &:disabled,
+  &[data-disabled='true'] {
+    color: var(--sx-muted) !important;
+    background: transparent !important;
+    box-shadow: inset 0 0 0 1px var(--sx-border);
+    opacity: 1;
+    cursor: not-allowed;
+  }
+}
+
+// A narrow PDF panel: the button shrinks to its icon, so it stays in the
+// pill. Sized by the panel, not the window (the panel can be narrow in a
+// wide window).
+.ide-redesign-pdf-container {
+  container: sx-pdf / inline-size;
+}
+
+@container sx-pdf (max-width: 360px) {
+  .ide-redesign-pdf-container .toolbar-pdf a.pdf-toolbar-btn[download] {
+    gap: 0;
+    width: 28px;
+    padding: 0;
+    justify-content: center;
+
+    &::after {
+      content: none;
+    }
   }
 }
