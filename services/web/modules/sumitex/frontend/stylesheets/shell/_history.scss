@@ -78,3 +78,34 @@
   border-radius: var(--border-radius-base);
   font-weight: 500;
 }
+
+// The page behind a file shorter than the pane: the island, not upstream's
+// white (which showed below a short file in the dark theme)
+.history-react .doc-container {
+  background: transparent;
+}
+
+// Restore this version (of the file) / Restore file: a small secondary
+// button, like the dialogs'
+.history-react-toolbar .btn-secondary {
+  --bs-btn-bg: var(--sx-island);
+  --bs-btn-border-color: var(--sx-border);
+  --bs-btn-color: var(--sx-fg);
+  --bs-btn-hover-bg: var(--sx-island-raised);
+  --bs-btn-hover-border-color: var(--sx-muted);
+  --bs-btn-hover-color: var(--sx-fg);
+  --bs-btn-active-bg: var(--sx-island-raised);
+  --bs-btn-active-border-color: var(--sx-muted);
+  --bs-btn-active-color: var(--sx-fg);
+
+  height: 26px;
+  padding: 0 var(--spacing-04);
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+
+  &:focus-visible {
+    outline: 2px solid var(--sx-accent);
+    outline-offset: 1px;
+  }
+}
