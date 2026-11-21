@@ -45,67 +45,13 @@
   gap: var(--spacing-03);
   flex: 0 0 auto;
 
-  // The stock switch keeps its look; drop its outer margin here
   .toggle-switch {
     margin-right: 0;
   }
 }
 
-// Source / Split / PDF: three small icon buttons (mockup frame 1)
-.sx-segmented {
-  display: inline-flex;
-  gap: 2px;
-}
-
-.sx-segmented-item {
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 24px;
-  border: 0;
-  border-radius: var(--border-radius-base);
-  background: transparent;
-  color: var(--sx-muted);
-  cursor: pointer;
-
-  &:hover {
-    background: var(--sx-island-raised);
-    color: var(--sx-fg);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--sx-accent);
-    outline-offset: 1px;
-  }
-}
-
-.sx-segmented-item-active,
-.sx-segmented-item-active:hover {
-  background: var(--sx-island-raised);
-  color: var(--sx-accent);
-}
-
-// Code / Visual: the stock switch, made a small text toggle like the mockup
-.sx-work-tabbar-end .toggle-switch {
-  --toggle-switch-height: 22px;
-  margin-right: 0;
-  background: transparent;
-
-  .toggle-switch-label span {
-    padding: 0 var(--spacing-03);
-    font-size: var(--font-size-01);
-    background: none !important;
-  }
-
-  .toggle-switch-input:checked + .toggle-switch-label {
-    background: var(--sx-island-raised);
-    color: var(--sx-fg);
-  }
-
-  .toggle-switch-label {
-    color: var(--sx-muted);
-  }
-}
+// Source / Split / PDF and Code / Visual: segmented switches, styled in
+// _controls.scss
 
 // The stock Code / Visual switch in the editor's formatting toolbar is now
 // in the tab bar, so hide the copy there

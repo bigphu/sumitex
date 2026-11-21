@@ -1,0 +1,80 @@
+// The history view (stock, features/history) in the editor's look: the
+// selected version on the accent tint with a thin accent edge instead of
+// Overleaf's green, days as small-capital headings, a plain Back to editor
+// button, and "Added" / "Edited" tags as muted chips. The All history /
+// Labels switch is in _controls.scss. Colours only from the --sx- tokens,
+// so both themes follow.
+
+.history-react {
+  --history-react-separator-color: var(--sx-border);
+  --history-change-list-bg: var(--sx-island);
+  --history-change-entry-color: var(--sx-fg);
+  --history-change-entry-border-color: var(--sx-accent);
+  --history-change-entry-selected-bg: var(--sx-selected-bg);
+  --history-change-entry-selected-hover-bg: var(--sx-selected-bg);
+  --history-change-entry-within-selected-bg: var(--sx-island-raised);
+  --history-change-entry-within-selected-hover-bg: var(--sx-row-active);
+
+  .history-version-day {
+    color: var(--sx-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  // A 2 px edge instead of 4 px
+  .history-version-details.history-version-selected,
+  .history-version-details.history-version-within-selected,
+  .history-version-details.history-version-selected.history-version-selectable:hover {
+    border-left-width: 2px;
+    padding-left: calc(var(--history-change-list-padding) - 2px);
+  }
+
+  .history-version-details.history-version-selectable:hover {
+    background-color: var(--sx-island-raised);
+  }
+
+  .history-version-metadata-time {
+    color: var(--sx-fg);
+    font-weight: 600;
+  }
+
+  .history-version-change-action,
+  .history-version-saved-by,
+  .history-version-metadata-users {
+    color: var(--sx-muted);
+  }
+
+  .history-version-change-doc {
+    color: var(--sx-fg);
+  }
+}
+
+// The history file tree's "Added" / "Edited" tags: muted chips, smaller
+.badge.history-file-tree-item-badge {
+  border-radius: 4px;
+  background-color: var(--sx-island-raised) !important; // over the bg-light utility, itself !important
+  color: var(--sx-muted) !important;
+
+  .badge-content {
+    font-size: 11px;
+    font-weight: 500;
+  }
+}
+
+// Back to editor: a plain button on the frame, like the title bar's
+.back-to-editor-btn.btn {
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: transparent;
+  --bs-btn-color: var(--sx-muted);
+  --bs-btn-hover-bg: var(--sx-island);
+  --bs-btn-hover-border-color: transparent;
+  --bs-btn-hover-color: var(--sx-fg);
+  --bs-btn-active-bg: var(--sx-island);
+  --bs-btn-active-border-color: transparent;
+  --bs-btn-active-color: var(--sx-fg);
+
+  border-radius: var(--border-radius-base);
+  font-weight: 500;
+}

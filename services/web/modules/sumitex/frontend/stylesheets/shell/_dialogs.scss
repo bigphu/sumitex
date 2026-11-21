@@ -6,7 +6,7 @@
 //
 // Only .modal-themed: the stock dialogs without a themed version (Share,
 // some admin ones) are built light on purpose, with dark text and light
-// inputs, and stay as they are. The stock 'themed-modals' flag
+// inputs. Share gets the light set of this look in _share.scss. The stock 'themed-modals' flag
 // (settings.defaults.js) gives most dialogs their themed version.
 .modal-themed .modal-content {
   border: 1px solid var(--sx-border);

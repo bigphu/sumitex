@@ -418,11 +418,14 @@ export const imagePaste = () => [
       cursor: 'pointer',
     },
     '.sx-image-size button:hover': {
-      background: 'var(--sx-border, #e5e7eb)',
+      background: 'var(--sx-track, #e9ebef)',
     },
+    // The chosen width: raised, like a segmented switch's (_controls.scss)
     '.sx-image-size button[aria-pressed="true"]': {
-      color: 'var(--sx-selected-fg, #1f3f9e)',
-      background: 'var(--sx-selected-bg, #e6edfd)',
+      color: 'var(--sx-fg, #1b1e23)',
+      background: 'var(--sx-thumb, #fff)',
+      boxShadow:
+        'inset 0 0 0 1px var(--sx-thumb-edge, rgb(0 0 0 / 6%)), 0 1px 2px rgb(0 0 0 / 18%)',
       fontWeight: '600',
     },
   }),

@@ -15,6 +15,11 @@ const EXTRACTED_TRANSLATIONS_PATH = Path.join(
   __dirname,
   'extracted-translations.json'
 )
+// SumiTeX: keys the frontend uses that upstream's list is missing
+const SUMITEX_KEYS_PATH = Path.join(
+  __dirname,
+  '../modules/sumitex/frontend/extra-translation-keys.json'
+)
 
 module.exports = function translationsLoader() {
   // Mark the loader as asynchronous, and get the done callback function
@@ -23,6 +28,7 @@ module.exports = function translationsLoader() {
   // Mark the extracted keys file and English translations as a "dependency", so
   // that it gets watched for changes in dev
   this.addDependency(EXTRACTED_TRANSLATIONS_PATH)
+  this.addDependency(SUMITEX_KEYS_PATH) // SumiTeX
   this.addDependency(`${SOURCE_PATH}/en.json`)
 
   const [, locale] = this.resourcePath.match(/(\w{2}(-\w{2})?)\.json$/)
@@ -37,6 +43,7 @@ module.exports = function translationsLoader() {
 async function run(locale) {
   const json = await fs.readFile(EXTRACTED_TRANSLATIONS_PATH)
   const keys = Object.keys(JSON.parse(json))
+  keys.push(...JSON.parse(await fs.readFile(SUMITEX_KEYS_PATH)).keys) // SumiTeX
 
   const fallbackTranslations = await extract('en', keys)
   return extract(locale, keys, fallbackTranslations)

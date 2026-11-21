@@ -8,6 +8,9 @@
   --sx-border: var(--sx-ink-700);
   --sx-row-active: var(--sx-ink-750); // active row in lists and trees
   --sx-sunken: rgb(0 0 0 / 22%); // a block set into a dialog: the group being read
+  --sx-track: var(--sx-ink-950); // a segmented switch's groove
+  --sx-thumb: var(--sx-ink-700); // its chosen option, raised out of the groove
+  --sx-thumb-edge: rgb(255 255 255 / 7%);
   --sx-tabbar-bg: var(--sx-ink-900); // tab bar: same as the island, so it doesn't stand out
   --sx-tab-active-bg: var(--sx-ink-800); // the open tab
   --sx-pdf-bg: var(--sx-ink-900); // behind the PDF pages: the island
@@ -25,13 +28,18 @@
   --sx-island-gap: 6px;
 }
 
-@include theme('light') {
+// The light set, also for parts upstream builds light in both themes (the
+// Share dialog)
+@mixin sx-light-tokens {
   --sx-frame: var(--sx-paper-100);
   --sx-island: var(--sx-paper-0);
   --sx-island-raised: var(--sx-paper-50);
   --sx-border: var(--sx-paper-200);
   --sx-row-active: var(--sx-paper-75);
   --sx-sunken: rgb(0 0 0 / 4.5%);
+  --sx-track: var(--sx-paper-100);
+  --sx-thumb: var(--sx-paper-0);
+  --sx-thumb-edge: rgb(0 0 0 / 6%);
   --sx-tabbar-bg: var(--sx-paper-0);
   --sx-tab-active-bg: var(--sx-paper-50);
   --sx-pdf-bg: var(--sx-paper-100); // grey, so the white pages keep their edges
@@ -46,3 +54,8 @@
   --sx-warning: var(--sx-amber-700); // 5.0:1
   --sx-positive: var(--sx-green-700); // 4.6:1
 }
+
+@include theme('light') {
+  @include sx-light-tokens;
+}
+

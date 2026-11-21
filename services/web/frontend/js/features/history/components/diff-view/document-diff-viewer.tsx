@@ -21,6 +21,9 @@ import {
 import { useTranslation } from 'react-i18next'
 import { inlineBackground } from '../../../source-editor/extensions/inline-background'
 import OLButton from '@/shared/components/ol/ol-button'
+import { historySyntax, historySyntaxSpec } from '@modules/sumitex/frontend/js/history/history-syntax' // SumiTeX
+import { useHistoryContext } from '../../context/history-context' // SumiTeX
+import { useActiveEditorTheme } from '@/shared/hooks/use-active-editor-theme' // SumiTeX
 
 function extensions(themeOptions: Options): Extension[] {
   return [
@@ -35,6 +38,7 @@ function extensions(themeOptions: Options): Extension[] {
     highlightLocations(),
     theme(themeOptions),
     inlineBackground(false),
+    historySyntax(), // SumiTeX: syntax colours
   ]
 }
 
@@ -49,6 +53,8 @@ function DocumentDiffViewer({
   const { fontFamily, fontSize, lineHeight } = userSettings
   const isMounted = useIsMounted()
   const { t } = useTranslation()
+  const pathname = useHistoryContext().selection.selectedFile?.pathname // SumiTeX
+  const editorTheme = useActiveEditorTheme() // SumiTeX
 
   const [state, setState] = useState(() => {
     return EditorState.create({
@@ -114,6 +120,17 @@ function DocumentDiffViewer({
       effects,
     })
   }, [doc, highlights, view])
+
+  // SumiTeX: the file's language and the editor's colours
+  useEffect(() => {
+    let stale = false
+    historySyntaxSpec(pathname, editorTheme).then(spec => {
+      if (!stale) view.dispatch(spec)
+    })
+    return () => {
+      stale = true
+    }
+  }, [view, pathname, editorTheme])
 
   // Update the document diff viewer theme whenever the font size, font family
   // or line height user setting changes

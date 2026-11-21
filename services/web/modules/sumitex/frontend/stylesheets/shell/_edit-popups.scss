@@ -260,28 +260,7 @@ li.sx-edit-ghost > :not(.sx-edit-input, .sx-edit-readonly) {
 
 // List
 .sx-edit-tabs {
-  display: inline-flex;
-  gap: 2px;
-  margin-bottom: 8px;
-  padding: 2px;
-  background: var(--sx-island);
-  border-radius: 7px;
-}
-
-.sx-edit-tab {
-  padding: 3px 10px;
-  color: var(--sx-muted);
-  font-size: 12.5px;
-  background: transparent;
-  border: 0;
-  border-radius: 5px;
-  cursor: pointer;
-
-  &.sx-edit-tab-on {
-    color: var(--sx-fg);
-    background: var(--sx-island-raised);
-    box-shadow: 0 1px 2px rgb(0 0 0 / 15%);
-  }
+  margin-bottom: 8px; // the switch itself: _controls.scss
 }
 
 .sx-edit-items {
