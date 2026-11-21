@@ -17,6 +17,8 @@
  * opening either side made the group restore a saved layout, which opened
  * or sized the other side too. Now the two sides never affect each other.
  * The three buttons leave the left strip (overrides/components/_rail.scss).
+ * It also keeps the project's dashboard thumbnail up to date
+ * (thumbnails/pdf-thumbnail.ts).
  */
 import {
   forwardRef,
@@ -38,6 +40,7 @@ import { useLayoutContext } from '@/shared/context/layout-context'
 import { useEditorContext } from '@/shared/context/editor-context'
 import { useProjectContext } from '@/shared/context/project-context'
 import usePersistedState from '@/shared/hooks/use-persisted-state'
+import { usePdfThumbnail } from '../thumbnails/pdf-thumbnail'
 import getMeta from '@/utils/meta'
 import { useAssistantDock } from '@modules/workbench/frontend/js/assistant-dock-context'
 import { setReviewIslandHost } from '../review/review-island-host'
@@ -94,6 +97,9 @@ const StripButton = forwardRef<
 StripButton.displayName = 'StripButton'
 
 export default function RightStrip() {
+  // Always mounted in the editor: a good place to keep the project's
+  // dashboard thumbnail up to date after each compile
+  usePdfThumbnail()
   const { t } = useTranslation()
   const { view, focusMode } = useLayoutContext()
   const { isRestrictedTokenMember } = useEditorContext()

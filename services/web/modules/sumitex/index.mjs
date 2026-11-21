@@ -1,6 +1,7 @@
 import AnonymousEditorRouter from './app/src/AnonymousEditorRouter.mjs'
 import GuideRouter from './app/src/GuideRouter.mjs'
 import FolderOrderRouter from './app/src/FolderOrderRouter.mjs'
+import ThumbnailRouter from './app/src/ThumbnailRouter.mjs'
 import { ensureGuideMember } from './app/src/GuideManager.mjs'
 
 /**
@@ -11,6 +12,7 @@ import { ensureGuideMember } from './app/src/GuideManager.mjs'
  * - The SumiTeX guide: the handbook shared with everyone, and a playground
  *   per user (GuideManager.mjs, GuideRouter.mjs)
  * - The order of the dashboard's folders (FolderOrderRouter.mjs)
+ * - Project thumbnails for the dashboard (ThumbnailRouter.mjs)
  *
  * @import { WebModule } from "../../types/web-module"
  */
@@ -22,6 +24,7 @@ const SumitexModule = {
     apply(webRouter, privateApiRouter, publicApiRouter) {
       GuideRouter.apply(webRouter, privateApiRouter, publicApiRouter)
       FolderOrderRouter.apply(webRouter)
+      ThumbnailRouter.apply(webRouter)
     },
   },
   hooks: {
