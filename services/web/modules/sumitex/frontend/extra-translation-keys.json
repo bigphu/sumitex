@@ -1,0 +1,18 @@
+{
+  "_comment": "Translation keys the frontend uses that upstream's frontend/extracted-translations.json leaves out (AyakaLeaf's template gallery). Read by frontend/translations-loader.js.",
+  "keys": [
+    "all_templates",
+    "author",
+    "categories",
+    "current_page_page",
+    "go_to_page_x",
+    "last_updated",
+    "latex_templates",
+    "latex_templates_for_journal_articles",
+    "open_as_template",
+    "overleaf_template_gallery",
+    "template_gallery",
+    "templates_admin_source_project",
+    "view_pdf"
+  ]
+}

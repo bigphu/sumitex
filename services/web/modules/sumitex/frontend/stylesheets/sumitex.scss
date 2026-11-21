@@ -5,6 +5,7 @@
 @import 'tokens/bridge';
 
 @import 'shell/density';
+@import 'shell/controls';
 @import 'shell/frame';
 @import 'shell/islands';
 @import 'shell/titlebar';
@@ -29,6 +30,9 @@
 @import 'shell/dashboard';
 @import 'shell/outline';
 @import 'shell/edit-popups';
+@import 'shell/site';
+@import 'shell/history';
+@import 'shell/share';
 
 @import 'overrides/components/toolbar';
 @import 'overrides/components/rail';

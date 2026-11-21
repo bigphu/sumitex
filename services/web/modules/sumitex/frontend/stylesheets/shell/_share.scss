@@ -1,0 +1,117 @@
+// The Share dialog. Upstream builds it light in both themes (no themed
+// version), so it takes the light token set and the look of the other
+// dialogs: hairline border and rules, a smaller title, square-ish buttons
+// and fields with the accent focus ring.
+.modal-content:has(.modal-body-share) {
+  @include sx-light-tokens;
+
+  border: 1px solid var(--sx-border);
+  border-radius: 10px;
+  background: var(--sx-island);
+  color: var(--sx-fg);
+  box-shadow: 0 16px 48px rgb(0 0 0 / 35%);
+
+  .modal-header,
+  .modal-footer {
+    border-color: var(--sx-border);
+  }
+
+  .modal-title {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .modal-header .btn-close {
+    opacity: 0.6;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    &:focus:not(:focus-visible) {
+      box-shadow: none;
+    }
+  }
+
+  .form-label,
+  label {
+    color: var(--sx-fg);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .small,
+  .form-text {
+    color: var(--sx-muted);
+    font-size: 12.5px;
+  }
+
+  .form-control,
+  .form-select,
+  .select-trigger {
+    border-color: var(--sx-border);
+    border-radius: var(--border-radius-base);
+    color: var(--sx-fg);
+    font-size: 14px;
+    box-shadow: none;
+
+    &:focus,
+    &:focus-within {
+      border-color: var(--sx-accent);
+      box-shadow: 0 0 0 3px
+        color-mix(in srgb, var(--sx-accent) 22%, transparent);
+    }
+  }
+
+  .btn {
+    border-radius: var(--border-radius-base);
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .btn-primary {
+    --bs-btn-bg: var(--sx-accent-fill);
+    --bs-btn-border-color: var(--sx-accent-fill);
+    --bs-btn-hover-bg: var(--sx-accent-fill-hover);
+    --bs-btn-hover-border-color: var(--sx-accent-fill-hover);
+    --bs-btn-active-bg: var(--sx-accent-fill-hover);
+    --bs-btn-active-border-color: var(--sx-accent-fill-hover);
+  }
+
+  .btn-secondary {
+    --bs-btn-bg: transparent;
+    --bs-btn-color: var(--sx-fg);
+    --bs-btn-border-color: var(--sx-border);
+    --bs-btn-hover-bg: var(--sx-island-raised);
+    --bs-btn-hover-color: var(--sx-fg);
+    --bs-btn-hover-border-color: var(--sx-border);
+    --bs-btn-active-bg: var(--sx-row-active);
+    --bs-btn-active-color: var(--sx-fg);
+  }
+
+  .btn-link,
+  a:not(.btn) {
+    color: var(--sx-accent);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  // The people with access: rows on hairlines
+  .project-member,
+  .project-invite {
+    font-size: 14px;
+  }
+
+  .project-member .subtitle,
+  .project-member-email-icon {
+    color: var(--sx-muted);
+  }
+
+  .dropdown-menu {
+    border: 1px solid var(--sx-border);
+    border-radius: var(--sx-island-radius);
+  }
+}

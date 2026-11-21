@@ -1,0 +1,748 @@
+// The website pages outside the editor and the project list (Account
+// settings, Your sessions, Templates, 404 and the other error pages, log
+// in, register, password reset) in the dashboard's look: a slim title bar
+// on the frame with the ensō, the page on one white island, quiet headings,
+// hairlines, and the same buttons and fields. These pages are always built
+// light (layout-base.pug sets data-theme='light'), so the light tokens apply.
+//
+// Scope: a page with #main-content that isn't the project list (which has
+// its own islands in _dashboard.scss). The editor has no #main-content.
+$sx-site: 'body:has(#main-content):not(:has(.project-ds-nav-page))';
+
+// The auth pages (log in, register, reset): a single card on the frame,
+// no title-bar menu
+$sx-auth: 'body:has(#main-content .ciam-enabled)';
+
+#{$sx-site} {
+  // ---------- upstream variables → SumiTeX tokens ----------
+  --bs-body-color: var(--sx-fg);
+  --bs-border-color: var(--sx-border);
+  --content-primary: var(--sx-fg);
+  --content-secondary: var(--sx-muted);
+  --link-color: var(--sx-accent);
+  --link-hover-color: var(--sx-accent-fill-hover);
+  --link-visited-color: var(--sx-accent);
+  --link-ui: var(--sx-accent);
+  --link-ui-hover: var(--sx-accent-fill-hover);
+  --link-ui-visited: var(--sx-accent);
+  --navbar-title-color: var(--sx-fg);
+  --navbar-title-color-hover: var(--sx-fg);
+
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--sx-frame);
+  color: var(--sx-fg);
+
+  // ---------- title bar: on the frame, 40 px, ensō + SumiTeX ----------
+  .navbar-default.navbar-main {
+    position: sticky; // upstream's is fixed, over the page
+    top: 0;
+    z-index: 10; // above the page when it scrolls
+    flex: none;
+    min-height: 40px;
+    height: 40px;
+    padding: 0 var(--sx-island-gap) 0 var(--spacing-05);
+    border: none;
+    background-color: var(--sx-frame);
+
+    .navbar-container {
+      height: 40px;
+      padding: 0;
+    }
+
+    .navbar-header,
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      height: 40px;
+      margin: 0;
+      padding: 0;
+    }
+
+    .navbar-brand {
+      gap: var(--spacing-04);
+      color: var(--sx-fg);
+      text-decoration: none;
+
+      &::before {
+        content: '';
+        width: 20px;
+        height: 20px;
+        background-color: var(--sx-fg);
+        mask: url('../../../../../public/sumitex/enso.svg') center / contain
+          no-repeat;
+      }
+    }
+
+    .navbar-title {
+      color: var(--sx-fg);
+      font-size: var(--font-size-03);
+      font-weight: 600;
+    }
+
+    // Dev tools, Templates, Projects, Account: quiet buttons on the frame,
+    // no pills
+    .navbar-nav {
+      gap: var(--spacing-02);
+
+      > li {
+        margin: 0;
+      }
+
+      > li > a,
+      > li > button,
+      .nav-link,
+      .dropdown-toggle {
+        padding: var(--spacing-02) var(--spacing-05);
+        border: none;
+        border-radius: var(--border-radius-base);
+        background: none;
+        box-shadow: none;
+        color: var(--sx-muted);
+        font-size: var(--font-size-02);
+        font-weight: 400;
+
+        &:hover,
+        &:focus-visible,
+        &[aria-expanded='true'] {
+          background-color: var(--sx-island);
+          color: var(--sx-fg);
+        }
+      }
+    }
+
+    .dropdown-menu {
+      border: 1px solid var(--sx-border);
+      border-radius: var(--sx-island-radius);
+      background: var(--sx-island);
+      box-shadow: 0 8px 24px rgb(0 0 0 / 12%);
+
+      .dropdown-item,
+      > li > a {
+        border-radius: var(--border-radius-base);
+        color: var(--sx-fg);
+
+        &:hover,
+        &:focus-visible {
+          background: var(--sx-island-raised);
+          color: var(--sx-fg);
+        }
+      }
+
+      .dropdown-header,
+      .subdued {
+        color: var(--sx-muted);
+      }
+    }
+  }
+
+  // ---------- the page: one island ----------
+  #main-content {
+    flex: 1 0 auto;
+    min-height: 0;
+    margin: 0 var(--sx-island-gap);
+    padding: var(--spacing-10) 0 var(--spacing-11);
+    border-radius: var(--sx-island-radius);
+    background: var(--sx-island);
+  }
+
+  // Stock cards inside the page sit straight on the island
+  .page-content-card {
+    border: none;
+    background: transparent;
+    box-shadow: none;
+
+    > .card-body {
+      padding: 0;
+    }
+  }
+
+  // ---------- type ----------
+  .page-header {
+    margin: 0 0 var(--spacing-07);
+    padding: 0;
+    border: none;
+  }
+
+  h1 {
+    margin: 0 0 var(--spacing-07);
+    color: var(--sx-fg);
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+
+  .page-header h1 {
+    margin: 0;
+  }
+
+  // Section headings: small capitals, as in the Settings dialog. Not .h3:
+  // upstream @extends h3 to .h3, which other headings carry for its size
+  h3:not(.h3) {
+    margin: var(--spacing-08) 0 var(--spacing-05);
+    color: var(--sx-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    line-height: 16px;
+    text-transform: uppercase;
+  }
+
+  h4 {
+    color: var(--sx-fg);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  p,
+  li,
+  .small,
+  small {
+    color: var(--sx-muted);
+  }
+
+  strong,
+  b,
+  label,
+  .form-label {
+    color: var(--sx-fg);
+  }
+
+  .form-label,
+  .form-group > label {
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  hr,
+  .page-separator {
+    border-color: var(--sx-border);
+    opacity: 1;
+  }
+
+  a:not(.btn, .nav-link, .dropdown-item, .navbar-brand) {
+    color: var(--sx-accent);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--sx-accent-fill-hover);
+      text-decoration: underline;
+    }
+  }
+
+  code {
+    color: var(--sx-fg);
+  }
+
+  // ---------- fields ----------
+  .form-control,
+  .form-select {
+    border-color: var(--sx-border);
+    border-radius: var(--border-radius-base);
+    background-color: var(--sx-island);
+    color: var(--sx-fg);
+    box-shadow: none;
+
+    &::placeholder {
+      color: var(--sx-muted);
+    }
+
+    &:hover:not(:disabled, :focus) {
+      border-color: var(--sx-muted);
+    }
+
+    &:focus {
+      border-color: var(--sx-accent);
+      outline: none;
+      box-shadow: 0 0 0 3px
+        color-mix(in srgb, var(--sx-accent) 22%, transparent);
+    }
+  }
+
+  .form-check-input:checked {
+    border-color: var(--sx-accent-fill);
+    background-color: var(--sx-accent-fill);
+  }
+
+  // ---------- buttons: the dashboard's ----------
+  .btn {
+    border-radius: var(--border-radius-base);
+    font-weight: 500;
+  }
+
+  .btn:not(.btn-lg, .btn-sm) {
+    padding: 6px 14px;
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .btn-primary {
+    --bs-btn-bg: var(--sx-accent-fill);
+    --bs-btn-border-color: var(--sx-accent-fill);
+    --bs-btn-color: #fff;
+    --bs-btn-hover-bg: var(--sx-accent-fill-hover);
+    --bs-btn-hover-border-color: var(--sx-accent-fill-hover);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-bg: var(--sx-accent-fill-hover);
+    --bs-btn-active-border-color: var(--sx-accent-fill-hover);
+    --bs-btn-disabled-bg: var(--sx-island-raised);
+    --bs-btn-disabled-border-color: var(--sx-border);
+    --bs-btn-disabled-color: var(--sx-muted);
+  }
+
+  .btn-secondary {
+    --bs-btn-bg: transparent;
+    --bs-btn-color: var(--sx-fg);
+    --bs-btn-border-color: var(--sx-border);
+    --bs-btn-hover-bg: var(--sx-island-raised);
+    --bs-btn-hover-color: var(--sx-fg);
+    --bs-btn-hover-border-color: var(--sx-border);
+    --bs-btn-active-bg: var(--sx-row-active);
+    --bs-btn-active-color: var(--sx-fg);
+    --bs-btn-active-border-color: var(--sx-border);
+  }
+
+  .btn-danger,
+  .btn-danger-ghost {
+    border-radius: var(--border-radius-base);
+  }
+
+  // ---------- tables: hairlines, no stripes ----------
+  .table {
+    --bs-table-bg: transparent;
+    --bs-table-striped-bg: transparent;
+    --bs-table-color: var(--sx-fg);
+    --bs-table-striped-color: var(--sx-fg);
+    --bs-table-border-color: var(--sx-border);
+
+    font-size: 13px;
+
+    th {
+      color: var(--sx-muted);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    > :not(caption) > * > * {
+      padding: var(--spacing-04) var(--spacing-05);
+      border-bottom: 1px solid var(--sx-border);
+    }
+  }
+
+  // ---------- notices ----------
+  .notification {
+    border-radius: var(--sx-island-radius);
+  }
+
+  // ---------- footer: quiet, on the frame ----------
+  .site-footer {
+    flex: none;
+    border: none;
+    background: transparent;
+    color: var(--sx-muted);
+    font-size: 12px;
+
+    .site-footer-content {
+      padding: var(--spacing-04) var(--spacing-06);
+    }
+
+    a,
+    a:visited {
+      color: var(--sx-muted);
+      text-decoration: none;
+
+      &:hover {
+        color: var(--sx-fg);
+      }
+    }
+  }
+}
+
+// ---------- Account settings ----------
+#{$sx-site} #settings-page-root {
+  .container {
+    max-width: 960px;
+  }
+
+  .col-xl-10.offset-xl-1 {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  // Each integration (Dropbox, Git, Zotero, Mendeley) is a row on a hairline;
+  // the group gets the island's border
+  .settings-widgets-container {
+    padding: 0 var(--spacing-06);
+    border: 1px solid var(--sx-border);
+    border-radius: var(--sx-island-radius);
+    background: var(--sx-island);
+
+    > hr {
+      margin: 0;
+    }
+  }
+
+  .settings-widget-container {
+    padding: var(--spacing-06) 0;
+
+    h4 {
+      margin-bottom: var(--spacing-02);
+    }
+
+    .ui-heading {
+      margin-top: var(--spacing-06);
+    }
+  }
+
+  // The two forms at the top read as one section each, side by side
+  form .form-group:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// ---------- error pages (404, 500, restricted) ----------
+#{$sx-site} .error-container {
+  display: block;
+  max-width: 520px;
+  margin: var(--spacing-12) auto;
+  padding: 0;
+  text-align: center;
+
+  .error-details {
+    max-width: none;
+    padding: 0;
+  }
+
+  &::before {
+    content: '';
+    display: block;
+    width: 44px;
+    height: 44px;
+    margin: 0 auto var(--spacing-07);
+    background-color: var(--sx-muted);
+    mask: url('../../../../../public/sumitex/enso.svg') center / contain
+      no-repeat;
+    opacity: 0.6;
+  }
+
+  .error-status {
+    margin-bottom: var(--spacing-04);
+    color: var(--sx-fg);
+  }
+
+  .error-description {
+    color: var(--sx-muted);
+    font-size: 15px;
+  }
+
+  .error-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--spacing-08);
+  }
+
+  .error-btn {
+    display: inline-block;
+    padding: var(--spacing-03) var(--spacing-07);
+    border-radius: var(--border-radius-base);
+    background: var(--sx-accent-fill);
+    color: #fff;
+    font-weight: 500;
+    text-decoration: none;
+
+    &:hover {
+      background: var(--sx-accent-fill-hover);
+      color: #fff;
+      text-decoration: none;
+    }
+  }
+}
+
+// ---------- log in, register, password reset ----------
+// A single card on the frame: the page island is dropped and the card is
+// the island, with the ensō above the heading.
+#{$sx-auth} {
+  #main-content {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: var(--spacing-08) 0 var(--spacing-13);
+    background: transparent;
+  }
+
+  #main-content > .container {
+    max-width: 440px;
+  }
+
+  #main-content .row > [class*='col-'] {
+    width: 100%;
+    margin: 0;
+  }
+
+  #main-content .card {
+    border: 1px solid var(--sx-border) !important;
+    border-radius: 12px !important;
+    background: var(--sx-island) !important;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 4%) !important;
+  }
+
+  #main-content .card-body {
+    padding: var(--spacing-09) !important;
+
+    &::before {
+      content: '';
+      display: block;
+      width: 36px;
+      height: 36px;
+      margin-bottom: var(--spacing-07);
+      background-color: var(--sx-fg);
+      mask: url('../../../../../public/sumitex/enso.svg') center / contain
+        no-repeat;
+    }
+  }
+
+  h1 {
+    margin-bottom: var(--spacing-07);
+    padding: 0 !important;
+    font-size: 1.375rem;
+  }
+
+  .form-control-lg {
+    min-height: 40px;
+    padding: var(--spacing-03) var(--spacing-05);
+    font-size: 14px;
+  }
+
+  // AyakaLeaf's black button and yellow focus ring → the accent
+  .btn-ds.btn-primary,
+  .btn-lg.btn-primary {
+    min-height: 40px;
+    padding: var(--spacing-03) var(--spacing-06);
+    font-size: 14px;
+  }
+
+  .form-control-ds:focus,
+  .form-control:focus,
+  .btn:focus-visible {
+    border-color: var(--sx-accent);
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--sx-accent) 22%, transparent);
+  }
+
+  .login-register-hr-text-container {
+    border-color: var(--sx-border);
+  }
+
+  .ciam-login-text a,
+  .login-register-other-links a {
+    color: var(--sx-accent);
+    text-decoration: none;
+    border: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .ciam-login-text,
+  .login-register-other-links,
+  .login-register-other-links .p {
+    color: var(--sx-muted);
+    font-size: 13px;
+  }
+}
+
+// Password reset, set password, re-confirm and the primary-email check use
+// upstream's auth-aux layout: Overleaf's logo in the corner and a bare form.
+// The logo goes, and the form becomes a card on the frame like log in's,
+// with the ensō above the heading.
+body:has(#main-content > .auth-aux-container) {
+  #main-content {
+    margin: 0;
+    padding: var(--spacing-12) var(--spacing-04) var(--spacing-13);
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .auth-aux-logo {
+    display: none;
+  }
+
+  .auth-aux-container {
+    min-height: 0;
+    max-width: 440px;
+    padding: var(--spacing-09);
+    border: 1px solid var(--sx-border);
+    border-radius: 12px;
+    background: var(--sx-island);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+
+    &::before {
+      content: '';
+      display: block;
+      width: 36px;
+      height: 36px;
+      margin-bottom: var(--spacing-07);
+      background-color: var(--sx-fg);
+      mask: url('../../../../../public/sumitex/enso.svg') center / contain
+        no-repeat;
+    }
+  }
+
+  .auth-aux-container h1 {
+    color: var(--sx-fg);
+    font-size: 1.375rem;
+    font-weight: 600;
+    letter-spacing: normal;
+    line-height: 1.3;
+    text-transform: none;
+  }
+
+  .btn-ghost {
+    color: var(--sx-muted);
+
+    &:hover {
+      background: var(--sx-island-raised);
+      color: var(--sx-fg);
+    }
+  }
+}
+
+// ---------- Templates (AyakaLeaf's template gallery) ----------
+// A page heading like Account settings', the categories as a denser grid of
+// quiet cards whose artwork is muted until hovered, and section headings in
+// small capitals. The "{overleaf template gallery}" eyebrow names Overleaf,
+// so it goes.
+#{$sx-site} .gallery {
+  // Upstream centres the header in a narrow column
+  .gallery-header {
+    display: block;
+    max-width: none;
+    margin: 0 0 var(--spacing-08);
+    padding: 0;
+    text-align: left;
+  }
+
+  .gallery-filters:empty {
+    display: none;
+  }
+
+  .gallery-title {
+    display: block;
+    margin: 0 0 var(--spacing-03);
+    font-size: 1.5rem;
+    text-align: left;
+
+    .eyebrow-text {
+      display: none;
+    }
+  }
+
+  .gallery-summary {
+    margin: 0;
+    color: var(--sx-muted);
+    font-size: 14px;
+    text-align: left;
+  }
+
+  // "Categories" and "All templates": section headings
+  .popular-tags > h1,
+  .recent-docs > h2 {
+    margin: var(--spacing-08) 0 var(--spacing-05);
+    color: var(--sx-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    line-height: 16px;
+    text-transform: uppercase;
+  }
+
+  .popular-tags-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--spacing-06);
+    margin: 0;
+
+    > .gallery-thumbnail {
+      width: auto;
+      max-width: none;
+      margin: 0;
+      padding: 0;
+    }
+  }
+
+  .gallery-thumbnail {
+    a {
+      display: block;
+      color: var(--sx-fg);
+      text-decoration: none;
+    }
+
+    .thumbnail-tag {
+      overflow: hidden;
+      margin-bottom: var(--spacing-04);
+      border: 1px solid var(--sx-border);
+      border-radius: var(--sx-island-radius);
+      aspect-ratio: 16 / 9;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 0;
+        filter: grayscale(0.7);
+        opacity: 0.7;
+        transition:
+          filter 0.2s,
+          opacity 0.2s;
+      }
+    }
+
+    a:hover .thumbnail-tag img,
+    a:focus-visible .thumbnail-tag img {
+      filter: none;
+      opacity: 1;
+    }
+
+    .caption-title {
+      display: block;
+      margin-bottom: var(--spacing-02);
+      color: var(--sx-fg);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+  }
+
+  hr {
+    margin: var(--spacing-09) 0 var(--spacing-07) !important;
+  }
+
+  .gallery-search-btn {
+    margin-left: var(--spacing-03);
+  }
+
+  .previous-page-link,
+  .gallery-header-sort-btn {
+    color: var(--sx-muted);
+    font-size: 13px;
+
+    &:hover {
+      color: var(--sx-fg);
+    }
+  }
+
+  .gallery-container p {
+    color: var(--sx-muted);
+    font-size: 13px;
+  }
+}

@@ -1,0 +1,291 @@
+// Shared controls, so every switch and every drop list looks the same.
+//
+// Segmented switch: a groove (--sx-track) holding the options; the chosen
+// one is raised out of it (--sx-thumb, a hairline edge and a soft shadow).
+// Used by Code / Visual, the layout buttons, History's All history / Labels,
+// the pop-ups' choices (list type, theorem type…) and the image width bar.
+//
+// Drop list: a closed select shows its value and a small chevron. Where the
+// browser supports a styled select (appearance: base-select, Chrome 135+),
+// the open list is a menu in the SumiTeX look too: raised, rounded, the
+// chosen option on the accent tint. Elsewhere the browser's own list opens.
+
+$sx-chevron-path: "M3 4.5l3 3 3-3";
+
+// A mid grey that reads on both themes, for the closed select's arrow
+$sx-chevron-grey: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='#{$sx-chevron-path}' fill='none' stroke='%238b93a0' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+$sx-chevron-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='#{$sx-chevron-path}' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+
+// ---------- segmented switch ----------
+@mixin sx-track {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 7px;
+  background: var(--sx-track);
+}
+
+@mixin sx-option {
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--sx-muted);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.12s,
+    color 0.12s,
+    box-shadow 0.12s;
+
+  &:hover {
+    color: var(--sx-fg);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--sx-accent);
+    outline-offset: 1px;
+  }
+}
+
+@mixin sx-option-on {
+  background: var(--sx-thumb);
+  color: var(--sx-fg);
+  box-shadow:
+    inset 0 0 0 1px var(--sx-thumb-edge),
+    0 1px 2px rgb(0 0 0 / 18%);
+}
+
+// The stock switch (components/toggle-switch: radio inputs + labels) in
+// this look; $height is the whole control's
+@mixin sx-stock-toggle($height: 26px, $font-size: 12px) {
+  --toggle-switch-height: #{$height};
+  --toggle-switch-padding: 2px;
+
+  @include sx-track;
+
+  height: $height;
+  margin-right: 0;
+
+  .toggle-switch-label {
+    @include sx-option;
+
+    height: calc(#{$height} - 4px);
+    border-radius: 5px;
+
+    span {
+      justify-content: center;
+      padding: 0 var(--spacing-05);
+      background: none !important; // upstream slides a gradient
+      font-size: $font-size;
+      font-weight: 500;
+    }
+  }
+
+  .toggle-switch-input:checked + .toggle-switch-label {
+    @include sx-option-on;
+
+    border-radius: 5px;
+
+    span {
+      font-weight: 600;
+    }
+  }
+
+  .toggle-switch-input:focus-visible + .toggle-switch-label {
+    outline: 2px solid var(--sx-accent);
+    outline-offset: 1px;
+  }
+}
+
+// ---------- drop list ----------
+// $quiet: no border or fill until hovered (the Outline's filter)
+@mixin sx-select($quiet: false) {
+  appearance: none;
+  field-sizing: content; // as wide as the chosen option, not the longest
+  padding-right: 22px;
+  border-radius: 6px;
+  background-image: $sx-chevron-grey;
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  background-size: 12px;
+  color: var(--sx-fg);
+  cursor: pointer;
+
+  @if $quiet {
+    border: 1px solid transparent;
+    background-color: transparent;
+    color: var(--sx-muted);
+
+    &:hover {
+      background-color: var(--sx-island-raised);
+      color: var(--sx-fg);
+    }
+  } @else {
+    border: 1px solid var(--sx-border);
+    background-color: var(--sx-island);
+
+    &:hover:not(:disabled) {
+      border-color: var(--sx-muted);
+    }
+  }
+
+  &:focus-visible {
+    border-color: var(--sx-accent);
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--sx-accent) 22%, transparent);
+  }
+
+  // The browser's own list, where it can't be styled further
+  option {
+    background: var(--sx-island);
+    color: var(--sx-fg);
+  }
+
+  @supports (appearance: base-select) {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding-right: 6px;
+    background-image: none;
+
+    &,
+    &::picker(select) {
+      appearance: base-select;
+    }
+
+    &::picker-icon {
+      content: '';
+      width: 12px;
+      height: 12px;
+      background: currentColor;
+      opacity: 0.7;
+      mask: $sx-chevron-mask center / contain no-repeat;
+      transition: rotate 0.15s;
+    }
+
+    &:open::picker-icon {
+      rotate: 180deg;
+    }
+
+    @if $quiet {
+      &:open {
+        background-color: var(--sx-island-raised);
+        color: var(--sx-fg);
+      }
+    }
+
+    &::picker(select) {
+      min-width: anchor-size(width);
+      margin-top: 4px;
+      padding: 4px;
+      border: 1px solid var(--sx-border);
+      border-radius: var(--sx-island-radius);
+      background: var(--sx-island-raised);
+      color: var(--sx-fg);
+      box-shadow: 0 8px 24px rgb(0 0 0 / 22%);
+    }
+
+    option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 10px 5px 8px;
+      border-radius: 5px;
+      background: transparent;
+      color: var(--sx-fg);
+      font-size: 13px;
+      white-space: nowrap;
+      cursor: pointer;
+
+      &::checkmark {
+        content: '';
+        width: 12px;
+        height: 12px;
+        flex: none;
+        color: var(--sx-accent);
+        background: currentColor;
+        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2l2.3 2.3 4.7-5' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+          center / contain no-repeat;
+      }
+
+      &:not(:checked)::checkmark {
+        visibility: hidden;
+      }
+
+      &:hover,
+      &:focus-visible {
+        outline: none;
+        background: var(--sx-row-active);
+      }
+
+      &:checked {
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+// ---------- where they apply ----------
+
+// Code / Visual, at the right of the tab bar
+.sx-work-tabbar-end .toggle-switch {
+  @include sx-stock-toggle(24px, var(--font-size-01));
+}
+
+// The layout buttons (code, split, PDF), next to it
+.sx-segmented {
+  @include sx-track;
+}
+
+.sx-segmented-item {
+  @include sx-option;
+
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 20px;
+}
+
+.sx-segmented-item-active,
+.sx-segmented-item-active:hover {
+  @include sx-option-on;
+}
+
+// History: All history / Labels
+.history-react .toggle-switch {
+  @include sx-stock-toggle(28px, 12px);
+}
+
+// The pop-ups' choices: list type, theorem type, equation or align…
+.sx-edit-tabs {
+  @include sx-track;
+}
+
+.sx-edit-tab {
+  @include sx-option;
+
+  padding: 3px 10px;
+  font-size: 12.5px;
+
+  &.sx-edit-tab-on {
+    @include sx-option-on;
+  }
+}
+
+// Drop lists
+.sx-outline-filter {
+  @include sx-select($quiet: true);
+}
+
+.sx-edit-popup select.sx-edit-input {
+  @include sx-select;
+
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 7px;
+}
+
+.modal-themed .form-select {
+  @include sx-select;
+}
