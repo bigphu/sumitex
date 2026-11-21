@@ -52,11 +52,45 @@ async function loadTheme(name: string): Promise<Extension> {
     ...(getMeta('ol-editorThemes') || []),
     ...(getMeta('ol-legacyEditorThemes') || []),
   ].some(theme => theme.name === name)
-  const { highlightStyle, dark } = await import(
+  const { theme, highlightStyle, dark } = await import(
     /* webpackChunkName: "cm6-theme" */ `../../../../../frontend/js/features/source-editor/themes/cm6/${known ? name : 'textmate'}.json`
   )
-  // eslint-disable-next-line @overleaf/no-generated-editor-themes
-  return EditorView.theme(highlightStyle, { dark })
+  // Both parts, as the editor loads them: the base (background, gutter,
+  // selection) and the code colours. With the colours alone, a dark theme's
+  // light text sat on the history view's white page.
+  return [
+    // eslint-disable-next-line @overleaf/no-generated-editor-themes
+    EditorView.theme(theme, { dark }),
+    // eslint-disable-next-line @overleaf/no-generated-editor-themes
+    EditorView.theme(highlightStyle, { dark }),
+    // The viewer's own theme (history/extensions/theme.ts) sets black text
+    // and a light colour scheme; take the editor theme's instead
+    EditorView.theme({
+      '&.cm-editor.cm-editor.cm-editor': {
+        colorScheme: dark ? 'dark' : 'light',
+      },
+      '& .cm-scroller .cm-content': { color: 'inherit' },
+      // Added and deleted text, in the author's hue (upstream's colours are
+      // set for a white page: a pale fill that hid light text on a dark one)
+      '& .cm-content .ol-cm-addition-marker': {
+        backgroundColor: `hsl(var(--hue) 70% 50% / ${dark ? 30 : 22}%)`,
+        borderRadius: '2px',
+      },
+      '& .cm-content .ol-cm-deletion-marker': {
+        backgroundColor: `hsl(var(--hue) 70% 50% / ${dark ? 12 : 9}%)`,
+        color: dark ? 'hsl(var(--hue) 70% 74%)' : 'hsl(var(--hue) 60% 36%)',
+        textDecorationColor: 'currentColor',
+        borderRadius: '2px',
+      },
+      // A replaced word: a little space between the old and the new
+      '& .cm-content .ol-cm-deletion-marker + .ol-cm-addition-marker': {
+        marginLeft: '3px',
+      },
+      '& .cm-content .ol-cm-changed-line': {
+        backgroundColor: dark ? 'rgb(255 255 255 / 4%)' : 'rgb(0 0 0 / 3%)',
+      },
+    }),
+  ]
 }
 
 /** The language for this file and the colours of this editor theme */

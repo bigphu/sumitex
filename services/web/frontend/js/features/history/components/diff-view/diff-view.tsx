@@ -5,6 +5,7 @@ import { Diff, DocDiffResponse } from '../../services/types/doc'
 import { useHistoryContext } from '../../context/history-context'
 import { diffDoc } from '../../services/api'
 import { highlightsFromDiffResponse } from '../../utils/highlights-from-diff-response'
+import { wordDiff } from '@modules/sumitex/frontend/js/history/word-diff' // SumiTeX
 import { useErrorBoundary } from 'react-error-boundary'
 import useAsync from '../../../../shared/hooks/use-async'
 import { useTranslation } from 'react-i18next'
@@ -67,7 +68,7 @@ function DiffView() {
     } else {
       diff = {
         binary: false,
-        docDiff: highlightsFromDiffResponse(data.diff, t),
+        docDiff: highlightsFromDiffResponse(wordDiff(data.diff), t), // SumiTeX: whole words
       }
     }
 
