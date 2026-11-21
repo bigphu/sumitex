@@ -1,6 +1,6 @@
 import { FC, useMemo } from 'react'
 import { MainDocument } from '../../../../../types/project-settings'
-import { Ranges } from '../context/ranges-context'
+import { Ranges, useRangesContext } from '../context/ranges-context' // SumiTeX: useRangesContext
 import { ReviewPanelComment } from './review-panel-comment'
 import { ReviewPanelChange } from './review-panel-change'
 import {
@@ -26,6 +26,10 @@ export const ReviewPanelOverviewFile: FC<{
 }> = ({ doc, ranges }) => {
   const { collapsed, toggleCollapsed } = useOverviewFileCollapsed(doc.doc.id)
   const threads = useThreadsContext()
+  // SumiTeX: the list is the Review island, so its suggestions get Accept and
+  // Reject too, but only the open file's: the actions apply to its live
+  // ranges, which the overview passes for that file
+  const isOpenDoc = ranges === useRangesContext() // SumiTeX
 
   const { aggregates, changes } = useMemo(() => {
     const changes: Change<EditOperation>[] = []
@@ -89,7 +93,7 @@ export const ReviewPanelOverviewFile: FC<{
                   key={entry.id}
                   change={entry as Change<EditOperation>}
                   aggregate={aggregates.get(entry.id)}
-                  editable={false}
+                  editable={isOpenDoc} // SumiTeX
                   docId={doc.doc.id}
                   hoverRanges={false}
                 />
