@@ -11,6 +11,7 @@ import { ProjectListOwnerName } from '@/features/project-list/components/table/p
 import { useProjectListContext } from '../../context/project-list-context' // SumiTeX
 import { startProjectDrag } from '@modules/sumitex/frontend/js/folders/drag-projects' // SumiTeX
 import FolderChips from '@modules/sumitex/frontend/js/folders/folder-chips' // SumiTeX
+import ProjectThumbnail from '@modules/sumitex/frontend/js/thumbnails/project-thumbnail' // SumiTeX
 
 type ProjectListTableRowProps = {
   project: Project
@@ -33,6 +34,7 @@ function ProjectListTableRow({ project, selected }: ProjectListTableRowProps) {
         <ProjectCheckbox projectId={project.id} projectName={project.name} />
       </td>
       <td className="dash-cell-name">
+        <ProjectThumbnail projectId={project.id} /> {/* SumiTeX */}
         <a href={`/project/${project.id}`} translate="no">
           {project.name}
         </a>{' '}
