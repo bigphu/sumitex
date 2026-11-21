@@ -11,7 +11,9 @@
  *   which of those projects have one, among the ones the user can read
  *
  * Images live in their own collection (sumitexThumbnails), keyed by project,
- * so Overleaf's Project model stays as it is.
+ * so Overleaf's Project model stays as it is. A project's image goes when
+ * the project is deleted for good (the projectExpired hook, index.mjs),
+ * with the rest of its data; until then it can still be restored.
  */
 import { expressify } from '@overleaf/promise-utils'
 import { getCollectionInternal } from '../../../../app/src/infrastructure/mongodb.mjs'
@@ -101,6 +103,11 @@ async function lookup(req, res) {
     if (readable[index]) thumbnails[doc._id] = doc.updatedAt.getTime()
   })
   res.json({ thumbnails })
+}
+
+/** Remove a project's thumbnail (when the project is deleted for good) */
+export async function deleteThumbnail(projectId) {
+  await (await collection()).deleteOne({ _id: String(projectId) })
 }
 
 export default {
