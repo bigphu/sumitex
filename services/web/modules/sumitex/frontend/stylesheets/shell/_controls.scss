@@ -2,7 +2,7 @@
 //
 // Segmented switch: a groove (--sx-track) holding the options; the chosen
 // one is raised out of it (--sx-thumb, a hairline edge and a soft shadow).
-// Used by Code / Visual, the layout buttons, History's All history / Labels,
+// Used by Code / Visual, History's All history / Labels,
 // the pop-ups' choices (list type, theorem type…) and the image width bar.
 //
 // Drop list: a closed select shows its value and a small chevron. Where the
@@ -231,25 +231,6 @@ $sx-chevron-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/s
 // Code / Visual, at the right of the tab bar
 .sx-work-tabbar-end .toggle-switch {
   @include sx-stock-toggle(24px, var(--font-size-01));
-}
-
-// The layout buttons (code, split, PDF), next to it
-.sx-segmented {
-  @include sx-track;
-}
-
-.sx-segmented-item {
-  @include sx-option;
-
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 20px;
-}
-
-.sx-segmented-item-active,
-.sx-segmented-item-active:hover {
-  @include sx-option-on;
 }
 
 // History: All history / Labels

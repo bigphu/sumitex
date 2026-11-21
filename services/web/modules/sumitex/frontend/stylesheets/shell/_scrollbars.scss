@@ -1,18 +1,47 @@
-// Scrollbars: thin and faint, on a transparent track, so they take as
-// little room and attention as the browser allows. One look everywhere,
+// Scrollbars: a thin knob in SumiTeX's accent on no track, so they take
+// almost no room but still show where you are. One look everywhere,
 // including what is mounted straight under <body>: CodeMirror's pop-ups
 // (completions, hovers), tooltips, toasts, dialogs and menus.
 //
-// The thumb is a tint of the text colour around it (currentColor), so it is
-// light on dark surfaces and dark on light ones, whichever theme the page is
-// in. A light dialog on the dark theme keeps a visible thumb.
-@mixin sx-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, currentColor 24%, transparent)
-    transparent;
+// Chromium: a 5px bar whose thumb is drawn 3px wide (a transparent border,
+// clipped), filling out to 5px and to full strength under the pointer.
+// Its standard scrollbar-width / scrollbar-color would override these
+// ::-webkit-scrollbar rules, so those are kept for Firefox only, which has
+// no pixel width: the thinnest it offers, in the same blue.
+$sx-scrollbar-size: 5px;
 
-  &:hover {
-    scrollbar-color: color-mix(in srgb, currentColor 40%, transparent)
+@mixin sx-scrollbar {
+  &::-webkit-scrollbar {
+    width: $sx-scrollbar-size;
+    height: $sx-scrollbar-size;
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-track,
+  &::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border: 1px solid transparent;
+    border-radius: $sx-scrollbar-size;
+    background-color: color-mix(in srgb, var(--sx-accent) 55%, transparent);
+    background-clip: padding-box;
+  }
+
+  &::-webkit-scrollbar-thumb:hover,
+  &::-webkit-scrollbar-thumb:active {
+    border-width: 0;
+    background-color: var(--sx-accent);
+  }
+
+  &::-webkit-scrollbar-button {
+    display: none;
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--sx-accent) 55%, transparent)
       transparent;
   }
 }

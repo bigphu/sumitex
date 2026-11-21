@@ -16,7 +16,10 @@
  * with a width of its own (dragged from its left edge). As a group panel,
  * opening either side made the group restore a saved layout, which opened
  * or sized the other side too. Now the two sides never affect each other.
- * The three buttons leave the left strip (overrides/components/_rail.scss).
+ * The three buttons leave the left strip (overrides/components/_rail.scss)
+ * and sit in the title bar, next to Share (a slot title-bar.tsx keeps for
+ * them), so no strip takes a column of its own. With the stock toolbar they
+ * stay in a strip at the right edge.
  * It also keeps the project's dashboard thumbnail up to date
  * (thumbnails/pdf-thumbnail.ts).
  */
@@ -45,6 +48,8 @@ import getMeta from '@/utils/meta'
 import { useAssistantDock } from '@modules/workbench/frontend/js/assistant-dock-context'
 import { setReviewIslandHost } from '../review/review-island-host'
 import NotificationsBell from './notifications-bell'
+import { createPortal } from 'react-dom'
+import { usePortalTarget } from './use-portal-target'
 
 type RightTab = 'chat'
 
@@ -71,12 +76,13 @@ const StripButton = forwardRef<
     disabled?: boolean
     onClick: () => void
     children?: ReactNode
+    placement?: 'left' | 'bottom'
   }
->(({ icon, label, active, disabled, onClick, children }, ref) => (
+>(({ icon, label, active, disabled, onClick, children, placement = 'left' }, ref) => (
   <OLTooltip
     id={`sx-right-strip-${icon}`}
     description={label}
-    overlayProps={{ delay: 0, placement: 'left' }}
+    overlayProps={{ delay: 0, placement }}
   >
     <button
       ref={ref}
@@ -111,6 +117,9 @@ export default function RightStrip() {
     panelRef: leftPanelRef,
   } = useRailContext()
   const { markMessagesAsRead, unreadMessageCount } = useChatContext()
+  // The buttons go in the title bar (title-bar.tsx); with the stock toolbar
+  // there is no such place, and they stay in a strip at the right edge
+  const titleBarSlot = usePortalTarget('.sx-titlebar-panels')
   const dock = useAssistantDock()
   const [tab, setTab] = usePersistedState<RightTab | null>(
     'sumitex.right-panel',
@@ -233,6 +242,43 @@ export default function RightStrip() {
     }
   }
 
+  const buttons = (placement: 'left' | 'bottom') => (
+    <>
+        {showReview && (
+          <StripButton
+            placement={placement}
+            icon="rate_review"
+            label={t('review_panel')}
+            active={reviewOpen}
+            disabled={view !== 'editor'}
+            onClick={() => setReviewPanelOpen(open => !open)}
+          />
+        )}
+        {showChat && (
+          <StripButton
+            placement={placement}
+            icon="forum"
+            label={t('chat')}
+            active={chatOpen}
+            onClick={toggleChat}
+          >
+            <ChatIndicator />
+          </StripButton>
+        )}
+        {aiAvailable && (
+          <StripButton
+            placement={placement}
+            icon="auto_awesome"
+            label="AI assistant"
+            active={aiOpen}
+            onClick={toggleAi}
+          />
+        )}
+        <div className="sx-right-strip-spacer" />
+        <NotificationsBell placement={placement} />
+    </>
+  )
+
   return (
     <>
       {panelOpen && (
@@ -280,37 +326,17 @@ export default function RightStrip() {
           )}
         </div>
       )}
-      <nav className="sx-right-strip" aria-label="Right strip" ref={stripRef}>
-        {showReview && (
-          <StripButton
-            icon="rate_review"
-            label={t('review_panel')}
-            active={reviewOpen}
-            disabled={view !== 'editor'}
-            onClick={() => setReviewPanelOpen(open => !open)}
-          />
-        )}
-        {showChat && (
-          <StripButton
-            icon="forum"
-            label={t('chat')}
-            active={chatOpen}
-            onClick={toggleChat}
-          >
-            <ChatIndicator />
-          </StripButton>
-        )}
-        {aiAvailable && (
-          <StripButton
-            icon="auto_awesome"
-            label="AI assistant"
-            active={aiOpen}
-            onClick={toggleAi}
-          />
-        )}
-        <div className="sx-right-strip-spacer" />
-        <NotificationsBell />
-      </nav>
+      {titleBarSlot ? (
+        <>
+          {/* Keeps a place in the panel group, for the resize sums above */}
+          <span className="sx-right-anchor" ref={stripRef} hidden />
+          {createPortal(buttons('bottom'), titleBarSlot)}
+        </>
+      ) : (
+        <nav className="sx-right-strip" aria-label="Right strip" ref={stripRef}>
+          {buttons('left')}
+        </nav>
+      )}
     </>
   )
 }

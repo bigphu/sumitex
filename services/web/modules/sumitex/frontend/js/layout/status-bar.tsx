@@ -1,7 +1,8 @@
 /**
  * The status bar along the bottom of the window (guide 1d, step 7), on the
  * frame rather than in an island: the path (project › folders › file ›
- * section), line and column, a rough word count, and the save state.
+ * section), the last compile's problems (opens the log), line and column, a
+ * rough word count, and the save state.
  *
  * Mounted by one marked line in ide-react/components/layout/main-layout.tsx.
  * In Zen it shrinks to one centred line (zen-chrome.tsx).
@@ -16,6 +17,7 @@ import { useLayoutContext } from '@/shared/context/layout-context'
 import { useProjectContext } from '@/shared/context/project-context'
 import { useFileTreeOpenContext } from '@/features/ide-react/context/file-tree-open-context'
 import { ZenStatus } from './zen-chrome'
+import { ProblemsStatus } from './problems-widget'
 
 // A rough count for the open file: drops comments, \commands and braces and
 // counts what's left. The stock Word count (File menu) counts the whole
@@ -109,6 +111,7 @@ export default function StatusBar() {
         )}
       </div>
       <div className="sx-status-end">
+        <ProblemsStatus />
         {isDoc && position && (
           <span className="sx-status-item">
             Ln {position.line}, Col {position.column}

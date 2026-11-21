@@ -50,7 +50,7 @@
   }
 }
 
-// Source / Split / PDF and Code / Visual: segmented switches, styled in
+// Code / Visual: a segmented switch, styled in
 // _controls.scss
 
 // The stock Code / Visual switch in the editor's formatting toolbar is now
@@ -152,4 +152,60 @@
       transparent
     );
   }
+}
+
+// The layout button (work-tab-bar.tsx): the current layout's icon and a
+// small chevron; a menu with Source only, Source and PDF, PDF only
+.sx-layout-toggle.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  height: 24px;
+  padding: 0 3px 0 6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--sx-muted);
+
+  &:hover,
+  &[aria-expanded='true'] {
+    background: var(--sx-island-raised);
+    color: var(--sx-fg);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--sx-accent);
+    outline-offset: 1px;
+  }
+
+  .sx-layout-chevron {
+    font-size: 15px;
+    opacity: 0.8;
+    transition: rotate 0.15s;
+  }
+
+  &[aria-expanded='true'] .sx-layout-chevron {
+    rotate: 180deg;
+  }
+}
+
+.sx-layout-menu .dropdown-menu {
+  min-width: 210px;
+
+  .dropdown-item-leading-icon svg {
+    display: block;
+  }
+
+  .dropdown-item.active .dropdown-item-leading-icon {
+    color: var(--sx-accent);
+  }
+}
+
+.sx-layout-key {
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--sx-muted);
+  font-family: inherit;
+  font-size: 11.5px;
 }
