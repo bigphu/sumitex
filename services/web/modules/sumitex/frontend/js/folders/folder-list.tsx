@@ -7,9 +7,12 @@
  * - Opening a folder lists its projects and those in its subfolders, with
  *   that total beside the name.
  * - Drag projects (a row, or every selected row) onto a folder to add them.
- *   Drag a folder onto another to move it inside, or onto the "Folders"
- *   heading to move it to the top. A drop that isn't allowed (inside
- *   itself, too deep) shows why and does nothing.
+ * - Drag a folder onto the middle of another to move it inside; onto the
+ *   upper or lower edge of a folder to put it just before or after it; onto
+ *   the "Folders" heading to make it the first folder, or onto "Not in a
+ *   folder" to make it the last. The order is the user's own
+ *   (use-folder-order.ts). A drop that isn't allowed (inside itself, too
+ *   deep) shows why and does nothing.
  * - Each folder's menu: New subfolder, Edit, Move to top level, Delete.
  *   Deleting a folder moves the folders inside it up a level.
  */
@@ -47,8 +50,11 @@ import {
   folderPath,
   moveProblem,
   parentOf,
+  reorderFolders,
   MAX_FOLDER_DEPTH,
+  type FolderPlace,
 } from './folder-tree'
+import { useFolderOrder } from './use-folder-order'
 import { PROJECTS_DRAG_TYPE, draggedProjects } from './drag-projects'
 
 const FOLDER_DRAG_TYPE = 'application/x-sumitex-folder'
@@ -56,7 +62,17 @@ const FOLDER_DRAG_TYPE = 'application/x-sumitex-folder'
 // The folder being dragged; dragover can't read the drag data itself
 let draggedFolder: string | null = null
 
-type DropState = { id: string; problem: string | null } | null
+// Where a dragged folder would land: inside a folder, or next to one
+type Place = FolderPlace | 'into'
+type DropState = { id: string; place: Place; problem: string | null } | null
+
+// The upper and lower 30% of a folder row put the folder next to it
+const EDGE = 0.3
+function placeOn(event: React.DragEvent): Place {
+  const box = event.currentTarget.getBoundingClientRect()
+  const y = (event.clientY - box.top) / Math.max(1, box.height)
+  return y < EDGE ? 'before' : y > 1 - EDGE ? 'after' : 'into'
+}
 
 // The count on the right; the button's label says it to screen readers
 function Count({ n }: { n: number }) {
@@ -133,7 +149,11 @@ export default function FolderList() {
     return () => window.clearTimeout(timer)
   }, [notice])
 
-  const rows = useMemo(() => flattenFolders(tags, collapsed), [tags, collapsed])
+  const [order, saveOrder] = useFolderOrder()
+  const rows = useMemo(
+    () => flattenFolders(tags, collapsed, order),
+    [tags, collapsed, order]
+  )
 
   const runMove = useCallback(
     (tagId: string, parentId: string | null) => {
@@ -155,6 +175,31 @@ export default function FolderList() {
     [tags, moveTagInView, toggle]
   )
 
+  // Put a folder before or after another (taking that one's parent), or
+  // first or last at the top level
+  const runPlace = useCallback(
+    (tagId: string, place: FolderPlace, targetId?: string) => {
+      if (tagId === targetId) return
+      const target = targetId ? tags.find(tag => tag._id === targetId) : null
+      const parentId = target ? parentOf(tags, target) : null
+      const problem = moveProblem(tags, tagId, parentId)
+      if (problem && problem !== 'It is already there') {
+        setNotice(problem)
+        return
+      }
+      if (!problem) runMove(tagId, parentId)
+      const before = order
+      saveOrder(reorderFolders(tags, order, tagId, place, targetId)).catch(
+        error => {
+          debugConsole.error(error)
+          saveOrder(before).catch(() => {})
+          setNotice('Could not save the order. Try again.')
+        }
+      )
+    },
+    [tags, order, saveOrder, runMove]
+  )
+
   const addProjects = useCallback(
     (tagId: string, projectIds: string[]) => {
       const tag = tags.find(tag => tag._id === tagId)
@@ -171,22 +216,44 @@ export default function FolderList() {
     [tags, addProjectToTagInView]
   )
 
-  // Drag and drop: a target is a folder id, or null for the top level
-  const dropHandlers = (target: string | null) => ({
+  // Why a folder can't land here ('' when it would change nothing)
+  const placeProblem = (
+    tagId: string,
+    place: Place,
+    target: string | null
+  ): string | null => {
+    if (place === 'into') {
+      const problem = moveProblem(tags, tagId, target)
+      return problem === 'It is already there' ? '' : problem
+    }
+    if (tagId === target) return ''
+    const targetTag = target ? tags.find(tag => tag._id === target) : null
+    const problem = moveProblem(
+      tags,
+      tagId,
+      targetTag ? parentOf(tags, targetTag) : null
+    )
+    return problem === 'It is already there' ? null : problem
+  }
+
+  // Drag and drop. A target is a folder id, or null for the top level:
+  // 'first' on the heading, 'last' on "Not in a folder"
+  const dropHandlers = (target: string | null, edge?: 'first' | 'last') => ({
     onDragOver: (event: React.DragEvent) => {
       const types = Array.from(event.dataTransfer.types)
       let problem: string | null = null
+      let place: Place = 'into'
       if (types.includes(FOLDER_DRAG_TYPE) && draggedFolder) {
-        problem = moveProblem(tags, draggedFolder, target)
-        if (problem === 'It is already there') problem = ''
+        place = edge ?? (target ? placeOn(event) : 'into')
+        problem = placeProblem(draggedFolder, place, target)
       } else if (!types.includes(PROJECTS_DRAG_TYPE) || target === null) {
         return
       }
       event.preventDefault()
       event.dataTransfer.dropEffect = problem === null ? 'move' : 'none'
-      const id = target ?? 'top'
-      if (drop?.id !== id || drop.problem !== problem) {
-        setDrop({ id, problem })
+      const id = target ?? edge ?? 'top'
+      if (drop?.id !== id || drop.place !== place || drop.problem !== problem) {
+        setDrop({ id, place, problem })
         // Say why while the folder hovers where it can't go
         if (problem) setNotice(problem)
       }
@@ -201,7 +268,9 @@ export default function FolderList() {
       setDrop(null)
       const folder = event.dataTransfer.getData(FOLDER_DRAG_TYPE)
       if (folder) {
-        runMove(folder, target)
+        const place = edge ?? (target ? placeOn(event) : 'into')
+        if (place === 'into') runMove(folder, target)
+        else runPlace(folder, place, target ?? undefined)
         return
       }
       const projects = draggedProjects(event)
@@ -224,7 +293,15 @@ export default function FolderList() {
 
   const dropClass = (id: string) =>
     classNames({
-      'sx-drop': drop?.id === id && drop.problem === null,
+      'sx-drop': drop?.id === id && drop.problem === null && drop.place === 'into',
+      // A line where the folder will land: under the heading for 'first',
+      // above "Not in a folder" for 'last'
+      'sx-drop-before':
+        drop?.id === id && drop.problem === null &&
+        (drop.place === 'before' || drop.place === 'last'),
+      'sx-drop-after':
+        drop?.id === id && drop.problem === null &&
+        (drop.place === 'after' || drop.place === 'first'),
       'sx-drop-bad': drop?.id === id && !!drop.problem,
     })
 
@@ -233,15 +310,15 @@ export default function FolderList() {
       <li
         className={classNames(
           'dropdown-header sx-folders-header',
-          dropClass('top')
+          dropClass('first')
         )}
         data-testid="organize-projects"
         title={
-          drop?.id === 'top' && drop.problem
+          drop?.id === 'first' && drop.problem
             ? drop.problem
-            : 'Drop a folder here to move it to the top level'
+            : 'Drop a folder here to make it the first folder'
         }
-        {...dropHandlers(null)}
+        {...dropHandlers(null, 'first')}
       >
         <span className="sx-folders-title">
           <Folders aria-hidden="true" />
@@ -393,9 +470,12 @@ export default function FolderList() {
       )}
       {tags.length > 0 && (
         <li
-          className={`tag untagged ${
-            selectedTagId === UNCATEGORIZED_KEY ? 'active' : ''
-          }`}
+          className={classNames(
+            'tag untagged',
+            { active: selectedTagId === UNCATEGORIZED_KEY },
+            dropClass('last')
+          )}
+          {...dropHandlers(null, 'last')}
         >
           <button
             type="button"
@@ -411,7 +491,8 @@ export default function FolderList() {
       {tags.length > 0 && !hintDismissed && (
         <li className="sx-folders-hint">
           Drag a project onto a folder to add it. Drag a folder onto another to
-          nest it, up to {MAX_FOLDER_DEPTH} levels.
+          nest it (up to {MAX_FOLDER_DEPTH} levels), or onto its top or bottom
+          edge to put it before or after.
           <button
             type="button"
             className="sx-folders-hint-close"
