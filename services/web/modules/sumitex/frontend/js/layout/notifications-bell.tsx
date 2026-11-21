@@ -1,5 +1,6 @@
 /**
- * Notifications, at the foot of the right strip (mockup frame 19). Until
+ * Notifications, in the title bar with Review and Chat (right-strip.tsx;
+ * at the foot of the right strip when the stock toolbar is in use). Until
  * now these only showed on the Projects page: project invitations, Dropbox
  * and file-limit notices, and the like (GET /notifications).
  *
@@ -119,7 +120,11 @@ function Invite({ notification }: { notification: NotificationProjectInvite }) {
   )
 }
 
-export default function NotificationsBell() {
+export default function NotificationsBell({
+  placement = 'left',
+}: {
+  placement?: 'left' | 'bottom'
+}) {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -172,7 +177,7 @@ export default function NotificationsBell() {
       <OLTooltip
         id="sx-notifications-tooltip"
         description={label}
-        overlayProps={{ delay: 0, placement: 'left' }}
+        overlayProps={{ delay: 0, placement }}
         hidden={open}
       >
         <button

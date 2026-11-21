@@ -3,19 +3,30 @@
  *
  * One row across the whole island, as JetBrains does for Markdown preview:
  * the open files on the left, and at the right end the Code / Visual switch
- * and the Source / Split / PDF switch. The tabs and the Code / Visual switch
- * are the stock components, moved here; only the layout switch is new.
+ * and one layout button (Source only / Source and PDF / PDF only, in a
+ * menu). The tabs and the Code / Visual switch are the stock components,
+ * moved here; only the layout button is new.
  *
  * Mounted by one marked line in ide-react/components/layout/main-layout.tsx.
  */
 import { useRef } from 'react'
-import classNames from 'classnames'
+import MaterialIcon from '@/shared/components/material-icon'
+import {
+  OLDropdown,
+  OLDropdownItem,
+  OLDropdownMenu,
+  OLDropdownToggle,
+} from '@/shared/components/ol/ol-dropdown-menu'
 import { TabsContainer } from '@/features/source-editor/components/tabs/tabs-container'
 import EditorSwitch from '@/features/source-editor/components/editor-switch'
 import { useAreTabsEnabled } from '@/features/ide-react/hooks/use-are-tabs-enabled'
 import { useLayoutContext } from '@/shared/context/layout-context'
 import { useEditorOpenDocContext } from '@/features/ide-react/context/editor-open-doc-context'
-import { useIsNarrow, useNarrowLayout } from './use-narrow-layout'
+import {
+  useCompactSidePanel,
+  useIsNarrow,
+  useNarrowLayout,
+} from './use-narrow-layout'
 import { useGlobalShortcuts } from './use-global-shortcuts'
 import { isMac } from '@/shared/utils/os'
 import PdfPillExtras from './pdf-pill-extras'
@@ -49,14 +60,16 @@ const PdfIcon = () => (
 const CHOICES: {
   key: LayoutChoice
   label: string
-  title: string
+  shortcut: string
   Icon: () => JSX.Element
 }[] = [
-  { key: 'source', label: 'Source', title: `Source only (${MOD}+1)`, Icon: SourceIcon },
-  { key: 'split', label: 'Split', title: `Source and PDF side by side (${MOD}+2)`, Icon: SplitIcon },
-  { key: 'pdf', label: 'PDF', title: `PDF only (${MOD}+3)`, Icon: PdfIcon },
+  { key: 'source', label: 'Source only', shortcut: `${MOD}+1`, Icon: SourceIcon },
+  { key: 'split', label: 'Source and PDF', shortcut: `${MOD}+2`, Icon: SplitIcon },
+  { key: 'pdf', label: 'PDF only', shortcut: `${MOD}+3`, Icon: PdfIcon },
 ]
 
+// One button for the layout (it used to be three side by side): it shows the
+// current layout's icon and opens a short menu with all three and their keys
 function LayoutSwitch() {
   const { pdfLayout, view, changeLayout, detachRole } = useLayoutContext()
   const narrow = useIsNarrow()
@@ -66,6 +79,8 @@ function LayoutSwitch() {
 
   const current: LayoutChoice =
     pdfLayout === 'sideBySide' ? 'split' : view === 'pdf' ? 'pdf' : 'source'
+  const { Icon: CurrentIcon, label: currentLabel } =
+    CHOICES.find(({ key }) => key === current) ?? CHOICES[0]
 
   const choose = (choice: LayoutChoice) => {
     if (choice === 'split') changeLayout('sideBySide')
@@ -73,25 +88,34 @@ function LayoutSwitch() {
   }
 
   return (
-    <div className="sx-segmented" role="group" aria-label="Layout">
-      {CHOICES.filter(({ key }) => !(narrow && key === 'split')).map(
-        ({ key, label, title, Icon }) => (
-        <button
-          key={key}
-          type="button"
-          title={title}
-          aria-pressed={current === key}
-          className={classNames('sx-segmented-item', {
-            'sx-segmented-item-active': current === key,
-          })}
-          onClick={() => choose(key)}
-        >
-          <Icon />
-          <span className="visually-hidden">{label}</span>
-        </button>
-        )
-      )}
-    </div>
+    <OLDropdown className="sx-layout-menu" align="end">
+      <OLDropdownToggle
+        id="sx-layout-menu-toggle"
+        variant="ghost"
+        className="sx-layout-toggle no-default-caret"
+        aria-label={`Layout: ${currentLabel}`}
+      >
+        <CurrentIcon />
+        <MaterialIcon type="keyboard_arrow_down" className="sx-layout-chevron" />
+      </OLDropdownToggle>
+      <OLDropdownMenu>
+        {CHOICES.filter(({ key }) => !(narrow && key === 'split')).map(
+          ({ key, label, shortcut, Icon }) => (
+            <OLDropdownItem
+              key={key}
+              as="button"
+              active={current === key}
+              aria-current={current === key}
+              leadingIcon={<Icon />}
+              trailingIcon={<kbd className="sx-layout-key">{shortcut}</kbd>}
+              onClick={() => choose(key)}
+            >
+              {label}
+            </OLDropdownItem>
+          )
+        )}
+      </OLDropdownMenu>
+    </OLDropdown>
   )
 }
 
@@ -100,6 +124,7 @@ export default function WorkTabBar() {
   const { openDocName } = useEditorOpenDocContext()
   const narrow = useNarrowLayout() // below 900px: no Split, side panels as drawers
   useGlobalShortcuts(narrow) // Ctrl+1/2/3, Ctrl+Shift+E/H/M, Ctrl+, …
+  useCompactSidePanel() // below 1500px: the side panel starts closed
   const { focusMode } = useLayoutContext()
   const tabsRef = useRef<HTMLDivElement>(null)
   useTabOverflow(tabsRef, !focusMode) // no scrollbar: fade the side with hidden tabs

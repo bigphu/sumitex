@@ -67,3 +67,56 @@
 .ide-redesign-main:has(> .sx-status-bar) > .ide-redesign-body {
   padding-bottom: 0;
 }
+
+// The last compile's problems (layout/problems-widget.tsx, ProblemsStatus):
+// a dot and a few words, opening the log. Quiet when there are none.
+.sx-status-problems {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 calc(-1 * var(--spacing-02));
+  padding: 2px var(--spacing-02);
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+
+  &:hover,
+  &[aria-pressed='true'] {
+    background: var(--sx-island);
+    color: var(--sx-fg);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--sx-accent);
+    outline-offset: 1px;
+  }
+}
+
+.sx-status-problems-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sx-positive);
+  opacity: 0.8;
+}
+
+.sx-status-problems-warning {
+  color: var(--sx-fg);
+
+  .sx-status-problems-dot {
+    background: var(--sx-warning);
+    opacity: 1;
+  }
+}
+
+.sx-status-problems-error {
+  color: var(--sx-fg);
+
+  .sx-status-problems-dot {
+    background: var(--sx-danger);
+    opacity: 1;
+  }
+}

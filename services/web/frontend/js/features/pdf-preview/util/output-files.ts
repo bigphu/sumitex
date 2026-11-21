@@ -202,7 +202,13 @@ export function buildLogEntryAnnotations(
           id: entry.key,
           entryIndex: logEntryAnnotations[entity._id].length, // used for maintaining the order of items on the same line
           row: (entry.line || 1) - 1,
-          type: entry.level === 'error' ? 'error' : 'warning',
+          // SumiTeX: layout notes (typesetting) as notes, with their own icon
+          type:
+            entry.level === 'error'
+              ? 'error'
+              : entry.level === 'typesetting'
+                ? 'info'
+                : 'warning',
           text: entry.message ?? '',
           source: 'compile', // NOTE: this is used in Ace for filtering the annotations
           ruleId: entry.ruleId,

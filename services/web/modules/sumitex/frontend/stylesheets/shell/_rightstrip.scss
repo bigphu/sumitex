@@ -453,3 +453,43 @@
 }
 
 // Chat's messages and message box: shell/_chat.scss. The Review list: shell/_review.scss.
+
+// ---------- in the title bar ----------
+// Review, Chat, the AI assistant and Notifications sit at the title bar's
+// right end, after Share (title-bar.tsx keeps the slot), so no strip takes a
+// column. Their panel still opens in the island on the right.
+.sx-titlebar-panels {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+
+  &:empty {
+    display: none;
+  }
+
+  .sx-right-strip-spacer {
+    display: none;
+  }
+
+  .sx-right-strip-button {
+    width: 30px;
+    height: 30px;
+
+    .material-symbols {
+      font-size: 19px;
+    }
+  }
+
+  .sx-notifications-badge {
+    top: 1px;
+    right: 0;
+  }
+
+  // The list drops down from the bell, its right edge under it
+  .sx-notifications-list {
+    top: calc(100% + var(--spacing-03));
+    right: 0;
+    bottom: auto;
+  }
+}

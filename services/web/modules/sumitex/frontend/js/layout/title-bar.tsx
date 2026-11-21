@@ -195,6 +195,9 @@ export default function TitleBar() {
         <RequestAccessButton />
         <RunWidget />
         <ShareProjectButton />
+        {/* Review, Chat, the AI assistant and Notifications: right-strip.tsx
+            portals its buttons here; their panels still open on the right */}
+        <div className="sx-titlebar-panels" />
         {/* Hidden, kept for the palette commands they register */}
         <div className="sx-titlebar-hidden" aria-hidden="true">
           {!isRestrictedTokenMember && <ShowHistoryButton />}

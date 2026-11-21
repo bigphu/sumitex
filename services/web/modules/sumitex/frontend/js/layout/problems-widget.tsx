@@ -6,28 +6,48 @@
  *
  * The log opens as a panel under the editor (log-panel.tsx, mockup frame 4),
  * which also stands in for the stock log view in the PDF pane.
+ *
+ * With nothing to report (no compile problems, nothing marked in the file)
+ * it isn't shown at all, so it doesn't sit over the first line; the status
+ * bar says so instead and still opens the log (ProblemsStatus below).
  */
 import { useSyncExternalStore } from 'react'
+import classNames from 'classnames'
 import { useTranslation } from 'react-i18next'
-import { nextDiagnostic, previousDiagnostic } from '@codemirror/lint'
+import {
+  diagnosticCount,
+  nextDiagnostic,
+  previousDiagnostic,
+} from '@codemirror/lint'
 import MaterialIcon from '@/shared/components/material-icon'
 import { useDetachCompileContext as useCompileContext } from '@/shared/context/detach-compile-context'
 import { useEditorViewContext } from '@/features/ide-react/context/editor-view-context'
+import { useCodeMirrorStateContext } from '@/features/source-editor/components/codemirror-context'
 import {
   getLogPanelOpen,
   subscribeLogPanel,
   toggleLogPanel,
 } from './log-panel-store'
 
-export default function ProblemsWidget() {
-  const { t } = useTranslation()
+// The last compile's counts
+export function useCompileProblems() {
   const { logEntries } = useCompileContext()
-  const { view } = useEditorViewContext()
-  const showLogs = useSyncExternalStore(subscribeLogPanel, getLogPanelOpen)
-
   const errors = logEntries?.errors?.length ?? 0
   const warnings = logEntries?.warnings?.length ?? 0
   const layout = logEntries?.typesetting?.length ?? 0
+  return { errors, warnings, layout, total: errors + warnings + layout }
+}
+
+export default function ProblemsWidget() {
+  const { t } = useTranslation()
+  const { view } = useEditorViewContext()
+  const state = useCodeMirrorStateContext()
+  const showLogs = useSyncExternalStore(subscribeLogPanel, getLogPanelOpen)
+  const { errors, warnings, layout, total } = useCompileProblems()
+
+  // Nothing from the compile and nothing marked in this file: no widget
+  // (unless the log is open, so its toggle stays where it was)
+  if (total === 0 && diagnosticCount(state) === 0 && !showLogs) return null
 
   const jump = (direction: 'previous' | 'next') => {
     if (!view) return
@@ -81,5 +101,43 @@ export default function ProblemsWidget() {
         <MaterialIcon type="keyboard_arrow_down" />
       </button>
     </div>
+  )
+}
+
+/**
+ * In the status bar: "No problems" (quiet) or the counts, either one opening
+ * the log. The widget above only shows when there is something to report.
+ */
+export function ProblemsStatus() {
+  const { t } = useTranslation()
+  const showLogs = useSyncExternalStore(subscribeLogPanel, getLogPanelOpen)
+  const { errors, warnings, layout, total } = useCompileProblems()
+  const summary = `${errors} errors, ${warnings} warnings, ${layout} layout notes`
+
+  return (
+    <button
+      type="button"
+      className={classNames('sx-status-item sx-status-problems', {
+        'sx-status-problems-error': errors > 0,
+        'sx-status-problems-warning': errors === 0 && warnings > 0,
+      })}
+      onClick={toggleLogPanel}
+      aria-pressed={showLogs}
+      title={`${summary}. ${t('view_logs')}`}
+    >
+      <span className="sx-status-problems-dot" aria-hidden="true" />
+      {total === 0
+        ? 'No problems'
+        : [
+            errors > 0 && `${errors} ${errors === 1 ? 'error' : 'errors'}`,
+            warnings > 0 &&
+              `${warnings} ${warnings === 1 ? 'warning' : 'warnings'}`,
+            errors === 0 &&
+              warnings === 0 &&
+              `${layout} layout ${layout === 1 ? 'note' : 'notes'}`,
+          ]
+            .filter(Boolean)
+            .join(', ')}
+    </button>
   )
 }
