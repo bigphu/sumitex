@@ -141,10 +141,12 @@ import {
 } from './list-model'
 
 // Sizes: a list is this wide; a table grows with its columns up to the
-// editor's width. A size set with the corner handle is kept, per kind.
+// editor's width. A size set with the corner handle is kept, per kind: its
+// width is the pop-up's width, its height only a cap, so a pop-up is never
+// taller than what it holds (a short note stays short).
 const LIST_WIDTH = 480
 const MIN_WIDTH = 380
-const MIN_HEIGHT = 200
+const MIN_HEIGHT = 120
 const COLUMN_WIDTH = 120
 const SYMBOLS_WIDTH = 400
 const sizeKey = (kind: string) => `sumitex.edit-popup.size.${kind}`
@@ -343,7 +345,10 @@ function Popup({
         Math.min(size?.width ?? Math.max(LIST_WIDTH, wants), window.innerWidth - 24)
       )
       popup.style.width = `${size ? width : Math.min(width, room)}px`
-      popup.style.height = size ? `${Math.min(size.height, window.innerHeight - 24)}px` : ''
+      popup.style.height = ''
+      popup.style.maxHeight = size
+        ? `${Math.min(size.height, window.innerHeight - 24)}px`
+        : ''
       const height = popup.offsetHeight
       let top = coords ? coords.bottom + 6 : editor.top + 40
       top = Math.max(8, Math.min(top, window.innerHeight - height - 12))
@@ -357,7 +362,12 @@ function Popup({
     position()
     view.scrollDOM.addEventListener('scroll', position)
     window.addEventListener('resize', position)
+    // Content that grows or shrinks (a row added, a section opened) moves the
+    // pop-up back inside the window
+    const content = new ResizeObserver(() => position())
+    if (ref.current) content.observe(ref.current)
     return () => {
+      content.disconnect()
       view.scrollDOM.removeEventListener('scroll', position)
       window.removeEventListener('resize', position)
     }
@@ -448,7 +458,8 @@ function Popup({
               height: Math.max(MIN_HEIGHT, from.height + e.clientY - start.y),
             }
             popup.style.width = `${next.width}px`
-            popup.style.height = `${next.height}px`
+            // the height caps the pop-up; it never adds empty space below
+            popup.style.maxHeight = `${next.height}px`
           }
           const up = () => {
             handle.removeEventListener('pointermove', move)
@@ -577,16 +588,39 @@ const Draft = forwardRef<
     value: string
     onValue: (value: string) => void
     multiline?: boolean
+    /** A multiline box is as tall as its text, wrapped lines included, within these */
+    minRows?: number
+    maxRows?: number
   } & Omit<InputHTMLAttributes<HTMLInputElement> & TextareaHTMLAttributes<HTMLTextAreaElement>, 'value' | 'onChange'>
->(({ value, onValue, multiline, ...rest }, ref) => {
+>(({ value, onValue, multiline, minRows = 2, maxRows = 8, ...rest }, ref) => {
   const [draft, setDraft] = useState(value)
   const shown = draft.trim() === value.trim() ? draft : value
   const change = (next: string) => {
     setDraft(next)
     onValue(next)
   }
+  const box = useRef<HTMLTextAreaElement | null>(null)
+  const setRef = (el: HTMLTextAreaElement | null) => {
+    box.current = el
+    if (typeof ref === 'function') ref(el as HTMLInputElement & HTMLTextAreaElement)
+    else if (ref) ref.current = el as HTMLInputElement & HTMLTextAreaElement
+  }
+  // Fit the text: measure at the smallest size, then grow to what it needs
+  useLayoutEffect(() => {
+    const el = box.current
+    if (!multiline || !el) return
+    const style = getComputedStyle(el)
+    const line = parseFloat(style.lineHeight) || 20
+    const frame =
+      parseFloat(style.paddingTop) + parseFloat(style.paddingBottom) +
+      parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth)
+    el.style.height = 'auto'
+    const wanted = el.scrollHeight + parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth)
+    const height = Math.min(Math.max(wanted, minRows * line + frame), maxRows * line + frame)
+    el.style.height = `${Math.ceil(height)}px`
+  }, [multiline, shown, minRows, maxRows])
   return multiline ? (
-    <textarea {...rest} ref={ref} value={shown} onChange={event => change(event.target.value)} />
+    <textarea {...rest} rows={minRows} ref={setRef} value={shown} onChange={event => change(event.target.value)} />
   ) : (
     <input {...rest} ref={ref} value={shown} onChange={event => change(event.target.value)} />
   )
@@ -1241,7 +1275,8 @@ function EquationEditor({
             className="sx-edit-input sx-edit-source"
             value={model.source.text}
             aria-label="Source"
-            rows={Math.min(8, Math.max(2, model.source.text.split('\n').length + 1))}
+            minRows={2}
+            maxRows={8}
             spellCheck={false}
             onValue={value => apply(setSource(model, value))}
           />
@@ -1669,7 +1704,8 @@ function TheoremEditor({
             className="sx-edit-input sx-edit-body-text"
             value={model.body.text}
             aria-label="Text"
-            rows={Math.min(8, Math.max(3, model.body.text.split('\n').length + 1))}
+            minRows={2}
+            maxRows={8}
             onValue={value => apply(setTheoremBody(model, value))}
           />
         </Field>
@@ -1724,7 +1760,8 @@ function NoteEditor({
           className="sx-edit-input sx-edit-body-text"
           value={text}
           aria-label={model.kind === 'todo' ? 'To do' : 'Text'}
-          rows={Math.min(8, Math.max(2, text.split('\n').length + 1))}
+          minRows={2}
+          maxRows={8}
           onValue={value => apply(setNoteText(model, value))}
         />
         {model.kind === 'todo' && (
@@ -1793,7 +1830,8 @@ function CodeEditor({
             className="sx-edit-input sx-edit-source"
             value={model.code.text}
             aria-label="Code"
-            rows={Math.min(14, Math.max(3, model.code.text.split('\n').length + 1))}
+            minRows={3}
+            maxRows={14}
             spellCheck={false}
             onValue={value => apply(setCode(model, value))}
           />

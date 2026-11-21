@@ -7,11 +7,10 @@
   z-index: 1050;
   display: flex;
   flex-direction: column;
-  // Grows with its content to 80% of the window; the corner handle sets
-  // a size of its own
+  // Exactly as tall as its content, up to 80% of the window; the corner
+  // handle sets the width and a lower or higher cap (block-editor.tsx)
   max-height: 80vh;
   min-width: 380px;
-  min-height: 200px;
   color: var(--sx-fg);
   font-size: 13px;
   background: var(--sx-island-raised);

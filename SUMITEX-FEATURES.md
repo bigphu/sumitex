@@ -218,7 +218,7 @@ There are two kinds of folders. The design doc's main feature is the first.
 
 **Folders on the dashboard (new, P1, about 1 week).** Group LaTeX projects into nested folders on the project list.
 - **Data model:** folders are nested per-user tags. AyakaLeaf keeps upstream's tags (`app/src/models/Tag.mjs` stores a name and a colour), shown in the dashboard sidebar (`features/project-list/components/sidebar/tags-list.tsx`). Add an optional `parentId` so a tag can sit inside another. No project data is migrated.
-- **Behaviour:** a collapsible folder tree under All / Your projects / Shared / Archived / Trashed. Drag a project onto a folder to add it, and drag a folder to move it. A project can sit in several folders, and each user keeps their own folders.
+- **Behaviour:** a collapsible folder tree under All / Your projects / Shared / Archived / Trashed. Drag a project onto a folder to add it. Drag a folder onto the middle of another to nest it, onto its top or bottom edge to put it before or after, onto the Folders heading to make it first, or onto "Not in a folder" to make it last; the order is each user's own (saved by the sumitex module, `sumitexFolderOrder`). A project can sit in several folders, and each user keeps their own folders.
 - **Rules:** reject cycles, cap the depth (proposed: 5), and when a folder is deleted, move its children up a level.
 - **Rollback:** old tags have no parent, so they show as top-level folders, and stock Overleaf still reads the data.
 

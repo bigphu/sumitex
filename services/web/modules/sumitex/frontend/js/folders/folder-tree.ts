@@ -26,23 +26,37 @@ export function parentOf(tags: Tag[], tag: Tag): string | null {
   return tags.some(other => other._id === parentId) ? parentId : null
 }
 
-/** Folder id → its subfolders, sorted by name; null holds the top level */
-export function childrenMap(tags: Tag[]) {
+/**
+ * Folder id → its subfolders; null holds the top level. Sorted by their
+ * place in `order` (the user's own order, FolderOrderRouter.mjs), then by
+ * name for folders it doesn't list.
+ */
+export function childrenMap(tags: Tag[], order: string[] = []) {
+  const rank = new Map(order.map((id, index) => [id, index]))
+  const sort = (a: Tag, b: Tag) => {
+    const ra = rank.get(a._id)
+    const rb = rank.get(b._id)
+    if (ra !== undefined && rb !== undefined) return ra - rb
+    if (ra !== undefined) return -1
+    if (rb !== undefined) return 1
+    return byName(a, b)
+  }
   const map = new Map<string | null, Tag[]>()
   for (const tag of tags) {
     const parent = parentOf(tags, tag)
     map.set(parent, [...(map.get(parent) ?? []), tag])
   }
-  for (const list of map.values()) list.sort(byName)
+  for (const list of map.values()) list.sort(sort)
   return map
 }
 
 /** Folders in tree order, with their depth (0 at the top) */
 export function flattenFolders(
   tags: Tag[],
-  collapsed: Set<string> = new Set()
+  collapsed: Set<string> = new Set(),
+  order: string[] = []
 ): FolderRow[] {
-  const children = childrenMap(tags)
+  const children = childrenMap(tags, order)
   const rows: FolderRow[] = []
   const seen = new Set<string>()
   // Folders inside a folded one are walked too, but not listed
@@ -153,4 +167,29 @@ export function folderPath(tags: Tag[], tagId: string): string {
     cur = parentOf(tags, tag)
   }
   return names.join(' › ')
+}
+
+export type FolderPlace = 'before' | 'after' | 'first' | 'last'
+
+/**
+ * The folder order after moving `tagId` next to `targetId` (before or
+ * after it), or to the start or end. Only the order among siblings counts,
+ * so the dragged folder goes right next to its target in the full list.
+ */
+export function reorderFolders(
+  tags: Tag[],
+  order: string[],
+  tagId: string,
+  place: FolderPlace,
+  targetId?: string
+): string[] {
+  const ids = flattenFolders(tags, new Set(), order)
+    .map(row => row.tag._id)
+    .filter(id => id !== tagId)
+  if (place === 'first') return [tagId, ...ids]
+  if (place === 'last' || !targetId) return [...ids, tagId]
+  const at = ids.indexOf(targetId)
+  if (at === -1) return [...ids, tagId]
+  ids.splice(place === 'before' ? at : at + 1, 0, tagId)
+  return ids
 }

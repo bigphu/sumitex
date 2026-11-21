@@ -1,5 +1,6 @@
 import AnonymousEditorRouter from './app/src/AnonymousEditorRouter.mjs'
 import GuideRouter from './app/src/GuideRouter.mjs'
+import FolderOrderRouter from './app/src/FolderOrderRouter.mjs'
 import { ensureGuideMember } from './app/src/GuideManager.mjs'
 
 /**
@@ -9,6 +10,7 @@ import { ensureGuideMember } from './app/src/GuideManager.mjs'
  * - Saving after an anonymous edit (AnonymousEditorRouter.mjs)
  * - The SumiTeX guide: the handbook shared with everyone, and a playground
  *   per user (GuideManager.mjs, GuideRouter.mjs)
+ * - The order of the dashboard's folders (FolderOrderRouter.mjs)
  *
  * @import { WebModule } from "../../types/web-module"
  */
@@ -17,7 +19,10 @@ import { ensureGuideMember } from './app/src/GuideManager.mjs'
 const SumitexModule = {
   router: {
     applyNonCsrfRouter: AnonymousEditorRouter.applyNonCsrfRouter,
-    apply: GuideRouter.apply,
+    apply(webRouter, privateApiRouter, publicApiRouter) {
+      GuideRouter.apply(webRouter, privateApiRouter, publicApiRouter)
+      FolderOrderRouter.apply(webRouter)
+    },
   },
   hooks: {
     // Every sign-in: join the handbook once (it never blocks signing in)
