@@ -1,0 +1,480 @@
+// The admin pages (AyakaLeaf's admin-tools module: Users, a user, Projects,
+// a project; and upstream's Admin Panel at /admin). They already sit in the
+// site's look (shell/_site.scss: title bar, island, fields, hairline tables);
+// this gives them the dashboard's and editor's look.
+//
+// - Tabs: the segmented switch (History's All history / Labels)
+// - Lists straight on the island, the dashboard's sunken search, badges as
+//   ink dots, the dashboard's buttons (destructive ones a quiet red outline)
+// - Tables: one header style (the small capitals of _site.scss, also on the
+//   sort and filter buttons), 13px rows, names as plain text, quiet icons
+// - A set filter, the current page and the copy button: accent, not green
+// - Badges keep their meanings (Active green, Admin red, …)
+
+$sx-admin: '.admin-panel-container';
+
+// ---------- one column for every admin page ----------
+// The admin-tools pages (Users, Projects, …) sit in a 1076px column; the
+// Admin Panel (/admin) and Register users (/admin/register) are upstream's
+// card in the full container, so they started further left. Same column,
+// and no card padding, so moving between them doesn't shift the page.
+#main-content > .container:has(#system-messages, #user-activate-register-container) {
+  max-width: 1100px;
+  padding-top: var(--spacing-08);
+
+  .card-body {
+    padding: 0;
+  }
+}
+
+// The Admin Panel: no rule straight under the tabs when there are no
+// messages yet, and the tab's content closer to them
+#main-content .ol-tabs .tab-content {
+  margin-top: var(--spacing-06);
+}
+
+#system-messages > hr:first-child {
+  display: none;
+}
+
+#system-messages .system-messages {
+  padding: 0;
+  list-style: none;
+
+  .system-message {
+    padding: var(--spacing-03) var(--spacing-04);
+    border: 1px solid var(--sx-border);
+    border-radius: 6px;
+    background: var(--sx-island-raised);
+    font-size: 13px;
+  }
+}
+
+#main-content .ol-tabs .row-spaced {
+  margin-bottom: var(--spacing-06);
+
+  .small {
+    margin-top: var(--spacing-02);
+    color: var(--sx-muted);
+  }
+}
+
+// ---------- tabs: the segmented switch (shell/_controls.scss) ----------
+// As History's All history / Labels: a groove with the open tab raised
+#{$sx-admin} .admin-panel-tabs {
+  @include sx-track;
+
+  margin-bottom: var(--spacing-06);
+  border-bottom: 0;
+
+  .admin-panel-tab {
+    @include sx-option;
+
+    margin: 0;
+    padding: 3px var(--spacing-04);
+    border-bottom: 0;
+    font-size: 13px;
+    text-decoration: none;
+
+    &.active {
+      @include sx-option-on;
+
+      border-bottom: 0;
+      font-weight: 600;
+    }
+  }
+}
+
+// Upstream's Admin Panel (app/views/admin/index.pug): core's tabs
+// (components/tabs.scss), in the same switch
+#main-content .ol-tabs .nav-tabs-container {
+  align-items: flex-start;
+}
+
+#main-content .ol-tabs .nav-tabs-container .nav-tabs {
+  @include sx-track;
+
+  width: max-content;
+  margin: 0;
+  border: 0;
+
+  li {
+    margin: 0;
+  }
+
+  li > :is(a, button) {
+    @include sx-option;
+
+    padding: 3px var(--spacing-04);
+    border: 0;
+    font-size: 13px;
+    line-height: 1.6;
+
+    &:hover {
+      background: transparent;
+    }
+
+    &.active {
+      @include sx-option-on;
+
+      border: 0;
+      font-weight: 600;
+    }
+  }
+}
+
+// ---------- tables ----------
+#{$sx-admin} .admin-panel-table {
+  th {
+    color: var(--sx-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  // The sort and filter buttons read as the header text around them
+  th :is(button, .btn) {
+    font-size: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+  }
+
+  th .admin-panel-dropdown-toggle.btn .material-symbols,
+  .admin-panel-sort .material-symbols {
+    font-size: 16px;
+  }
+
+  td {
+    font-size: 13px;
+  }
+}
+
+// The filter menus open from inside a header cell (filter-dropdown.tsx), so
+// they took its small capitals: back to plain menu text, in the SumiTeX
+// menu look, the chosen one on the selection tint
+#{$sx-admin} .admin-panel-dropdown .dropdown-menu {
+  padding: 4px;
+  border: 1px solid var(--sx-border);
+  border-radius: var(--sx-island-radius);
+  background: var(--sx-island-raised);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 16%);
+  color: var(--sx-fg);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+
+  .dropdown-item {
+    border-radius: 5px;
+    background: transparent;
+    color: var(--sx-fg);
+    font-size: 13px;
+
+    &:hover,
+    &:focus-visible {
+      background: var(--sx-row-active);
+      color: var(--sx-fg);
+    }
+
+    &.active,
+    &:active {
+      background: var(--sx-selected-bg);
+      color: var(--sx-selected-fg);
+      font-weight: 600;
+    }
+
+    .material-symbols {
+      color: var(--sx-muted);
+      font-size: 16px;
+    }
+
+    &.active .dropdown-item-leading-icon .material-symbols {
+      color: var(--sx-accent);
+    }
+
+    // The tick and the room kept for it on the other items: the same width,
+    // so every label starts at the same place
+    :is(.dropdown-item-leading-icon, .dropdown-item-leading-icon-empty) {
+      display: inline-flex;
+      flex: none;
+      justify-content: center;
+      width: 16px;
+      margin: 0;
+      padding: 0;
+    }
+
+    &.active .dropdown-item-leading-icon {
+      color: var(--sx-accent);
+    }
+  }
+
+  .admin-panel-filter-count {
+    color: var(--sx-muted);
+    font-size: 12px;
+  }
+
+  .dropdown-divider {
+    border-color: var(--sx-border);
+  }
+}
+
+// Names and titles: the row's text, as on the dashboard; other links in a
+// row (an owner) muted. Both underline on hover.
+#main-content #{$sx-admin} .admin-panel-table td a:not(.btn) {
+  color: var(--sx-muted);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--sx-fg);
+    text-decoration: underline;
+  }
+}
+
+#main-content #{$sx-admin} .admin-panel-table td:nth-child(2) a:not(.btn),
+#main-content #{$sx-admin} .admin-panel-user-name a {
+  color: var(--sx-fg);
+  font-weight: 600;
+}
+
+#{$sx-admin} .admin-panel-user-email {
+  color: var(--sx-muted);
+  font-size: 12px;
+}
+
+// Row icons: muted until hovered (danger turns red, as upstream)
+#{$sx-admin} .admin-panel-actions .btn.action-btn {
+  color: var(--sx-muted);
+
+  &:hover:not(:disabled) {
+    background: var(--sx-island-raised);
+    color: var(--sx-fg);
+  }
+
+  &.admin-panel-action-danger:hover:not(:disabled) {
+    color: var(--content-danger-themed);
+  }
+
+  .material-symbols {
+    font-size: 18px;
+  }
+}
+
+// The details tables (a user, a project): labels in the small capitals
+#{$sx-admin} .admin-panel-details {
+  th {
+    color: var(--sx-muted);
+  }
+
+  td {
+    font-size: 13px;
+  }
+}
+
+// ---------- the accent where upstream used green ----------
+#{$sx-admin} {
+  .admin-panel-hint-link,
+  .admin-panel-hint-link:hover,
+  .admin-panel-dropdown-toggle.btn.active,
+  .admin-panel-dropdown-toggle.btn.active:hover,
+  .admin-panel-table th .admin-panel-dropdown-toggle.btn.active {
+    color: var(--sx-accent);
+  }
+
+  .admin-panel-copy {
+    .btn,
+    .btn:hover,
+    .btn:focus {
+      color: var(--sx-muted);
+    }
+
+    .btn:hover {
+      color: var(--sx-fg);
+    }
+  }
+
+  // The pages under the list (core's components/pagination.scss, plus the
+  // first and last page in lists of their own): each page a small quiet
+  // button, no joined boxes, the current one on the selection tint
+  .admin-panel-pagination {
+    gap: 2px;
+  }
+
+  .pagination {
+    display: flex;
+    gap: 2px;
+  }
+
+  .pagination > li > :is(a, span, button) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+    height: 30px;
+    margin: 0 !important; // upstream pulls each list 1px over the last
+    padding: 0 var(--spacing-03);
+    border: 0;
+    border-radius: 6px !important;
+    background-color: transparent;
+    color: var(--sx-muted);
+    font-size: 13px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+
+    &:hover,
+    &:focus {
+      background-color: var(--sx-island-raised);
+      color: var(--sx-fg);
+    }
+
+    .material-symbols {
+      font-size: 18px;
+    }
+  }
+
+  .pagination > .active > :is(a, span, button) {
+    &,
+    &:hover,
+    &:focus {
+      background-color: var(--sx-selected-bg);
+      color: var(--sx-selected-fg);
+      font-weight: 600;
+    }
+  }
+
+  .admin-panel-footer {
+    color: var(--sx-muted);
+    font-size: 13px;
+  }
+}
+
+// ---------- the SumiTeX look: as the dashboard ----------
+
+// The lists sit straight on the island, as the project list: no card,
+// hairlines between rows, a row raised under the pointer
+#{$sx-admin} :is(.admin-panel-table-wrapper, .admin-panel-details-wrapper) .table-container {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+
+  tr > :first-child {
+    padding-left: var(--spacing-03);
+  }
+
+  tr > :last-child {
+    padding-right: var(--spacing-03);
+  }
+}
+
+#{$sx-admin} .admin-panel-table tbody tr:hover > td {
+  background-color: var(--sx-island-raised);
+}
+
+#{$sx-admin} .admin-panel-table tbody tr:last-child td {
+  border-bottom: 1px solid var(--sx-border);
+}
+
+// Search: the dashboard's sunken field
+// #main-content: the site's own field rule (_site.scss) carries an id
+#main-content #{$sx-admin} .admin-panel-search .form-control {
+  border-color: var(--sx-border);
+  background-color: var(--sx-sunken);
+  color: var(--sx-fg);
+  font-size: 13px;
+
+  &::placeholder {
+    color: var(--sx-muted);
+  }
+
+  &:focus {
+    border-color: var(--sx-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--sx-accent) 22%, transparent);
+  }
+}
+
+// Badges as ink marks: a small dot in the meaning's colour, then the word;
+// no coloured pills
+#{$sx-admin} .admin-panel-badge {
+  gap: 6px;
+  padding: 0;
+  background: none !important;
+  color: var(--sx-fg) !important;
+  font-size: 12.5px;
+  font-weight: 500;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--sx-muted);
+    opacity: 0.55;
+  }
+
+  &.admin-panel-badge-positive::before,
+  &.admin-panel-badge-oidc::before {
+    background: var(--sx-positive);
+    opacity: 1;
+  }
+
+  &.admin-panel-badge-admin::before,
+  &.admin-panel-badge-danger::before {
+    background: var(--sx-danger);
+    opacity: 1;
+  }
+
+  &.admin-panel-badge-info::before,
+  &.admin-panel-badge-ldap::before {
+    background: var(--sx-accent);
+    opacity: 1;
+  }
+
+  &.admin-panel-badge-saml::before {
+    background: var(--sx-warning);
+    opacity: 1;
+  }
+}
+
+// Buttons: the dashboard's (accent fill, small radius); a destructive one is
+// a quiet red outline until hovered, not a red block
+#main-content :is(#{$sx-admin}, .ol-tabs, #user-activate-register-container, .modal-content) {
+  .btn-primary,
+  .btn-danger {
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .btn-danger {
+    border: 1px solid var(--bs-btn-border-color);
+    background-color: var(--bs-btn-bg);
+    color: var(--bs-btn-color);
+
+    &:hover {
+      border-color: var(--bs-btn-hover-border-color);
+      background-color: var(--bs-btn-hover-bg);
+      color: var(--bs-btn-hover-color);
+    }
+
+    --bs-btn-bg: transparent;
+    --bs-btn-color: var(--sx-danger);
+    --bs-btn-border-color: color-mix(in srgb, var(--sx-danger) 45%, transparent);
+    --bs-btn-hover-bg: color-mix(in srgb, var(--sx-danger) 10%, transparent);
+    --bs-btn-hover-color: var(--sx-danger);
+    --bs-btn-hover-border-color: var(--sx-danger);
+    --bs-btn-active-bg: color-mix(in srgb, var(--sx-danger) 16%, transparent);
+    --bs-btn-active-color: var(--sx-danger);
+    --bs-btn-active-border-color: var(--sx-danger);
+  }
+}
+
+// Page titles as the other site pages', a little smaller
+#main-content :is(#{$sx-admin}, .ol-tabs, #user-activate-register-container)
+  h1,
+#main-content > .container:has(#system-messages) h1 {
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
