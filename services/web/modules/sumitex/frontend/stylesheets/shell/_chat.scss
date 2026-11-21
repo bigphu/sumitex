@@ -1,0 +1,179 @@
+// Chat, in the island on the right (layout/right-strip.tsx hosts the stock
+// chat-pane.tsx; chat.scss). Its colours come from --chat-* in
+// tokens/_bridge.scss.
+//
+// The header reads like Review's beside it; messages are bubbles in the
+// SumiTeX colours (yours on the selection tint, others' raised), and the
+// message box is a field like the others, with the accent focus ring.
+
+// ---------- header: as Review's ----------
+.sx-right-panel .rail-panel-header {
+  min-height: 44px;
+  padding: 0 var(--spacing-03) 0 var(--spacing-05);
+  border-bottom: 1px solid var(--sx-border);
+}
+
+.sx-right-panel .rail-panel-title {
+  color: var(--sx-fg);
+  font-size: var(--font-size-03);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+// ---------- messages ----------
+.chat {
+  .messages li.message {
+    margin: var(--spacing-04) var(--spacing-05);
+
+    .date {
+      margin: var(--spacing-02) 0 var(--spacing-04);
+      color: var(--sx-muted);
+      font-size: 11px;
+      text-align: center;
+    }
+  }
+
+  .new-message {
+    padding: var(--spacing-03) var(--spacing-04) var(--spacing-04);
+    border-top: 1px solid var(--sx-border);
+    background: var(--sx-island);
+
+    textarea {
+      padding: var(--spacing-03) var(--spacing-04);
+      border: 1px solid var(--sx-border);
+      border-radius: 8px;
+      background: var(--sx-island);
+      color: var(--sx-fg);
+      font-size: 13px;
+      line-height: 1.45;
+      transition:
+        border-color 0.12s,
+        box-shadow 0.12s;
+
+      &::placeholder {
+        color: var(--sx-muted);
+      }
+
+      &:hover {
+        border-color: var(--sx-muted);
+      }
+
+      &:focus,
+      &:focus-visible {
+        border-color: var(--sx-accent);
+        outline: none;
+        box-shadow: 0 0 0 3px
+          color-mix(in srgb, var(--sx-accent) 22%, transparent);
+      }
+    }
+  }
+}
+
+.chat-message {
+  .message-author {
+    color: var(--sx-muted);
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .message-avatar .avatar {
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  // Others' messages on a raised bubble, yours in the selection colour
+  // (upstream left dark text on both, and a light grey bubble in the dark
+  // theme)
+  .message-content {
+    padding: 6px 11px;
+    border-radius: 12px;
+    background-color: var(--sx-island-raised);
+    color: var(--sx-fg);
+    font-size: 13px;
+    line-height: 1.45;
+
+    a {
+      color: var(--sx-accent);
+    }
+
+    .message-edited {
+      color: var(--sx-muted);
+    }
+  }
+
+  .message-container.message-from-self .message-content {
+    background-color: var(--sx-selected-bg);
+    color: var(--sx-selected-fg);
+
+    a {
+      color: inherit;
+      text-decoration: underline;
+    }
+  }
+
+  // Consecutive messages: bubbles closer together, corners tucked in
+  .message-container.message-from-self {
+    &:not(.first-row-in-message) .message-content {
+      border-top-right-radius: 4px;
+    }
+
+    &:not(.last-row-in-message) .message-content {
+      border-bottom-right-radius: 4px;
+    }
+  }
+
+  .message-container:not(.message-from-self) {
+    &:not(.first-row-in-message) .message-content {
+      border-top-left-radius: 4px;
+    }
+
+    &:not(.last-row-in-message) .message-content {
+      border-bottom-left-radius: 4px;
+    }
+  }
+
+  .message-container .message-dropdown-menu-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+    color: var(--sx-muted);
+
+    &:hover {
+      background: var(--sx-island-raised);
+      color: var(--sx-fg);
+    }
+  }
+}
+
+// ---------- no messages yet ----------
+.chat-empty-state-placeholder {
+  gap: var(--spacing-04);
+  padding: var(--spacing-06);
+
+  .chat-empty-state-icon {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    margin: 0 auto;
+    padding: 0;
+    background-color: var(--sx-island-raised);
+    color: var(--sx-muted);
+
+    .material-symbols {
+      font-size: 24px;
+    }
+  }
+
+  .chat-empty-state-title {
+    color: var(--sx-fg);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .chat-empty-state-body {
+    color: var(--sx-muted);
+    font-size: 12.5px;
+  }
+}

@@ -1,0 +1,421 @@
+// The Review island's list (layout/right-strip.tsx hosts the stock overview,
+// review-panel.scss): comments and suggestions as quiet rows, not bordered
+// cards. The header, actions and track-changes switch are in _rightstrip.
+//
+// A row is flat on the island; hover raises it, the selected one gets the
+// accent edge (as History's selected version). Suggestions show the text in
+// a green or red tint, the author's colour is a small dot, and the reply box
+// is a field like the others (focus ring on the accent).
+
+$sx-rv: '.review-panel-container';
+
+#{$sx-rv} {
+  --review-panel-color: var(--sx-fg);
+  --review-panel-color-secondary: var(--sx-muted);
+  --review-panel-entry-bg-color: var(--sx-island);
+  --review-panel-button-hover-bg-color: var(--sx-island-raised);
+  --review-panel-border-color: var(--sx-border);
+}
+
+// ---------- the list ----------
+.sx-review-list {
+  .review-panel-overview {
+    padding: var(--spacing-02) var(--spacing-03);
+  }
+
+  // One header per file: a quiet row, the count a plain number
+  .collapsible-file-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-02);
+    width: 100%;
+    padding: var(--spacing-03) var(--spacing-02);
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--sx-muted);
+    font-size: 11.5px;
+    font-weight: 600;
+
+    &:hover {
+      color: var(--sx-fg);
+    }
+
+    .material-symbols {
+      font-size: 16px;
+    }
+  }
+
+  .collapsible-file-header-count {
+    margin-left: auto;
+    padding: 0 6px;
+    border-radius: var(--border-radius-full);
+    background: var(--sx-island-raised);
+    color: var(--sx-muted);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 18px;
+  }
+
+  .review-panel-overview-file-entries {
+    gap: 2px;
+    padding-top: 0;
+  }
+
+  .review-panel-overfile-divider {
+    margin: var(--spacing-03) var(--spacing-02);
+  }
+}
+
+// ---------- a row ----------
+.sx-review-list .review-panel-entry {
+  padding: var(--spacing-04) var(--spacing-04) var(--spacing-04)
+    var(--spacing-05);
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  transition: background-color 0.12s;
+
+  &:hover {
+    background: var(--sx-island-raised);
+  }
+
+  &.review-panel-entry-selected,
+  &.review-panel-entry-highlighted,
+  &.review-panel-entry-textarea-focused {
+    margin-left: 0;
+    border: 0;
+    background: var(--sx-island-raised);
+    box-shadow: inset 2px 0 0 var(--sx-accent);
+  }
+}
+
+#{$sx-rv} {
+  .review-panel-entry-content {
+    gap: var(--spacing-03);
+    font-size: 12.5px;
+  }
+
+  // Author and time on one line
+  .review-panel-entry-header {
+    align-items: center;
+    margin-bottom: 0;
+
+    > div:first-child {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      column-gap: var(--spacing-03);
+      min-width: 0;
+    }
+
+    .review-panel-entry-user {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--sx-fg);
+      font-size: 12.5px;
+      font-weight: 600;
+    }
+
+    .review-panel-entry-time {
+      color: var(--sx-muted);
+      font-size: 11px;
+    }
+
+    // Resolve, accept, reject, more: small and quiet
+    .review-panel-entry-actions {
+      gap: 0;
+
+      .btn {
+        display: grid;
+        place-items: center;
+        width: 24px;
+        height: 24px;
+        padding: 0;
+        border: 0;
+        border-radius: 5px;
+        color: var(--sx-muted);
+
+        &:hover,
+        &:focus-visible {
+          background: var(--sx-track);
+          color: var(--sx-fg);
+        }
+      }
+
+      .review-panel-entry-actions-icon {
+        padding: 0;
+        font-size: 17px;
+      }
+    }
+  }
+
+  .review-panel-entry-user-color-badge {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin: 0;
+  }
+
+  .review-panel-comment-body {
+    color: var(--sx-fg);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  // Replies: indented under a hairline, not a yellow bar
+  .review-panel-comment-reply-divider {
+    padding-left: var(--spacing-04);
+    border-left: 2px solid var(--sx-border);
+  }
+
+  .review-panel-expandable-links .btn-inline-link {
+    color: var(--sx-accent);
+    font-size: 11.5px;
+  }
+
+  // Suggestions: the icon is a plain glyph, the text in its colour
+  .review-panel-change-body {
+    align-items: flex-start;
+    gap: 6px;
+    color: var(--sx-muted);
+    font-size: 12.5px;
+  }
+
+  .review-panel-entry-icon {
+    padding: 0;
+    background: none;
+    font-size: 15px;
+  }
+
+  .review-panel-entry-change-icon {
+    margin-top: 2px;
+  }
+
+  .review-panel-entry-icon-accept {
+    color: var(--sx-positive);
+  }
+
+  .review-panel-entry-icon-reject {
+    color: var(--sx-danger);
+  }
+
+  .review-panel-entry-icon-changed {
+    color: var(--sx-muted);
+  }
+
+  // The tint goes on the text itself: the highlight also wraps the (block)
+  // "more" link, which showed as a stray tinted bar
+  .review-panel-content-highlight {
+    color: var(--sx-fg);
+    text-decoration: none;
+
+    .review-panel-expandable-content {
+      padding: 1px 3px;
+      border-radius: 3px;
+      box-decoration-break: clone;
+    }
+  }
+
+  ins.review-panel-content-highlight .review-panel-expandable-content {
+    background: color-mix(in srgb, var(--sx-positive) 18%, transparent);
+  }
+
+  del.review-panel-content-highlight .review-panel-expandable-content {
+    background: color-mix(in srgb, var(--sx-danger) 14%, transparent);
+    text-decoration: line-through;
+    text-decoration-color: color-mix(in srgb, var(--sx-danger) 70%, transparent);
+  }
+
+  // ---------- reply and new-comment fields ----------
+  // The text box is CodeMirror in a shadow root (mentions-input.tsx); only the
+  // host and the custom properties reach it
+  .review-panel-add-comment-editor {
+    border: 1px solid var(--sx-border);
+    border-radius: 6px;
+    background: var(--sx-island);
+    color: var(--sx-fg);
+    transition:
+      border-color 0.12s,
+      box-shadow 0.12s;
+
+    &:hover {
+      border-color: var(--sx-muted);
+    }
+
+    &:focus-within {
+      border-color: var(--sx-accent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--sx-accent) 22%, transparent);
+    }
+
+    // A reply box starts one line tall
+    &.review-panel-comment-input {
+      --rp-input-min-height: calc(var(--line-height-02) + var(--spacing-02));
+
+      color: var(--sx-fg);
+    }
+  }
+
+  .review-panel-add-comment-buttons {
+    gap: var(--spacing-02);
+
+    .btn {
+      height: 26px;
+      padding: 0 var(--spacing-04);
+      border-radius: 6px;
+      font-size: 12.5px;
+    }
+
+    .btn-primary {
+      border: 0;
+      background: var(--sx-accent-fill);
+      color: #fff;
+
+      &:hover:not(:disabled) {
+        background: var(--sx-accent-fill-hover);
+      }
+    }
+  }
+
+  .review-panel-add-comment-cancel-button {
+    color: var(--sx-muted);
+
+    &:hover,
+    &:focus {
+      background: var(--sx-island-raised);
+      color: var(--sx-fg);
+    }
+  }
+
+  .mention-badge {
+    color: var(--sx-accent);
+  }
+}
+
+// ---------- the editor's small markers and their previews ----------
+.review-panel-mini {
+  .review-panel-entry-indicator {
+    color: var(--sx-muted);
+
+    &:hover {
+      color: var(--sx-fg);
+    }
+  }
+
+  // The preview beside a marker: a raised card, like the menus
+  .review-panel-entry-content {
+    width: 240px;
+    border: 1px solid var(--sx-border);
+    border-radius: var(--sx-island-radius);
+    background: var(--sx-island-raised);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 22%);
+  }
+
+  // Upstream opens it to the marker's right, which here is past the
+  // editor's edge, where the island clips it: open it over the text instead
+  .review-panel-entry-hover .review-panel-entry-content {
+    right: calc(100% + 4px);
+  }
+}
+
+// "Add comment" above a selection in the editor
+.review-tooltip-menu {
+  padding: 2px;
+  border: 1px solid var(--sx-border);
+  border-radius: 7px;
+  background: var(--sx-island-raised);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 18%);
+}
+
+.review-tooltip-menu .review-tooltip-menu-button {
+  gap: 6px;
+  padding: 3px 10px 3px 8px;
+  border-radius: 5px;
+  color: var(--sx-fg);
+  font-size: 12.5px;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--sx-row-active);
+  }
+
+  .material-symbols {
+    color: var(--sx-muted);
+    font-size: 16px;
+  }
+}
+
+// ---------- resolved comments (the inbox button in the header) ----------
+.review-panel-resolved-comments {
+  --bs-popover-bg: var(--sx-island-raised);
+  --bs-popover-border-color: var(--sx-border);
+  --bs-popover-body-color: var(--sx-muted);
+
+  border-radius: var(--sx-island-radius);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 22%);
+}
+
+.review-panel-resolved-comment {
+  background: var(--sx-island);
+  color: var(--sx-fg);
+  border: 1px solid var(--sx-border);
+  border-radius: 8px;
+}
+
+.review-panel-resolved-comment-header {
+  color: var(--sx-muted);
+}
+
+.review-panel-resolved-comment-filename {
+  color: var(--sx-fg);
+}
+
+.review-panel-resolved-comment-buttons .btn {
+  color: var(--sx-muted);
+
+  &:hover {
+    background: var(--sx-island-raised);
+    color: var(--sx-fg);
+  }
+}
+
+.review-panel-resolved-comment-quoted-text {
+  border-left: 2px solid var(--sx-border);
+  border-radius: 0;
+  background: transparent;
+}
+
+.review-panel-resolved-comment-quoted-text-label {
+  color: var(--sx-muted);
+}
+
+.review-panel-resolved-comment-quoted-text-quote {
+  color: var(--sx-fg);
+}
+
+// ---------- writing a new comment ----------
+// The editor's panel opens in full only while a new comment is written
+// (hooks/use-review-panel-layout.ts), so the box sits beside its line. The
+// island already lists the rest, so here it shows just that box: no tabs at
+// the foot, no copies of the other rows.
+.cm-scroller > .review-panel-container:not(.review-panel-mini) {
+  .review-panel-inner {
+    background: var(--sx-island);
+  }
+
+  .review-panel-footer {
+    display: none;
+  }
+
+  :is(.review-panel-entry-change, .review-panel-entry-comment) {
+    visibility: hidden !important; // upstream sets visibility inline
+  }
+
+  .review-panel-entry {
+    border: 1px solid var(--sx-border);
+    border-radius: 8px;
+    background: var(--sx-island-raised);
+    box-shadow: 0 4px 14px rgb(0 0 0 / 12%);
+  }
+}
