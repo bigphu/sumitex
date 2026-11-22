@@ -179,6 +179,32 @@ From then on, each user's next sign-in shares the handbook with them read-only, 
 
 To update, edit the two projects as the admin; everyone sees handbook changes at once. After changing the exercises, bump the line `% Phiên bản sân tập: …` in the playground's `main.tex`; users then see **Get the new exercises**, and their old copy is kept. `guide/README.md` explains how to publish a new handbook version.
 
+## 9. Git and MCP integration (optional)
+
+The **Integrations** panel in the editor gives each project a `git clone` address (pushes come back as changes) and an MCP server, so AI tools such as Claude Code, Cursor or VS Code can read, edit and compile the project. Git needs Overleaf's git-bridge service; MCP comes with the same switch. It runs as one more container, `docker-compose.git.yml`, and takes about 100–300 MB of memory.
+
+1. Make its data folder; the service runs as user 1000:
+
+   ```bash
+   sudo mkdir -p /srv/sumitex/git-bridge && sudo chown 1000:1000 /srv/sumitex/git-bridge
+   ```
+
+2. Add the file to `COMPOSE_FILE` in `.env`, after the ones already there:
+
+   ```
+   COMPOSE_FILE=docker-compose.yml:docker-compose.sandbox.yml:docker-compose.small.yml:docker-compose.git.yml
+   ```
+
+3. Get the image and start it:
+
+   ```bash
+   docker compose pull git-bridge && docker compose up -d
+   ```
+
+   If your server can't reach `quay.io`, pull `quay.io/sharelatex/git-bridge:latest` on another machine, `docker save` it, copy the file over and `docker load` it, as with the SumiTeX image.
+
+Clones go through SumiTeX's own address (`https://your.site/git/<project id>`): the image's nginx passes them on, so your reverse proxy needs nothing new. Users log in to git, and connect MCP clients, with a token they make in **Account settings › Git integration**; the Integrations panel shows the exact commands for each tool. MCP is at `https://your.site/project/<project id>/mcp` and goes through your proxy's ordinary `location /`. `deploy/backup` includes the git repositories once the folder exists.
+
 ## Day to day
 
 Run these from the `deploy` folder:

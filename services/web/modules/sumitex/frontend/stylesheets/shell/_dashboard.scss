@@ -284,6 +284,15 @@ body:has(.project-ds-nav-page) {
       font-weight: 500;
     }
 
+    // A long name wraps beside its thumbnail, not under it: the name is
+    // its own box, as wide as what the thumbnail leaves
+    .dash-cell-name > .sx-thumb + a {
+      display: inline-block;
+      max-width: calc(100% - 26px - var(--spacing-04) - 0.5em);
+      overflow-wrap: anywhere;
+      vertical-align: middle;
+    }
+
     .dash-cell-owner,
     .dash-cell-date {
       color: var(--sx-muted);
