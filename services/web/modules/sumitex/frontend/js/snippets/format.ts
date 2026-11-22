@@ -11,6 +11,13 @@
  *   \shortcut[options]{trigger}{output}      the same on one line, for a
  *                                            short output (math, as you type)
  *
+ * A comment at the end of a \shortcut's line describes it, and a comment
+ * on a line of its own heads the shortcuts under it (their subject, up to
+ * a colon): the library shows "Fraction" and "Structure" for
+ *
+ *   % Structure
+ *   \shortcut{//}{\frac{#{}}{#{}}#{}}   % Fraction
+ *
  * Options, comma-separated, in any order:
  * - where: text (the default for \snippet), math (the default for
  *   \shortcut), any
@@ -65,6 +72,10 @@ export type SnippetDef = {
   source: SnippetSource
   /** For built-in ones: the file it comes from (statistics, tables…) */
   group?: string
+  /** What it is, from the comment ending its header line (shortcuts) */
+  description?: string
+  /** Its subject, from the last comment heading above it */
+  tag?: string
   /** 1-based line of its header, in the file it was read from */
   line: number
   captures: Capture[]
@@ -251,7 +262,14 @@ export function parseSnippets(
     severity: 'error' | 'warning' = 'error'
   ) => problems.push({ line, message, severity })
 
+  // The comment heading the defs below it: "% Greek: @ and a letter"
+  let heading: string | undefined
   for (let i = 0; i < lines.length; i++) {
+    const comment = lines[i].match(/^\s*%\s*(.+?)\s*$/)
+    if (comment) {
+      heading = comment[1].split(':')[0].replace(/[.\s]+$/, '') || undefined
+      continue
+    }
     const start = lines[i].match(START)
     if (!start) continue
     const kind = start[1] as 'snippet' | 'shortcut'
@@ -275,9 +293,11 @@ export function parseSnippets(
     at = label.end
     const packages = group(line, at, '[')
     if (packages) at = packages.end
-    if (!/^\s*(%.*)?$/.test(line.slice(at))) {
+    const rest = line.slice(at)
+    if (!/^\s*(%.*)?$/.test(rest)) {
       problem(headerLine, 'Unexpected text after the header')
     }
+    const description = rest.match(/^\s*%\s*(.+?)\s*$/)?.[1]
 
     const {
       where,
@@ -358,6 +378,8 @@ export function parseSnippets(
       body,
       source,
       group: group_,
+      description,
+      tag: heading,
       line: headerLine,
       captures: compiled.captures,
       pattern: compiled.pattern,

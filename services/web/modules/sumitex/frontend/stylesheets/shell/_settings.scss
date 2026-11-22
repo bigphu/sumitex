@@ -154,19 +154,43 @@
   }
 }
 
+// The built-in math shortcuts in Settings: the snippet library's rows
+// (completions/snippet-entry.tsx, shell/_snippets.scss) under their subject
 .sx-math-rules-builtin {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 2px 12px;
+  max-height: 360px;
   margin: 0;
-  padding: 0;
-  color: var(--sx-muted);
-  font-size: 12px;
+  padding: 0 4px 0 0;
+  overflow-y: auto;
   list-style: none;
 
-  .sx-off {
-    text-decoration: line-through;
-    opacity: 0.6;
+  .sx-lib-main {
+    grid-template-columns: minmax(70px, 18%) 1fr auto;
+    min-height: 30px;
+    padding: 3px 4px;
+  }
+
+  // The account page colours every code element (by an id selector, so
+  // only !important wins); triggers stay accent, as in the library
+  .sx-lib-trigger {
+    color: var(--sx-accent) !important;
+  }
+}
+
+.sx-lib-subject {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 10px 4px 2px;
+  background: var(--sx-island);
+  color: var(--sx-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  list-style: none;
+
+  &:first-child {
+    padding-top: 2px;
   }
 }
 

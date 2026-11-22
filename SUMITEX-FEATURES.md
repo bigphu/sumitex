@@ -135,7 +135,36 @@ At 1366 px the code now has about 630 px. A second pass (22 Nov 2026):
 - **The title-bar search gives way on smaller windows:** below 1500 px it says just "Search", with the shortcut in a tooltip on hover; below 1200 px it is just the icon, with the same tooltip (`shell/_titlebar.scss`). The full box at 1500 px and up shows the shortcut itself, so it has no tooltip. It keeps its accessible name, "Search (Ctrl+P)".
 - **The overview ruler no longer marks the cursor**, since the accent scrollbar shows where you are. Its problem marks now come from the full list in `inline-problems.ts`, so warnings and notes from the syntax check and the compile log are marked too, notes in grey (`editor/overview-ruler.ts`).
 - **The divider arrows** that hide the side panel and the PDF appear only while the pointer is on the divider (`shell/_togglers.scss`).
-- **The status bar starts at the file**, since the title bar already names the project. **Problems are marked once, by kind** (`editor/inline-problems.ts`):
+- **The status bar starts at the file**, since the title bar already names the project.
+
+**Better side panels (built 22 Nov 2026).**
+- **The Outline, rebuilt around two tabs** (`outline/sumitex-outline.tsx`), for documents split across many files. The tab is the per-project "show blocks" setting; the palette has "Outline: Contents" and "Outline: Blocks", and either one opens the Outline.
+  - **Contents** (`outline/contents-view.tsx`): the whole document's headings as one tree, nested by level across every file the main file pulls in. `outline/document-map.ts` follows `\input`, `\include`, `\subfile`, `\import` and `\subimport` from the main file, using the project text SumiTeX already reads. The open file's headings come from its live outline, so they update as you type.
+    - Files don't show: a heading's file and line are in its tooltip. A click opens that file at the heading, or jumps within the open file; a double-click also shows it in the PDF.
+    - It starts folded to the top level. The heading the cursor is under is marked and kept in view, with the way to it unfolded. That unfolding is undone when you move on; what you unfold or fold yourself stays.
+    - A filter finds a heading anywhere, ignoring case and accents ("phuong phap" finds "Phương pháp"). Matches show with their file; Enter opens the first, Esc clears.
+    - On a 15-chapter test document, the tree starts at 15 rows, one per chapter.
+    - **No flash while switching files.** The editor's outline catches up with a newly opened file a moment later (about 1.8 s on the test document), and until then it still holds the previous file's headings. Meanwhile Contents uses the new file's saved headings, already in the right place (`currentHeadings` from the document map), and keeps "where you are" where it was. Blocks shows nothing for that moment rather than the wrong file. The panel first draws once the project text is in, so the document doesn't reshuffle right after it appears.
+  - **Blocks:** the open file's sections with their figures, tables, lists, equations, code, theorems and notes, the type filter on its own row, and the ✎ and ⋯ actions. Only the section the cursor is in starts unfolded, and moving the cursor into a section unfolds it. Its tree is drawn like Contents': 26 px rows, 20 px fold arrows (the same glyphs), 14 px indents and no guide lines. Hover and the selected row cover the whole row, not just the title. The stock tree had 24 px indents, 32 px fold buttons, guide lines and gaps.
+  - The tabs replace the ▦ toggle and its one-time tip.
+  - Tested: `test/frontend/outline/document-map.test.ts` (comments, short titles, nested includes, loops, `\import`/`\subimport`) and `contents-entries.test.ts` (the open file's live headings in place, what it pulls in at its line, the whole document with an image open).
+- **A cleaner Search panel** (`shell/_search.scss`, CSS only):
+  - No blue Search button: Enter searches.
+  - The field takes the full width, in the dashboard's sunken look.
+  - Match case, Regular expression and Whole word sit under the field, at its right, as small toggles on the accent when set; their names are in the module's tooltips. Inside the field they cut the hint to "Search all p…" in the 232 px panel.
+  - A long result line ends in "…".
+- **One look for every side panel, left and right** (`shell/_panels.scss`). Files, the Outline, Search, Integrations, Review and Chat share one set of parts:
+  - **Header:** 36 px, an 11 px uppercase muted label, small muted icon buttons on its middle line. Review and Chat used to have a 14 px sentence-case title, and Chat a 44 px header with a rule.
+  - **File row:** a file in Search's results and in Review's list uses the same fold arrow, 12 px semi-bold name, and count.
+  - **Count:** a small muted pill, for Search, Review, the Outline's folded sections, and Contents.
+  - **Find field:** 28 px, sunken, with a search icon and the accent focus ring, for the Search field and the Outline's "Find a heading".
+  - **Rows:** hover on `--sx-island-raised`; the selected row on `--sx-row-active`, semi-bold. That covers the open file in Files, "where you are" in Contents, the cursor's row in Blocks, Search's chosen result, and Review's selected comment. Contents and Search used to use a blue tint, and Review a blue edge.
+  - Review's Accept all / Reject all row sits under the header without a rule, as the Outline's filter row does.
+- **Files** (`shell/_sidepanel.scss`, `files/file-tree-extras.tsx`):
+  - Icons tinted by file type: `.tex` accent, `.bib` amber, images green, PDF red, `.sty`/`.cls` violet.
+  - PDFs have their own icon instead of the image one: a marked line in `file-tree/util/icon-type-from-name.ts`, which also counts `.svg` and `.eps` as images.
+  - The main document is tagged "main".
+  - Icon and name sit on one middle line: the row is a flex box that had left the 15 px icon at its top.
 - **The gutter** marks every line with a problem, with an icon for its kind: a red circle for an error, an amber triangle for a warning, a blue "i" for a note. Upstream drew only the first two, and SumiTeX had been hiding the error icons, so every icon looked like the warning triangle.
 - **On the cursor line**, the message is written after the code instead, behind the same icon, and that line's gutter icon steps aside.
 - **Every problem is included:** the messages read every diagnostic, as the gutter does. The lint state only keeps the underlined ones (errors and SumiTeX's checks), so the stock syntax check's warnings ("unclosed group {") and plain compile warnings had a gutter icon but never a message. The full list comes from `setDiagnosticsEffect` and is mapped through edits.
@@ -181,16 +210,24 @@ Esc or the exit button brings back the normal layout.
 | Ctrl+D, Ctrl+K Ctrl+D | Add the next match, skip it |
 | Ctrl+G | Go to line (was Ctrl+Shift+L) |
 | Shift+Alt+→ / ← | Grow / shrink the selection |
-| Ctrl+K Ctrl+O / J | Fold / unfold all |
+| Ctrl+K Ctrl+0 / J | Fold / unfold all (Ctrl+K Ctrl+O still folds) |
+| Ctrl+Shift+[ / ] | Fold / unfold here (Cmd+Option+[ / ] on a Mac) |
 | F8 / Shift+F8 | Next / previous problem |
 | Alt+click, Shift+Alt+drag | Add a cursor, select a column |
+| Ctrl+Alt+↑/↓, Shift+Alt+I | A cursor above / below, a cursor at the end of each selected line |
+| Ctrl+F2 | Select all matches (as Ctrl+Shift+L) |
+| Ctrl+H | Find and replace, cursor in Replace (Cmd+Option+F on a Mac) |
+| Ctrl+K Ctrl+C / U | Comment / uncomment the lines |
+| Ctrl+K Ctrl+X | Trim the spaces at the ends of lines (also in the palette) |
 
 **Rules as built**
 - **Kept from Overleaf:** Ctrl+S and Ctrl+Enter compile, Ctrl+B bold, Ctrl+U uppercase, Ctrl+J Review. Ctrl+D (delete line) moved to Ctrl+Shift+K, and Overleaf's Ctrl+Shift+M focus mode gave way to Problems; Zen is Ctrl+K Z.
 - **Editor keys** live in one `Prec.highest` keymap (`editor/vscode-keymap.ts`) and step aside when Vim or Emacs keys are on.
 - **Page keys** (`layout/use-global-shortcuts.ts`) work wherever the focus is. Ctrl+K Z, Ctrl+K Ctrl+S, Ctrl+G and F8 also work outside the editor; inside it the editor's keymaps answer.
 - **One table of keys** (`palette/keys.ts`) feeds the palette's key column, the shortcut sheet and tooltips.
+- **Keys on hover (22 Nov 2026):** a button with a shortcut shows it in its hover tip, the key in a faint chip (`palette/key-tip.tsx`): the rail (Files, Search, Outline, History, Settings), Review, the run button (Ctrl+S, or Shift+F5 while compiling), the PDF's cursor button (Ctrl+Alt+J) and the search box (Ctrl+P). The problems counts and arrows name Ctrl+Shift+M and F8 / Shift+F8 in their titles. The rail's keys are `PANEL_KEYS`.
 - **Shortcut sheet** (Ctrl+K Ctrl+S, Help › Keyboard shortcuts): every key, Overleaf's included, in groups with an index on the left (the group being read is set in on a darker block) and a filter box. It replaces the stock sheet while the `sumitex-title-bar` flag is on.
+- **Added (22 Nov 2026):** the VS Code keys above that were missing (fold here, comment / uncomment, find and replace, Ctrl+F2, Shift+Alt+I, trim). The sheet is grouped as VS Code groups it: Navigate, Layout, Compile and problems, Edit, then Lines, Cursors and selection, Folding (VS Code keys only), Blocks, Snippets, Review. Edit gained indent / outdent; Cursors gained a cursor above / below and Ctrl+U (undo the last cursor move), which were working but unlisted.
 - **Still to come:** Alt+↑/↓ on an `\item` moves the whole item (feature 9); F12 go to label and Ctrl+. quick fix come with go to definition and feature 6.
 
 ## 4 · Command palette
@@ -544,6 +581,7 @@ Your own snippets, in the same `\snippet … \endsnippet` text, offered in every
 - **Packages:** `\mathbb` from `RR` adds `amssymb` in the same step (one Ctrl+Z removes both) when the open file holds the preamble; in a chapter, the missing-package linter offers the fix instead of switching files mid-formula.
 - **Also math:** an empty `equation` or `align`. **Not math:** `\text{}`, `\mathrm{}`, `\operatorname{}`, `\label{}`, `\ref{}` and the like.
 - **Settings → Editor → SumiTeX:** the switch, and "Your math shortcuts": one rule per line (`@w \omega`, `hat \hat{#{}}#{}`), a trigger on its own to switch a built-in one off, with the built-in list shown below. Saved with your account (see Personal snippets).
+- **Explained (22 Nov 2026):** every shortcut reads as trigger, what it is ("Fraction", "alpha", "Transpose"), its subject tag ("Structure", "Greek", "Linear algebra") and its switch; the LaTeX it becomes shows when the row is opened ("Becomes `\sum_{▮}^{▮}▮`"). The text comes from the snippet files: a comment ending a `\shortcut` line is its description, the comment heading above it its subject (`snippets/format.ts`). Your own rules take one too: `@w \omega % omega`. The library and the account page's built-in list (under subject headings) share the row (`completions/snippet-entry.tsx`); the filter searches descriptions and tags.
 - **Added (18 Nov 2026):** relations `+-` `xx` `~~` `~=` `:=` `<<` `>>` `...`, sets and logic `AA` `EX` `sse` `nin`, `lim` with its limit; accents and fonts `bar` `hat` `til` `cal` `bb` `bf` `bs`; statistics `EE` `PP` `Var` `Cov` `iid`; machine learning `amin` `amax` `nrm` `abs` `grad` `par` (∂/∂) `KL` `smax` `ell`; linear algebra `TT` (transpose) `inv` `Tr` `rank` `diag` `span` `det` `otimes` `oplus` `odot`. Word triggers are the command's name without its backslash, or uppercase pairs, so ordinary variables don't fire them.
 
 ## 9 · Draggable lists

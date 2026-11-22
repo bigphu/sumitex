@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import classNames from 'classnames'
 import OLTooltip from '@/shared/components/ol/ol-tooltip'
 import MaterialIcon from '@/shared/components/material-icon'
+import { panelTip } from '../palette/key-tip'
 import { useLayoutContext } from '@/shared/context/layout-context'
 import type RailTab from '@/features/ide-react/components/rail/rail-tab'
 
@@ -18,7 +19,7 @@ const HistoryRailButton = forwardRef<HTMLButtonElement>((_props, ref) => {
   return (
     <OLTooltip
       id="rail-tab-tooltip-sumitex-history"
-      description={t('history')}
+      description={panelTip('sumitex-history', t('history'))}
       overlayProps={{ delay: 0, placement: 'right' }}
     >
       <button

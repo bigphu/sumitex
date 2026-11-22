@@ -115,16 +115,17 @@ const text = String.raw`
 \end{bmatrix}#{}
 \endsnippet
 
-\shortcut{TT}{^\top}
-\shortcut{inv}{^{-1}}
-\shortcut{Tr}{\operatorname{tr}}
-\shortcut{rank}{\operatorname{rank}}
-\shortcut{diag}{\operatorname{diag}}
-\shortcut{span}{\operatorname{span}}
-\shortcut{det}{\det}
-\shortcut{otimes}{\otimes}
-\shortcut{oplus}{\oplus}
-\shortcut{odot}{\odot}
+% Linear algebra
+\shortcut{TT}{^\top}   % Transpose
+\shortcut{inv}{^{-1}}   % Inverse
+\shortcut{Tr}{\operatorname{tr}}   % Trace
+\shortcut{rank}{\operatorname{rank}}   % Rank
+\shortcut{diag}{\operatorname{diag}}   % Diagonal
+\shortcut{span}{\operatorname{span}}   % Span
+\shortcut{det}{\det}   % Determinant
+\shortcut{otimes}{\otimes}   % Tensor product
+\shortcut{oplus}{\oplus}   % Direct sum
+\shortcut{odot}{\odot}   % Element-wise product
 `
 
 export default text

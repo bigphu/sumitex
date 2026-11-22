@@ -7,6 +7,7 @@ import {
   OLDropdownToggle,
 } from '@/shared/components/ol/ol-dropdown-menu'
 import OLTooltip from '@/shared/components/ol/ol-tooltip'
+import { panelTip } from '@modules/sumitex/frontend/js/palette/key-tip' // SumiTeX
 
 type RailActionButton = {
   key: string
@@ -47,7 +48,7 @@ const RailActionElement = forwardRef<HTMLButtonElement, { action: RailAction }>(
         <OLDropdown align="end" drop="end">
           <OLTooltip
             id={`rail-dropdown-tooltip-${action.key}`}
-            description={action.title}
+            description={panelTip(action.key, action.title)} // SumiTeX: with its shortcut
             overlayProps={{ delay: 0, placement: 'right' }}
           >
             <span>
@@ -72,7 +73,7 @@ const RailActionElement = forwardRef<HTMLButtonElement, { action: RailAction }>(
       return (
         <OLTooltip
           id={`rail-tab-tooltip-${action.key}`}
-          description={action.title}
+          description={panelTip(action.key, action.title)} // SumiTeX: with its shortcut
           overlayProps={{ delay: 0, placement: 'right' }}
         >
           <button

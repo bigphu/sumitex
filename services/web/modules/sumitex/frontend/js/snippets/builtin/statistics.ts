@@ -37,11 +37,12 @@ H_0\colon #{\mu = \mu_0} \quad \text{vs.} \quad H_1\colon #{\mu \neq \mu_0}#{}
 #{}
 \endsnippet
 
-\shortcut{EE}{\mathbb{E}}
-\shortcut{PP}{\mathbb{P}}
-\shortcut{Var}{\operatorname{Var}}
-\shortcut{Cov}{\operatorname{Cov}}
-\shortcut{iid}{\overset{\text{iid}}{\sim}}
+% Statistics
+\shortcut{EE}{\mathbb{E}}   % Expectation
+\shortcut{PP}{\mathbb{P}}   % Probability
+\shortcut{Var}{\operatorname{Var}}   % Variance
+\shortcut{Cov}{\operatorname{Cov}}   % Covariance
+\shortcut{iid}{\overset{\text{iid}}{\sim}}   % Independent and identically distributed
 `
 
 export default text

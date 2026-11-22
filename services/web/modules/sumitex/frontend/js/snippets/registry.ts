@@ -21,12 +21,17 @@ import {
 import { renderBody, renderLabel } from './render'
 import { BUILTIN_FILES } from './builtin'
 
-export type MathRule = { trigger: string; replacement: string }
+export type MathRule = {
+  trigger: string
+  replacement: string
+  /** From a trailing "% …" on its line */
+  description?: string
+}
 
 /**
  * Your math shortcuts from Settings: one per line, the trigger, a space,
  * what it becomes. A trigger on its own switches a built-in one off; %
- * starts a comment.
+ * starts a comment, and at the end of a rule describes it.
  */
 export function parseRules(text: string) {
   const rules: MathRule[] = []
@@ -34,9 +39,12 @@ export function parseRules(text: string) {
   for (const raw of text.split(/\r\n?|\n/)) {
     const line = raw.trim()
     if (!line || line.startsWith('%')) continue
-    const [, trigger, replacement] = line.match(/^(\S+)\s*(.*)$/) ?? []
+    // "@w \omega % omega": what follows an unescaped % describes it
+    const [, body, description] =
+      line.match(/^(.*?)(?:(?<!\\)\s%\s*(.*))?$/) ?? []
+    const [, trigger, replacement] = body.trim().match(/^(\S+)\s*(.*)$/) ?? []
     if (!trigger) continue
-    if (replacement) rules.push({ trigger, replacement })
+    if (replacement) rules.push({ trigger, replacement, description })
     else off.add(trigger)
   }
   return { rules, off }
@@ -80,6 +88,7 @@ function rulesAsDefs(rules: MathRule[]): SnippetDef[] {
     preamble: [],
     body: rule.replacement,
     source: 'rules',
+    description: rule.description,
     line: i + 1,
     captures: [],
     pattern: null,

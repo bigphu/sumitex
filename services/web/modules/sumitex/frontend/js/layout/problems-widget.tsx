@@ -19,6 +19,7 @@ import {
   nextDiagnostic,
   previousDiagnostic,
 } from '@codemirror/lint'
+import { Tipped } from '../palette/key-tip'
 import MaterialIcon from '@/shared/components/material-icon'
 import { useDetachCompileContext as useCompileContext } from '@/shared/context/detach-compile-context'
 import { useEditorViewContext } from '@/features/ide-react/context/editor-view-context'
@@ -60,46 +61,62 @@ export default function ProblemsWidget() {
 
   return (
     <div className="sx-problems" role="group" aria-label="Problems">
-      <button
-        type="button"
-        className="sx-problems-counts"
-        onClick={toggleLogPanel}
-        aria-pressed={showLogs}
-        title={`${summary}. ${t('view_logs')}`}
+      <Tipped
+        id="sx-problems-counts-tip"
+        label={`${summary}. ${t('view_logs')}`}
+        keys="Mod+Shift+M"
       >
-        {errors > 0 && (
-          <span className="sx-problems-count sx-problems-error">
-            <MaterialIcon type="error" />
-            {errors}
+        <button
+          type="button"
+          className="sx-problems-counts"
+          onClick={toggleLogPanel}
+          aria-pressed={showLogs}
+          aria-label={`${summary}. ${t('view_logs')}`}
+        >
+          {errors > 0 && (
+            <span className="sx-problems-count sx-problems-error">
+              <MaterialIcon type="error" />
+              {errors}
+            </span>
+          )}
+          <span className="sx-problems-count sx-problems-warning">
+            <MaterialIcon type="warning" />
+            {warnings}
           </span>
-        )}
-        <span className="sx-problems-count sx-problems-warning">
-          <MaterialIcon type="warning" />
-          {warnings}
-        </span>
-        <span className="sx-problems-count sx-problems-info">
-          <MaterialIcon type="info" />
-          {layout}
-        </span>
-      </button>
-      <button
-        type="button"
-        className="sx-problems-arrow"
-        onClick={() => jump('previous')}
-        title="Previous problem in this file"
-        aria-label="Previous problem in this file"
+          <span className="sx-problems-count sx-problems-info">
+            <MaterialIcon type="info" />
+            {layout}
+          </span>
+        </button>
+      </Tipped>
+      <Tipped
+        id="sx-problems-previous-tip"
+        label="Previous problem in this file"
+        keys="Shift+F8"
       >
-        <MaterialIcon type="keyboard_arrow_up" />
-      </button>
-      <button
-        type="button"
-        className="sx-problems-arrow"
-        onClick={() => jump('next')}
-        title="Next problem in this file"
-        aria-label="Next problem in this file"
+        <button
+          type="button"
+          className="sx-problems-arrow"
+          onClick={() => jump('previous')}
+          aria-label="Previous problem in this file"
+        >
+          <MaterialIcon type="keyboard_arrow_up" />
+        </button>
+      </Tipped>
+      <Tipped
+        id="sx-problems-next-tip"
+        label="Next problem in this file"
+        keys="F8"
       >
-        <MaterialIcon type="keyboard_arrow_down" />
-      </button>
+        <button
+          type="button"
+          className="sx-problems-arrow"
+          onClick={() => jump('next')}
+          aria-label="Next problem in this file"
+        >
+          <MaterialIcon type="keyboard_arrow_down" />
+        </button>
+      </Tipped>
     </div>
   )
 }
@@ -115,29 +132,35 @@ export function ProblemsStatus() {
   const summary = `${errors} errors, ${warnings} warnings, ${layout} layout notes`
 
   return (
-    <button
-      type="button"
-      className={classNames('sx-status-item sx-status-problems', {
-        'sx-status-problems-error': errors > 0,
-        'sx-status-problems-warning': errors === 0 && warnings > 0,
-      })}
-      onClick={toggleLogPanel}
-      aria-pressed={showLogs}
-      title={`${summary}. ${t('view_logs')}`}
+    <Tipped
+      id="sx-status-problems-tip"
+      label={`${summary}. ${t('view_logs')}`}
+      keys="Mod+Shift+M"
+      placement="top"
     >
-      <span className="sx-status-problems-dot" aria-hidden="true" />
-      {total === 0
-        ? 'No problems'
-        : [
-            errors > 0 && `${errors} ${errors === 1 ? 'error' : 'errors'}`,
-            warnings > 0 &&
-              `${warnings} ${warnings === 1 ? 'warning' : 'warnings'}`,
-            errors === 0 &&
-              warnings === 0 &&
-              `${layout} layout ${layout === 1 ? 'note' : 'notes'}`,
-          ]
-            .filter(Boolean)
-            .join(', ')}
-    </button>
+      <button
+        type="button"
+        className={classNames('sx-status-item sx-status-problems', {
+          'sx-status-problems-error': errors > 0,
+          'sx-status-problems-warning': errors === 0 && warnings > 0,
+        })}
+        onClick={toggleLogPanel}
+        aria-pressed={showLogs}
+      >
+        <span className="sx-status-problems-dot" aria-hidden="true" />
+        {total === 0
+          ? 'No problems'
+          : [
+              errors > 0 && `${errors} ${errors === 1 ? 'error' : 'errors'}`,
+              warnings > 0 &&
+                `${warnings} ${warnings === 1 ? 'warning' : 'warnings'}`,
+              errors === 0 &&
+                warnings === 0 &&
+                `${layout} layout ${layout === 1 ? 'note' : 'notes'}`,
+            ]
+              .filter(Boolean)
+              .join(', ')}
+      </button>
+    </Tipped>
   )
 }

@@ -34,19 +34,31 @@ export const COMMAND_KEYS: Record<string, string[]> = {
   'sumitex-insert-symbol': ['Mod+K M'],
   'sumitex-table-move-column-left': [isMac ? 'Ctrl+Alt+←' : 'Alt+←'],
   'sumitex-table-move-column-right': [isMac ? 'Ctrl+Alt+→' : 'Alt+→'],
+  'sumitex-trim-trailing-whitespace': ['Mod+K Mod+X'],
   'open-settings': ['Mod+,'],
   show_version_history: ['Mod+Shift+H'],
   'synctex-sync-to-pdf': ['Mod+Alt+J'],
   comment: ['Mod+Shift+C'],
 }
 
+/** Keys that open the side panels, by rail or strip key (hover tips) */
+export const PANEL_KEYS: Record<string, string> = {
+  'file-tree': 'Mod+Shift+E',
+  'full-project-search': 'Mod+Shift+F',
+  'sumitex-outline': 'Mod+Shift+Y',
+  'sumitex-history': 'Mod+Shift+H',
+  'review-panel': 'Mod+J',
+  settings: 'Mod+,',
+}
+
 export type SheetRow = { label: string; keys: string[] }
 export type SheetGroup = { title: string; rows: SheetRow[] }
 
 /**
- * The shortcut sheet, grouped as in the mockup (frame 7), plus a short
- * Edit group with the stock keys people look up most (find, undo, bold,
- * case), so the sheet fits on a laptop screen. Alternatives for one row
+ * The shortcut sheet, grouped by what you're doing, as VS Code groups its
+ * keys: Navigate, Layout, Compile, Edit (always there), then Lines,
+ * Cursors and selection, and Folding (VS Code keys, when they're on),
+ * Blocks (SumiTeX's own), Snippets and Review. Alternatives for one row
  * share a chip: "Ctrl+S or Ctrl+Enter".
  */
 export function sheetGroups(options: { review: boolean }): SheetGroup[] {
@@ -73,21 +85,85 @@ export function sheetGroups(options: { review: boolean }): SheetGroup[] {
     ],
   }
 
+  // Always there (Overleaf's and CodeMirror's own keys)
   const edit: SheetGroup = {
     title: 'Edit',
     rows: [
-      { label: 'Find and replace', keys: ['Mod+F'] },
+      { label: 'Find (and replace)', keys: ['Mod+F'] },
+      ...(vscode
+        ? [
+            {
+              label: 'Find and replace, in the Replace field',
+              keys: [isMac ? 'Mod+Alt+F' : 'Mod+H'],
+            },
+          ]
+        : []),
       { label: 'Undo / redo', keys: ['Mod+Z / Mod+Y'] },
       { label: 'Bold / italic', keys: ['Mod+B / I'] },
       { label: 'Upper / lower case', keys: ['Ctrl+U / Ctrl+Shift+U'] },
+      { label: 'Indent / outdent', keys: ['Mod+] / Mod+[', 'Tab / Shift+Tab'] },
+      { label: 'Toggle comment', keys: ['Mod+/'] },
       { label: 'Show / hide the equation preview', keys: ['Alt+P'] },
-      // Without VS Code keys these two are the stock ones
+      // Without VS Code keys this is the stock one
+      ...(vscode ? [] : [{ label: 'Delete line', keys: ['Mod+D'] }]),
+    ],
+  }
+
+  // Lines, the way VS Code moves them
+  const lines: SheetGroup = {
+    title: 'Lines',
+    rows: [
+      { label: 'Move line (in a list: the whole item)', keys: ['Alt+↑ / ↓'] },
+      { label: 'Copy line up / down', keys: ['Shift+Alt+↑ / ↓'] },
+      { label: 'Delete line', keys: ['Mod+Shift+K'] },
+      { label: 'Select line (again: the next one too)', keys: ['Mod+L'] },
+      { label: 'Comment / uncomment lines', keys: ['Mod+K Mod+C / Mod+K Mod+U'] },
+      { label: 'Trim spaces at the ends of lines', keys: ['Mod+K Mod+X'] },
+    ],
+  }
+
+  const cursors: SheetGroup = {
+    title: 'Cursors and selection',
+    rows: [
+      { label: 'Add the next match / skip it', keys: ['Mod+D', 'Mod+K Mod+D'] },
+      { label: 'Select all matches', keys: ['Mod+Shift+L', 'Mod+F2'] },
+      {
+        label: 'Add a cursor above / below',
+        keys: [isMac ? 'Cmd+Alt+↑ / ↓' : 'Ctrl+Alt+↑ / ↓'],
+      },
+      { label: 'A cursor at the end of each selected line', keys: ['Shift+Alt+I'] },
+      { label: 'Add a cursor / select a column', keys: ['Alt+click', 'Shift+Alt+drag'] },
+      { label: 'Undo the last cursor move', keys: ['Mod+U'] },
+      { label: 'Grow / shrink the selection', keys: ['Shift+Alt+→ / ←'] },
+      { label: 'Jump to the matching bracket', keys: ['Mod+Shift+\\'] },
+    ],
+  }
+
+  const folding: SheetGroup = {
+    title: 'Folding',
+    rows: [
+      {
+        label: 'Fold / unfold here',
+        keys: [isMac ? 'Mod+Alt+[ / ]' : 'Mod+Shift+[ / ]', 'F2'],
+      },
+      { label: 'Fold / unfold all', keys: ['Mod+K Mod+0 / Mod+K Mod+J'] },
+    ],
+  }
+
+  // Not VS Code's: SumiTeX's own, always on
+  const blocks: SheetGroup = {
+    title: 'Blocks',
+    rows: [
+      { label: 'Edit the table, list, equation or section at the cursor', keys: ['Mod+K E'] },
+      { label: 'Insert a symbol', keys: ['Mod+K M'] },
       ...(vscode
-        ? []
-        : [
-            { label: 'Toggle comment', keys: ['Mod+/'] },
-            { label: 'Delete line', keys: ['Mod+D'] },
-          ]),
+        ? [
+            {
+              label: 'In a table: move the column',
+              keys: [isMac ? 'Ctrl+Alt+← / →' : 'Alt+← / →'],
+            },
+          ]
+        : []),
     ],
   }
 
@@ -123,36 +199,15 @@ export function sheetGroups(options: { review: boolean }): SheetGroup[] {
     ],
   }
 
-  const vscodeEdit: SheetGroup = {
-    title: 'Edit (VS Code)',
-    rows: [
-      { label: 'Move line (in a list: the whole item)', keys: ['Alt+↑ / ↓'] },
-      { label: 'Edit the table, list, equation or section at the cursor', keys: ['Mod+K E'] },
-      { label: 'Insert a symbol', keys: ['Mod+K M'] },
-      {
-        label: 'In a table: move the column',
-        keys: [isMac ? 'Ctrl+Alt+← / →' : 'Alt+← / →'],
-      },
-      { label: 'Copy line', keys: ['Shift+Alt+↑ / ↓'] },
-      { label: 'Delete line', keys: ['Mod+Shift+K'] },
-      { label: 'Select line', keys: ['Mod+L'] },
-      { label: 'Toggle comment', keys: ['Mod+/'] },
-      { label: 'Jump to matching bracket', keys: ['Mod+Shift+\\'] },
-      { label: 'Select all matches', keys: ['Mod+Shift+L'] },
-      { label: 'Add the next match / skip it', keys: ['Mod+D', 'Mod+K Mod+D'] },
-      { label: 'Add a cursor / select a column', keys: ['Alt+click', 'Shift+Alt+drag'] },
-      { label: 'Grow / shrink the selection', keys: ['Shift+Alt+→ / ←'] },
-      { label: 'Fold / unfold all', keys: ['Mod+K Mod+O / J'] },
-    ],
-  }
-
   // Read top to bottom; the sheet's index lists them in this order
   return [
     navigate,
     layout,
     compile,
     edit,
-    ...(vscode ? [vscodeEdit] : []),
+    // VS Code's keys for lines, cursors and folding (Settings: VS Code keys)
+    ...(vscode ? [lines, cursors, folding] : []),
+    blocks,
     snippets,
     ...(options.review ? [review] : []),
   ]

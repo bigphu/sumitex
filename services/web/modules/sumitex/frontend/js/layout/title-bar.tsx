@@ -31,6 +31,7 @@ import { ZenBar } from './zen-chrome'
 import { useEditorContext } from '@/shared/context/editor-context'
 import { useFeatureFlag } from '@/shared/context/split-test-context'
 import OLTooltip from '@/shared/components/ol/ol-tooltip'
+import { KeyTip } from '../palette/key-tip'
 import RunWidget from './run-widget'
 import { canInstall, installApp, subscribeInstall } from './install-app'
 import MaterialIcon from '@/shared/components/material-icon'
@@ -54,7 +55,7 @@ function SearchBox() {
   return (
     <OLTooltip
       id="sx-search-tooltip"
-      description={`Search (${key})`}
+      description={<KeyTip label="Search" keys="Mod+P" />}
       overlayProps={{ delay: { show: 200, hide: 0 }, placement: 'bottom' }}
     >
       <button

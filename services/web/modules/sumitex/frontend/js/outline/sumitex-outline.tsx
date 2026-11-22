@@ -15,8 +15,12 @@
  *   image, or the formula). Click jumps to it; double-click also shows it
  *   in the PDF. The row at the cursor is highlighted.
  * - A collapsed section shows how many blocks it holds.
- * - The open file only, as the stock outline; editing happens in the
- *   editor (edit pop-ups come in a later version).
+ * - Two tabs. Contents (contents-view.tsx): the whole document's headings
+ *   as one tree across every file the main file pulls in, folded to where
+ *   you are, with a filter. Blocks: the open file's sections with their
+ *   figures, tables, lists, equations… (the rest of this comment), where
+ *   only the section the cursor is in starts unfolded. The tab is the
+ *   per-project "show blocks" setting, so the palette's command switches it.
  */
 import {
   Dispatch,
@@ -61,6 +65,14 @@ import {
   type EditKind,
 } from './edit/edit-requests'
 import { requestAction, type ActionName } from './edit/block-actions'
+import { mapDocument, type MappedHeading } from './document-map'
+import ContentsView, { contentsEntries } from './contents-view'
+import {
+  getProjectPreamble,
+  subscribeProjectPreamble,
+} from '../diagnostics/preamble-store'
+import { useEditorOpenDocContext } from '@/features/ide-react/context/editor-open-doc-context'
+import { useEditorManagerContext } from '@/features/ide-react/context/editor-manager-context'
 
 const HOVER_DELAY_MS = 350
 
@@ -388,7 +400,12 @@ const BlockRow = memo(function BlockRow({
   )
 })
 
+type OpenHeading = (heading: MappedHeading) => void
+
 type Shared = {
+  /** The sections the cursor is in (by line), outermost to innermost */
+  cursorPath: Set<number>
+  showBlocks: boolean
   owned: Map<OutlineItemData | null, Block[]>
   jumpToLine: JumpToLine
   highlightedLine: number
@@ -442,7 +459,18 @@ function SectionRow({
   item: OutlineItemData
   shared: Shared
 }) {
-  const [expanded, setExpanded] = useState(true)
+  // Sections only: all open. With blocks: the cursor's section opens (and
+  // opens again when the cursor comes back into it); the rest start folded
+  const onCursor = shared.cursorPath.has(item.line)
+  const [expanded, setExpanded] = useState(!shared.showBlocks || onCursor)
+  useEffect(() => {
+    if (onCursor) setExpanded(true)
+  }, [onCursor])
+  // Switching blocks on folds the sections the cursor isn't in; off opens all
+  useEffect(() => {
+    setExpanded(!shared.showBlocks || shared.cursorPath.has(item.line))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shared.showBlocks])
   const blocks = shared.owned.get(item) ?? []
   const hasChildren = Boolean(item.children?.length || blocks.length)
   const count = expanded ? 0 : countIn(item, shared.owned)
@@ -524,6 +552,32 @@ export default function SumitexOutline() {
   const allBlocks = useSyncExternalStore(subscribeOutline, getBlocks)
   const tipSeen = useSyncExternalStore(subscribeOutline, getTipSeen)
 
+  // The whole document around the open file (document-map.ts)
+  const project = useSyncExternalStore(
+    subscribeProjectPreamble,
+    getProjectPreamble
+  )
+  const { currentDocumentId } = useEditorOpenDocContext()
+  const { pathInFolder, findEntityByPath } = useFileTreePathContext()
+  const { openDocWithId } = useEditorManagerContext()
+  const currentPath = currentDocumentId ? pathInFolder(currentDocumentId) : null
+  const docMap = useMemo(
+    () =>
+      project.docs
+        ? mapDocument(project.docs, project.mainPath, currentPath)
+        : null,
+    [project.docs, project.mainPath, currentPath]
+  )
+  const openHeading = useCallback<OpenHeading>(
+    heading => {
+      const found = findEntityByPath(heading.path)
+      if (found?.type === 'doc') {
+        openDocWithId(found.entity._id, { gotoLine: heading.line })
+      }
+    },
+    [findEntityByPath, openDocWithId]
+  )
+
   // The cursor's line, for the row to highlight
   const [cursorLine, setCursorLine] = useState(-1)
   useEventListener(
@@ -577,7 +631,36 @@ export default function SumitexOutline() {
   useEffect(() => hideCard, [hideCard])
 
   const rootBlocks = owned.get(null) ?? []
+
+  // The sections the cursor is in: each one at or above it with no later
+  // heading of the same or a higher rank before the cursor
+  const cursorPath = useMemo(() => {
+    const flat: OutlineItemData[] = []
+    const walk = (items: OutlineItemData[]) =>
+      items.forEach(item => {
+        flat.push(item)
+        if (item.children) walk(item.children)
+      })
+    walk(outline.items)
+    flat.sort((a, b) => a.line - b.line)
+    const path = new Set<number>()
+    flat.forEach((item, index) => {
+      if (item.line > cursorLine) return
+      const closedBefore = flat
+        .slice(index + 1)
+        .some(
+          later =>
+            later.line <= cursorLine &&
+            (later.level ?? 0) <= (item.level ?? 0)
+        )
+      if (!closedBefore) path.add(item.line)
+    })
+    return path
+  }, [outline.items, cursorLine])
+
   const shared: Shared = {
+    cursorPath,
+    showBlocks,
     owned,
     jumpToLine,
     highlightedLine,
@@ -586,106 +669,133 @@ export default function SumitexOutline() {
     hideCard,
   }
 
+  // The editor's outline catches up with a newly opened file a moment
+  // later; until it does, Contents uses that file's saved headings (in the
+  // right place) rather than the previous file's
+  const live = useRef({ path: currentPath, items: outline.items, settled: true })
+  if (live.current.path !== currentPath) {
+    live.current = { path: currentPath, items: outline.items, settled: false }
+  } else if (!live.current.settled && outline.items !== live.current.items) {
+    live.current = { path: currentPath, items: outline.items, settled: true }
+  }
+  const liveSettled = live.current.settled
+
+  // Contents: the whole document, the open file's part live
+  const entries = useMemo(
+    () =>
+      contentsEntries(
+        docMap,
+        liveSettled ? outline.items : null,
+        currentPath,
+        canShowOutline
+      ),
+    [docMap, outline.items, liveSettled, currentPath, canShowOutline]
+  )
+
+  const tab = showBlocks ? 'blocks' : 'contents'
+  const chooseTab = (next: 'contents' | 'blocks') => {
+    if (!tipSeen) setTipSeen() // the tabs say what the old tip did
+    setShowBlocks(projectId, next === 'blocks')
+  }
+
   return (
     <div className="sx-outline">
       <div className="sx-outline-header">
         <span className="sx-outline-title">Outline</span>
-        {canShowOutline && (
-          <>
-            {showBlocks && (
-              <select
-                id="sx-outline-filter"
-                className="sx-outline-filter"
-                aria-label="Which blocks to show"
-                value={filter}
-                onChange={event =>
-                  setBlockFilter(projectId, event.target.value as BlockFilter)
-                }
-              >
-                <option value="all">All ({allBlocks.length})</option>
-                {KIND_ORDER.map(kind => (
-                  <option key={kind} value={kind}>
-                    {BLOCK_KINDS[kind].plural} ({counts.get(kind) ?? 0})
-                  </option>
-                ))}
-                <option value="problems">
-                  Problems only ({counts.get('problems') ?? 0})
-                </option>
-              </select>
-            )}
-            <button
-              type="button"
-              className={classNames('sx-outline-toggle', {
-                'sx-outline-toggle-on': showBlocks,
-              })}
-              aria-pressed={showBlocks}
-              title={
-                showBlocks
-                  ? 'Hide blocks: sections only'
-                  : 'Show blocks: figures, tables, lists, equations…'
-              }
-              onClick={() => {
-                // Using the toggle is what the tip was for
-                if (!tipSeen) setTipSeen()
-                setShowBlocks(projectId, !showBlocks)
-              }}
-            >
-              <MaterialIcon type="view_agenda" />
-            </button>
-          </>
-        )}
+        <div className="sx-outline-tabs" role="tablist" aria-label="Outline view">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tab === 'contents'}
+            className={classNames('sx-outline-tab', {
+              'sx-outline-tab-on': tab === 'contents',
+            })}
+            title="The whole document's headings"
+            onClick={() => chooseTab('contents')}
+          >
+            Contents
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tab === 'blocks'}
+            className={classNames('sx-outline-tab', {
+              'sx-outline-tab-on': tab === 'blocks',
+            })}
+            title="Figures, tables, lists, equations… in this file"
+            onClick={() => chooseTab('blocks')}
+          >
+            Blocks
+          </button>
+        </div>
       </div>
 
-      {canShowOutline && !showBlocks && !tipSeen && (
-        <div className="sx-outline-tip" role="note">
-          <p>
-            Tip: show blocks to list figures, tables, lists and equations under
-            each section.
-          </p>
-          <div className="sx-outline-tip-actions">
-            <button
-              type="button"
-              className="sx-outline-tip-primary"
-              onClick={() => {
-                setTipSeen()
-                setShowBlocks(projectId, true)
-              }}
-            >
-              Show blocks
-            </button>
-            <button type="button" onClick={setTipSeen}>
-              Got it
-            </button>
-          </div>
+      {tab === 'blocks' && canShowOutline && (
+        <div className="sx-outline-subheader">
+          <select
+            id="sx-outline-filter"
+            className="sx-outline-filter"
+            aria-label="Which blocks to show"
+            value={filter}
+            onChange={event =>
+              setBlockFilter(projectId, event.target.value as BlockFilter)
+            }
+          >
+            <option value="all">All blocks ({allBlocks.length})</option>
+            {KIND_ORDER.map(kind => (
+              <option key={kind} value={kind}>
+                {BLOCK_KINDS[kind].plural} ({counts.get(kind) ?? 0})
+              </option>
+            ))}
+            <option value="problems">
+              Problems only ({counts.get('problems') ?? 0})
+            </option>
+          </select>
         </div>
       )}
 
       <div className="sx-outline-body">
-        {!canShowOutline ? (
+        {tab === 'contents' ? (
+          // Drawn once the project text is in, so the document doesn't
+          // reshuffle a moment after it first shows
+          !project.docs ? null : (
+          <ContentsView
+            entries={entries}
+            cursorLine={cursorLine}
+            settling={!liveSettled}
+            jumpToLine={jumpToLine}
+            openHeading={openHeading}
+            emptyText={
+              canShowOutline
+                ? 'No headings yet. Add one with \\section{…} and it shows here.'
+                : 'Open a .tex file to see its outline.'
+            }
+          />
+          )
+        ) : !canShowOutline ? (
           <p className="sx-outline-empty">
-            Open a .tex file to see its outline.
+            Open a .tex file to see its blocks.
           </p>
+        ) : !liveSettled ? (
+          // Just switched files: the editor's outline still holds the old
+          // file's sections for a moment; show nothing rather than those
+          null
         ) : !outline.items.length && !blocks.length ? (
           // With a filter that hides every block, the note below says so
-          showBlocks && allBlocks.length ? null : (
+          filter !== 'all' && allBlocks.length ? null : (
             <p className="sx-outline-empty">
-              This file has no sections yet. Add one with \section{'{…}'}
-              and it shows here.
+              No sections or blocks in this file yet.
             </p>
           )
         ) : (
           <ul className="outline-item-list outline-item-list-root" role="tree">
-            <Children
-              sections={outline.items}
-              blocks={rootBlocks}
-              shared={shared}
-            />
+            <Children sections={outline.items} blocks={rootBlocks} shared={shared} />
           </ul>
         )}
-        {showBlocks &&
+        {tab === 'blocks' &&
+          canShowOutline &&
           filter !== 'all' &&
-          blocks.length === 0 &&
-          canShowOutline && (
+          blocks.length === 0 && (
             <p className="sx-outline-empty">
               No{' '}
               {filter === 'problems'

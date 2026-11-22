@@ -1,0 +1,144 @@
+// One look for every side panel, left (Files, Outline, Search,
+// Integrations) and right (Review, Chat). Each panel's file uses these, so
+// a header, a group row, a count, a find field or a selected row looks the
+// same wherever it is.
+//
+// - Header: 36px, an 11px uppercase muted label, 26px muted icon buttons
+// - Group row (a file in Search's results or Review's list): a fold arrow,
+//   the name in 12px semi-bold, a count at the right
+// - Count: a small muted pill
+// - Find field: 28px, sunken, a search icon, the accent focus ring
+// - Rows: hover on --sx-island-raised; selected or "you are here" on
+//   --sx-row-active, semi-bold (shell/_sidepanel.scss)
+
+$sx-panel-search-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='10.5' cy='10.5' r='6.2' fill='none' stroke='%238b93a0' stroke-width='2'/%3E%3Cpath d='M15.2 15.2L20 20' stroke='%238b93a0' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+
+@mixin sx-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  height: 36px;
+  padding: 0 var(--spacing-03) 0 var(--spacing-04);
+  border-bottom: 0;
+  background: transparent;
+}
+
+@mixin sx-panel-title {
+  margin: 0;
+  color: var(--sx-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+@mixin sx-panel-count {
+  flex: none;
+  margin-left: auto;
+  min-width: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--sx-island-raised);
+  color: var(--sx-muted);
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 18px;
+  text-align: center;
+}
+
+@mixin sx-panel-group-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  min-height: 28px;
+  padding: 0 6px 0 4px;
+  border: 0;
+  border-radius: 6px;
+  color: var(--sx-fg);
+  font-size: 12px;
+  font-weight: 600;
+
+  &:hover {
+    background-color: var(--sx-island-raised);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--sx-accent);
+    outline-offset: -2px;
+  }
+
+  .material-symbols {
+    color: var(--sx-muted);
+    font-size: 16px;
+  }
+}
+
+@mixin sx-panel-field {
+  height: 28px;
+  border: 1px solid var(--sx-border);
+  border-radius: 6px;
+  background-color: var(--sx-sunken);
+  color: var(--sx-fg);
+  font-size: 12.5px;
+
+  &::placeholder {
+    color: var(--sx-muted);
+  }
+
+  &:focus,
+  &:focus-within {
+    border-color: var(--sx-accent);
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--sx-accent) 22%, transparent);
+  }
+}
+
+// A header's buttons sit on the label's middle line (Chat's × sat higher)
+.rail-panel-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+// …and their icons sit in the middle of the button, not at its top
+.rail-panel-header .rail-panel-header-button-subdued {
+  place-items: center;
+
+  .button-content {
+    display: grid;
+    place-items: center;
+  }
+}
+
+// A button's hover tip with its shortcut (palette/key-tip.tsx): the label,
+// then the key in a faint chip, as the title bar's search box shows it
+.sx-key-tip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+}
+
+// Room for the label and its key on one line (the stock tip is 200px)
+.tooltip:has(.sx-key-tip) {
+  --bs-tooltip-max-width: 480px;
+}
+
+.sx-key-tip-key {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: color-mix(in srgb, currentColor 16%, transparent);
+  box-shadow: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 16px;
+  opacity: 0.85;
+  white-space: nowrap;
+  flex: none;
+}

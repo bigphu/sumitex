@@ -13,15 +13,16 @@ const text = String.raw`
 #{\theta}_{t+1} = #{\theta}_t - #{\eta} \nabla \mathcal{L}(#{\theta}_t)#{}
 \endsnippet
 
-\shortcut{amin}{\operatorname*{arg\,min}_{#{}}#{}}
-\shortcut{amax}{\operatorname*{arg\,max}_{#{}}#{}}
-\shortcut{nrm}{\lVert #{} \rVert#{}}
-\shortcut{abs}{\lvert #{} \rvert#{}}
-\shortcut{grad}{\nabla}
-\shortcut{par}{\frac{\partial #{}}{\partial #{}}#{}}
-\shortcut{KL}{D_{\mathrm{KL}}(#{} \,\|\, #{})#{}}
-\shortcut{smax}{\operatorname{softmax}}
-\shortcut{ell}{\ell}
+% Machine learning
+\shortcut{amin}{\operatorname*{arg\,min}_{#{}}#{}}   % Arg min
+\shortcut{amax}{\operatorname*{arg\,max}_{#{}}#{}}   % Arg max
+\shortcut{nrm}{\lVert #{} \rVert#{}}   % Norm
+\shortcut{abs}{\lvert #{} \rvert#{}}   % Absolute value
+\shortcut{grad}{\nabla}   % Gradient (nabla)
+\shortcut{par}{\frac{\partial #{}}{\partial #{}}#{}}   % Partial derivative
+\shortcut{KL}{D_{\mathrm{KL}}(#{} \,\|\, #{})#{}}   % KL divergence
+\shortcut{smax}{\operatorname{softmax}}   % Softmax
+\shortcut{ell}{\ell}   % Script l (loss)
 `
 
 export default text

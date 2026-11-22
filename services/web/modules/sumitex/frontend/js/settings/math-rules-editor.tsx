@@ -5,14 +5,15 @@
  * and when it closes. Used in the editor's Settings dialog and on the
  * account settings page.
  */
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { getMathRules, setMathRules } from './prefs'
 import { hasAccount } from './account-prefs'
-import { builtinShortcuts, parseRules } from '../snippets/registry'
-
-// A placeholder shows its text, or ▮ when it has none
-const shown = (replacement: string) =>
-  replacement.replace(/#\{([^}]*)\}/g, (_, name: string) => name || '▮')
+import {
+  libraryEntries,
+  parseRules,
+  switchBuiltin,
+} from '../snippets/registry'
+import { EntryRow, groupOf, groupTitle } from '../completions/snippet-entry'
 
 export function MathRulesEditor({
   id,
@@ -24,6 +25,19 @@ export function MathRulesEditor({
 }) {
   const [draft, setDraft] = useState(getMathRules)
   const { rules, off } = parseRules(draft)
+
+  // The built-in shortcuts, as the snippet library shows them: trigger,
+  // what it is, its subject and switch; the LaTeX when a row is opened
+  const builtin = useMemo(
+    () =>
+      libraryEntries({ rules: draft }).filter(
+        ({ def }) =>
+          def.source === 'builtin' && def.mode !== 'menu' && def.where !== 'text'
+      ),
+    [draft]
+  )
+  const subjectOf = (entry: (typeof builtin)[number]) =>
+    entry.def.tag ?? groupTitle(groupOf(entry.def))
 
   // Save what's there when the editor closes, too
   const latest = useRef(draft)
@@ -41,7 +55,8 @@ export function MathRulesEditor({
         One per line: the trigger, a space, then what it becomes.{' '}
         <code>#{'{}'}</code> marks where the cursor goes (Tab moves to the
         next one). A trigger on its own switches a built-in one off;{' '}
-        <code>%</code> starts a comment.{' '}
+        <code>%</code> starts a comment, and at the end of a rule says what
+        it is (<code>@w \omega % omega</code>).{' '}
         {hasAccount ? 'Saved with your account.' : 'Saved in this browser.'}
       </p>
       <textarea
@@ -58,30 +73,30 @@ export function MathRulesEditor({
       <p className="sx-math-rules-help">
         {rules.length} rule{rules.length === 1 ? '' : 's'} of your own
         {off.size ? `, ${off.size} built-in switched off` : ''}.
-        {showBuiltin && ' Built in:'}
+        {showBuiltin && ' Built in (open one to see what it becomes):'}
       </p>
       {showBuiltin && (
-      <ul className="sx-math-rules-builtin">
-        {builtinShortcuts().map(rule => {
-          const replaced = rules.some(own => own.trigger === rule.key)
-          const switchedOff = off.has(rule.key) || off.has(rule.prefix)
-          return (
-            <li
-              key={rule.key}
-              className={switchedOff || replaced ? 'sx-off' : undefined}
-              title={
-                switchedOff
-                  ? 'Switched off'
-                  : replaced
-                    ? 'Replaced by yours'
-                    : undefined
-              }
-            >
-              <code>{rule.trigger}</code> {shown(rule.output)}
-            </li>
-          )
-        })}
-      </ul>
+        <ul className="sx-lib-list sx-math-rules-builtin">
+          {builtin.map((entry, index) => {
+            const subject = subjectOf(entry)
+            const first = index === 0 || subjectOf(builtin[index - 1]) !== subject
+            return (
+              <Fragment key={entry.def.trigger}>
+                {first && <li className="sx-lib-subject">{subject}</li>}
+                <EntryRow
+                  entry={entry}
+                  onSwitch={(def, on) => {
+                    // The switch writes into this box (as typing the
+                    // trigger on its own would) and saves at once
+                    const next = switchBuiltin(draft, def, on)
+                    setDraft(next)
+                    setMathRules(next)
+                  }}
+                />
+              </Fragment>
+            )
+          })}
+        </ul>
       )}
     </div>
   )

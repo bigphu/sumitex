@@ -2,8 +2,8 @@
 // review-panel.scss): comments and suggestions as quiet rows, not bordered
 // cards. The header, actions and track-changes switch are in _rightstrip.
 //
-// A row is flat on the island; hover raises it, the selected one gets the
-// accent edge (as History's selected version). Suggestions show the text in
+// A row is flat on the island; hover raises it, the selected one is on the
+// side panels' selected colour (as Files, the Outline and Search). Suggestions show the text in
 // a green or red tint, the author's colour is a small dot, and the reply box
 // is a field like the others (focus ring on the accent).
 
@@ -23,38 +23,13 @@ $sx-rv: '.review-panel-container';
     padding: var(--spacing-02) var(--spacing-03);
   }
 
-  // One header per file: a quiet row, the count a plain number
+  // One row per file, as in Search's results (shell/_panels.scss)
   .collapsible-file-header {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-02);
-    width: 100%;
-    padding: var(--spacing-03) var(--spacing-02);
-    border: 0;
-    border-radius: 6px;
-    background: transparent;
-    color: var(--sx-muted);
-    font-size: 11.5px;
-    font-weight: 600;
-
-    &:hover {
-      color: var(--sx-fg);
-    }
-
-    .material-symbols {
-      font-size: 16px;
-    }
+    @include sx-panel-group-row;
   }
 
   .collapsible-file-header-count {
-    margin-left: auto;
-    padding: 0 6px;
-    border-radius: var(--border-radius-full);
-    background: var(--sx-island-raised);
-    color: var(--sx-muted);
-    font-size: 11px;
-    font-weight: 600;
-    line-height: 18px;
+    @include sx-panel-count;
   }
 
   .review-panel-overview-file-entries {
@@ -80,13 +55,14 @@ $sx-rv: '.review-panel-container';
     background: var(--sx-island-raised);
   }
 
+  // The selected one: the side panels' selected row (shell/_sidepanel.scss)
   &.review-panel-entry-selected,
   &.review-panel-entry-highlighted,
   &.review-panel-entry-textarea-focused {
     margin-left: 0;
     border: 0;
-    background: var(--sx-island-raised);
-    box-shadow: inset 2px 0 0 var(--sx-accent);
+    background: var(--sx-row-active);
+    box-shadow: none;
   }
 }
 
