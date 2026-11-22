@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Back up everything SumiTeX stores (projects, history, database, redis).
+# Back up everything SumiTeX stores (projects, history, database, redis,
+# and git integration's repositories when it's on).
 #
 #   deploy/backup              archive into $SUMITEX_DATA_DIR/backups
 #   deploy/backup /some/dir    or into another folder
@@ -22,6 +23,11 @@ if [[ -z $DATA ]]; then
   echo "SUMITEX_DATA_DIR is not set in deploy/.env" >&2
   exit 1
 fi
+# The database files belong to the containers' users: only root reads them
+if [[ ! -r $DATA/mongo/WiredTiger ]]; then
+  echo "Can't read $DATA/mongo: run it as root (sudo $0)" >&2
+  exit 1
+fi
 DEST=${1:-$DATA/backups}
 KEEP=${SUMITEX_BACKUP_KEEP:-7}
 FILE="$DEST/sumitex-$(date +%F-%H%M).tar.gz"
@@ -32,12 +38,16 @@ docker compose stop
 # Whatever happens next, bring it back
 trap 'echo "$(date -Is) starting SumiTeX"; docker compose up -d' EXIT
 
+# Git integration's repositories too, when it's on (docker-compose.git.yml)
+PARTS=(mongo redis sumitex)
+[[ -d $DATA/git-bridge ]] && PARTS+=(git-bridge)
+
 echo "$(date -Is) writing $FILE"
 tar -czf "$FILE.partial" -C "$DATA" \
   --exclude='sumitex/data/compiles' \
   --exclude='sumitex/data/output' \
   --exclude='sumitex/data/cache' \
-  mongo redis sumitex
+  "${PARTS[@]}"
 mv "$FILE.partial" "$FILE"
 
 # Keep the newest few
