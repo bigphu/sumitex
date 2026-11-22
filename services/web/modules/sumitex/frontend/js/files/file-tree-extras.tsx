@@ -1,4 +1,8 @@
 /**
+ * The Files panel's extras:
+ * - The main document's row is marked (data-sx-main), so the panel can tag
+ *   it "main" (shell/_sidepanel.scss).
+ *
  * "Collapse all folders" in the Files panel header (mockup frame 1).
  * Click collapses every folder; Alt+click expands every folder.
  *
@@ -15,6 +19,20 @@ import { useFileTreeOpenContext } from '@/features/ide-react/context/file-tree-o
 import localStorage from '@/infrastructure/local-storage'
 import type { Folder } from '../../../../../types/folder'
 import { usePortalTarget } from '../layout/use-portal-target'
+import { useProjectSettingsContext } from '@/features/ide-settings/context/project-settings-context'
+
+// Mark the main document's row (its entity carries the doc's id)
+function useMainDocMark() {
+  const { rootDocId } = useProjectSettingsContext()
+  const row = usePortalTarget(
+    rootDocId ? `.file-tree .entity[data-file-id="${rootDocId}"]` : '.sx-none'
+  )
+  useEffect(() => {
+    if (!row || !rootDocId) return
+    row.setAttribute('data-sx-main', '')
+    return () => row.removeAttribute('data-sx-main')
+  }, [row, rootDocId])
+}
 
 // The header itself, after the stock action buttons: the mockup puts
 // Collapse all last
@@ -40,6 +58,7 @@ const CollapseIcon = () => (
 )
 
 export default function FileTreeExtras() {
+  useMainDocMark()
   const target = usePortalTarget(TARGET)
   const { fileTreeData } = useFileTreeData()
   const { fileTreeExpanded, expandFileTree } = useFileTreeOpenContext()

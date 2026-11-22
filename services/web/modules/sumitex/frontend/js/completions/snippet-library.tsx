@@ -36,14 +36,9 @@ import {
   subscribeProjectPreamble,
 } from '../diagnostics/preamble-store'
 import { MathRulesEditor } from '../settings/math-rules-editor'
-import {
-  LibraryEntry,
-  libraryEntries,
-  sampleValues,
-  switchBuiltin,
-} from '../snippets/registry'
-import { shownTrigger, SnippetDef } from '../snippets/format'
-import { renderBody, renderLabel } from '../snippets/render'
+import { LibraryEntry, libraryEntries } from '../snippets/registry'
+import { SnippetDef } from '../snippets/format'
+import { EntryRow, groupOf, groupTitle } from './snippet-entry'
 import { SnippetEditor } from './snippet-editor'
 import { PERSONAL_STARTER, snippetSummary } from './personal-snippets'
 import { OPEN_PROJECT_SNIPPETS_EVENT } from './snippet-file'
@@ -52,109 +47,6 @@ import { OPEN_PROJECT_SNIPPETS_EVENT } from './snippet-file'
 export const OPEN_SNIPPET_LIBRARY_EVENT = 'sumitex:open-snippet-library'
 
 export type LibraryPane = 'browse' | 'yours' | 'rules'
-
-const GROUP_TITLES: Record<string, string> = {
-  personal: 'Your snippets',
-  project: 'This project',
-  rules: 'Your math shortcuts',
-  shortcuts: 'Math shortcuts',
-}
-
-const groupOf = (def: SnippetDef) =>
-  def.source === 'builtin' ? (def.group ?? 'builtin') : def.source
-
-const groupTitle = (group: string) =>
-  GROUP_TITLES[group] ??
-  group.charAt(0).toUpperCase() + group.slice(1).replace(/-/g, ' ')
-
-const MODE_NAMES = { menu: 'menu', auto: 'as you type', tab: 'on Tab' }
-const WHERE_NAMES = { text: 'text', math: 'math', any: 'anywhere' }
-
-/** The trigger with example values: \table3x3 */
-const exampleTrigger = (def: SnippetDef) => {
-  const values = sampleValues(def)
-  return def.trigger.replace(
-    /#\{([a-z][a-z0-9]*):[^}]*\}/g,
-    (_, name: string) => values[name]
-  )
-}
-
-function EntryRow({ entry }: { entry: LibraryEntry }) {
-  const { def, state } = entry
-  const [open, setOpen] = useState(false)
-  const switchable = def.source === 'builtin' && def.mode !== 'menu'
-  const values = sampleValues(def)
-  const label =
-    def.mode === 'menu' ? renderLabel(def, values) : renderBody(def, values)
-
-  return (
-    <li className={classNames('sx-lib-entry', `sx-lib-${state}`, { open })}>
-      <div className="sx-lib-row">
-        <button
-          type="button"
-          className="sx-lib-main"
-          aria-expanded={open}
-          onClick={() => setOpen(!open)}
-        >
-          <code className="sx-lib-trigger">{shownTrigger(def.trigger)}</code>
-          <span className="sx-lib-label">{label}</span>
-          <span className="sx-lib-tags">
-            <span>{WHERE_NAMES[def.where]}</span>
-            <span>{MODE_NAMES[def.mode]}</span>
-            {state === 'replaced' && <span>replaced</span>}
-          </span>
-        </button>
-        {switchable && (
-          <div className="form-check form-switch sx-lib-switch">
-            <input
-              className="form-check-input"
-              type="checkbox"
-              role="switch"
-              aria-label={`${def.trigger} on`}
-              checked={state !== 'off'}
-              onChange={event =>
-                setMathRules(
-                  switchBuiltin(getMathRules(), def, event.target.checked)
-                )
-              }
-            />
-          </div>
-        )}
-      </div>
-      {open && (
-        <div className="sx-lib-detail">
-          {def.captures.length > 0 && (
-            <p>
-              Type <code>{exampleTrigger(def)}</code>
-              {def.captures.map(capture => (
-                <span key={capture.name}>
-                  {' · '}
-                  <code>{capture.name}</code>{' '}
-                  {capture.kind === 'letter'
-                    ? 'a letter'
-                    : `${capture.min} to ${capture.max}`}
-                </span>
-              ))}
-            </p>
-          )}
-          <pre className="sx-lib-body">{renderBody(def, values)}</pre>
-          {(def.packages.length > 0 || def.preamble.length > 0) && (
-            <p>
-              Adds{' '}
-              {[
-                ...def.packages.map(name => `\\usepackage{${name}}`),
-                ...def.preamble,
-              ].map(line => (
-                <code key={line}>{line} </code>
-              ))}
-              to the preamble when missing.
-            </p>
-          )}
-        </div>
-      )}
-    </li>
-  )
-}
 
 function YourSnippetsPane({
   newSnippet,
@@ -258,8 +150,8 @@ function LibraryBody({
     ({ def }) =>
       (needle || group === 'all' || groupOf(def) === group) &&
       (!needle ||
-        [def.trigger, def.label, def.body].some(text =>
-          text.toLowerCase().includes(needle)
+        [def.trigger, def.label, def.body, def.description, def.tag].some(
+          text => text?.toLowerCase().includes(needle)
         ))
   )
   const byGroup = new Map<string, LibraryEntry[]>()

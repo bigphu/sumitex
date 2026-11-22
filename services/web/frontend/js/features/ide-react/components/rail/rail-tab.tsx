@@ -4,6 +4,7 @@ import classNames from 'classnames'
 import { ComponentProps, forwardRef, ReactElement } from 'react'
 import { NavLink } from 'react-bootstrap'
 import { RailElement } from '@/features/ide-react/util/rail-types'
+import { panelTip } from '@modules/sumitex/frontend/js/palette/key-tip' // SumiTeX
 
 const RailTab = forwardRef<
   HTMLButtonElement,
@@ -18,7 +19,7 @@ const RailTab = forwardRef<
   return (
     <OLTooltip
       id={`rail-tab-tooltip-${eventKey}`}
-      description={title}
+      description={panelTip(eventKey, title)} // SumiTeX: with its shortcut
       overlayProps={{ delay: 0, placement: 'right' }}
     >
       <NavLink

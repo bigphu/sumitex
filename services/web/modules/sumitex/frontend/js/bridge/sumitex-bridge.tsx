@@ -12,7 +12,11 @@ import { useEditorPropertiesContext } from '@/features/ide-react/context/editor-
 import { applyCodeToolbarClass } from '../settings/prefs'
 import { useUserSettingsContext } from '@/shared/context/user-settings-context'
 import { useRailContext } from '@/features/ide-react/context/rail-context'
-import { SHOW_SHORTCUTS_EVENT, setVscodeKeys } from '../editor/vscode-keymap'
+import {
+  SHOW_SHORTCUTS_EVENT,
+  setVscodeKeys,
+  trimTrailingWhitespace,
+} from '../editor/vscode-keymap'
 import { useRecordRecentFile } from '../palette/recent-files'
 import { useProjectPreamble } from '../diagnostics/use-project-preamble'
 import { gotoLine } from '@codemirror/search'
@@ -20,7 +24,7 @@ import { toggleMathPreviewAt } from '@/features/source-editor/extensions/math-pr
 import type { EditorView } from '@codemirror/view'
 import { moveColumn } from '../editor/table-columns'
 import { flashMessage } from '../editor/flash-message'
-import { getShowBlocks, setShowBlocks } from '../outline/blocks-store'
+import { setShowBlocks } from '../outline/blocks-store'
 import { useProjectContext } from '@/shared/context/project-context'
 import { useSnippetCommands } from '../completions/use-snippet-commands'
 import { useImageUpload } from '../files/use-image-upload'
@@ -205,13 +209,26 @@ export default function SumitexBridge() {
           ),
       },
       {
-        id: 'sumitex-outline-toggle-blocks',
-        label: 'Outline: Show/Hide blocks',
-        // Showing them also opens the Outline, so the change is visible
+        id: 'sumitex-trim-trailing-whitespace',
+        label: 'Trim spaces at the ends of lines',
+        // The palette gives the focus back first
+        handler: () => window.setTimeout(() => trimTrailingWhitespace(view), 60),
+      },
+            // The Outline's two tabs; either one also opens the Outline
+      {
+        id: 'sumitex-outline-contents',
+        label: 'Outline: Contents (the whole document)',
         handler: () => {
-          const on = !getShowBlocks(projectId)
-          setShowBlocks(projectId, on)
-          if (on) openTab('sumitex-outline')
+          setShowBlocks(projectId, false)
+          openTab('sumitex-outline')
+        },
+      },
+      {
+        id: 'sumitex-outline-toggle-blocks',
+        label: 'Outline: Blocks (figures, tables… in this file)',
+        handler: () => {
+          setShowBlocks(projectId, true)
+          openTab('sumitex-outline')
         },
       },
       {

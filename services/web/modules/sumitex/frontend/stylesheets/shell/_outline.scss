@@ -123,18 +123,10 @@
 
 // How many blocks a collapsed section holds
 .sx-outline-count {
-  flex: none;
+  @include sx-panel-count;
+
   align-self: center;
-  min-width: 18px;
   margin-right: 8px;
-  margin-left: auto;
-  padding: 0 6px;
-  color: var(--sx-muted);
-  font-size: 11px;
-  line-height: 16px;
-  text-align: center;
-  background: var(--sx-sunken);
-  border-radius: 8px;
 }
 
 // The hover card, beside the row
@@ -275,33 +267,32 @@
   display: grid;
 }
 
-// The one-time tip that points at the Blocks toggle
+// The one-time tip that points at the Blocks toggle: one quiet line, not a
+// card (it took about 100px at the top until dismissed)
 .sx-outline-tip {
-  margin: 6px 8px 4px;
-  padding: 8px 10px;
-  color: var(--sx-fg);
-  font-size: 12px;
-  line-height: 1.45;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 8px 4px;
+  padding: 2px 2px 2px 8px;
+  border-radius: 6px;
   background: var(--sx-island-raised);
-  border: 1px solid var(--sx-border);
-  border-radius: 8px;
-
-  p {
-    margin: 0 0 6px;
-  }
+  color: var(--sx-muted);
+  font-size: 12px;
 
   button {
-    padding: 2px 8px;
-    color: var(--sx-muted);
-    font-size: 12px;
-    background: transparent;
+    flex: none;
+    padding: 2px 6px;
     border: 0;
     border-radius: 5px;
+    background: transparent;
+    color: var(--sx-muted);
+    font-size: 12px;
     cursor: pointer;
 
     &:hover {
-      color: var(--sx-fg);
       background: var(--sx-border);
+      color: var(--sx-fg);
     }
   }
 
@@ -309,12 +300,31 @@
     color: var(--sx-accent);
     font-weight: 600;
   }
+
+  .sx-outline-tip-close {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+
+    .material-symbols {
+      font-size: 14px;
+    }
+  }
 }
 
-.sx-outline-tip-actions {
-  display: flex;
-  gap: 4px;
-  justify-content: flex-end;
+.sx-outline-tip-icon {
+  flex: none;
+  font-size: 14px;
+}
+
+.sx-outline-tip-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 // ⋯ stays while its menu is open
@@ -366,5 +376,528 @@
   &.sx-row-menu-danger,
   &.sx-row-menu-danger .material-symbols {
     color: var(--sx-danger);
+  }
+}
+
+// ---------- tabs: Contents and Blocks ----------
+// The segmented switch (shell/_controls.scss), at the header's right
+.sx-outline-tabs {
+  @include sx-track;
+
+  margin-left: auto;
+}
+
+.sx-outline-tab {
+  @include sx-option;
+
+  padding: 2px 10px;
+  font-size: 12px;
+
+  &.sx-outline-tab-on {
+    @include sx-option-on;
+
+    font-weight: 600;
+  }
+}
+
+// Blocks: the type filter on its own row under the header
+.sx-outline-subheader {
+  display: flex;
+  align-items: center;
+  padding: 0 8px 4px;
+}
+
+// ---------- Contents (outline/contents-view.tsx) ----------
+// One tree of the whole document's headings: fold arrows, titles, a count
+// when folded; where you are on the accent
+.sx-contents {
+  --sx-contents-indent: 14px;
+
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.sx-contents-filter {
+  @include sx-panel-field;
+
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 8px 6px;
+  padding: 0 8px;
+  color: var(--sx-muted);
+
+  .material-symbols {
+    font-size: 15px;
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--sx-fg);
+    font-size: 12.5px;
+
+    &::placeholder {
+      color: var(--sx-muted);
+    }
+  }
+}
+
+.sx-contents-tree,
+.sx-contents-tree ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sx-contents-tree {
+  padding: 0 6px;
+}
+
+.sx-contents-row {
+  display: flex;
+  align-items: center;
+  min-height: 26px;
+  border-radius: 6px;
+
+  &:hover {
+    background: var(--sx-island-raised);
+  }
+}
+
+.sx-contents-fold {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--sx-muted);
+  cursor: pointer;
+
+  .material-symbols {
+    font-size: 16px;
+  }
+
+  &:hover {
+    color: var(--sx-fg);
+  }
+}
+
+span.sx-contents-fold {
+  cursor: default;
+}
+
+.sx-contents-link {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 3px 4px;
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+  color: var(--sx-fg);
+  font-size: 12.5px;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--sx-accent);
+    outline-offset: -2px;
+    border-radius: 4px;
+  }
+}
+
+.sx-contents-count {
+  @include sx-panel-count;
+
+  margin-right: 4px;
+}
+
+.sx-contents-file {
+  flex: none;
+  padding: 0 6px;
+  color: var(--sx-muted);
+  font-size: 11px;
+}
+
+// Where you are: the side panels' selected row (shell/_sidepanel.scss)
+.sx-contents-here {
+  background: var(--sx-row-active);
+
+  .sx-contents-link {
+    color: var(--sx-fg);
+    font-weight: 600;
+  }
+
+  &:hover {
+    background: var(--sx-row-active);
+  }
+}
+
+// The one-time tip that points at the Blocks toggle: one quiet line, not a
+// card (it took about 100px at the top until dismissed)
+.sx-outline-tip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 8px 4px;
+  padding: 2px 2px 2px 8px;
+  border-radius: 6px;
+  background: var(--sx-island-raised);
+  color: var(--sx-muted);
+  font-size: 12px;
+
+  button {
+    flex: none;
+    padding: 2px 6px;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--sx-muted);
+    font-size: 12px;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--sx-border);
+      color: var(--sx-fg);
+    }
+  }
+
+  .sx-outline-tip-primary {
+    color: var(--sx-accent);
+    font-weight: 600;
+  }
+
+  .sx-outline-tip-close {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+
+    .material-symbols {
+      font-size: 14px;
+    }
+  }
+}
+
+.sx-outline-tip-icon {
+  flex: none;
+  font-size: 14px;
+}
+
+.sx-outline-tip-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ⋯ stays while its menu is open
+.sx-outline-edit.sx-outline-edit-open {
+  display: grid;
+  color: var(--sx-fg);
+  background: var(--sx-island-raised);
+}
+
+// The ⋯ menu on an Outline row
+.sx-row-menu {
+  position: fixed;
+  z-index: 1070;
+  width: 240px;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--sx-island-raised);
+  border: 1px solid var(--sx-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 25%);
+}
+
+.sx-row-menu-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  padding: 5px 8px;
+  color: var(--sx-fg);
+  font-size: 12.5px;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+
+  .material-symbols {
+    color: var(--sx-muted);
+    font-size: 16px;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: var(--sx-island);
+    outline: none;
+  }
+
+  &.sx-row-menu-danger,
+  &.sx-row-menu-danger .material-symbols {
+    color: var(--sx-danger);
+  }
+}
+
+// ---------- the whole document (outline/document-map.ts) ----------
+// Other files' headings are ordinary outline rows (same look, folded to
+// their top headings); the open file's part is marked by a thin accent line
+// down its left, nothing more.
+.sx-outline {
+  --sx-outline-indent: var(--spacing-08);
+}
+
+.sx-outline-static-link {
+  color: var(--sx-muted);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--sx-fg);
+  }
+}
+
+.sx-outline-around .outline-item-list-root,
+.sx-outline-part .outline-item-list-root {
+  margin: 0;
+}
+
+.sx-outline-part-current {
+  position: relative;
+  margin: 2px 0;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    left: 2px;
+    width: 2px;
+    border-radius: 2px;
+    background: var(--sx-accent);
+    opacity: 0.7;
+  }
+}
+
+.sx-outline-empty-quiet {
+  margin: 2px 12px 2px 28px;
+  font-size: 12px;
+}
+
+// The one-time tip that points at the Blocks toggle: one quiet line, not a
+// card (it took about 100px at the top until dismissed)
+.sx-outline-tip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 8px 4px;
+  padding: 2px 2px 2px 8px;
+  border-radius: 6px;
+  background: var(--sx-island-raised);
+  color: var(--sx-muted);
+  font-size: 12px;
+
+  button {
+    flex: none;
+    padding: 2px 6px;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    color: var(--sx-muted);
+    font-size: 12px;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--sx-border);
+      color: var(--sx-fg);
+    }
+  }
+
+  .sx-outline-tip-primary {
+    color: var(--sx-accent);
+    font-weight: 600;
+  }
+
+  .sx-outline-tip-close {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+
+    .material-symbols {
+      font-size: 14px;
+    }
+  }
+}
+
+.sx-outline-tip-icon {
+  flex: none;
+  font-size: 14px;
+}
+
+.sx-outline-tip-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ⋯ stays while its menu is open
+.sx-outline-edit.sx-outline-edit-open {
+  display: grid;
+  color: var(--sx-fg);
+  background: var(--sx-island-raised);
+}
+
+// The ⋯ menu on an Outline row
+.sx-row-menu {
+  position: fixed;
+  z-index: 1070;
+  width: 240px;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--sx-island-raised);
+  border: 1px solid var(--sx-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 25%);
+}
+
+.sx-row-menu-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  padding: 5px 8px;
+  color: var(--sx-fg);
+  font-size: 12.5px;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+
+  .material-symbols {
+    color: var(--sx-muted);
+    font-size: 16px;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: var(--sx-island);
+    outline: none;
+  }
+
+  &.sx-row-menu-danger,
+  &.sx-row-menu-danger .material-symbols {
+    color: var(--sx-danger);
+  }
+}
+
+// ---------- Blocks: the same tree as Contents ----------
+// The stock outline's tree (24px indents, 32px fold buttons, guide lines,
+// gaps, a highlight on the title only) redrawn with Contents' measures
+// (outline/contents-view.tsx): 26px rows, 20px fold arrows, 14px indents,
+// no guides; hover and "selected" on the whole row, as in every panel.
+.sx-outline-body .outline-item-list {
+  gap: 0;
+  margin: 0;
+  padding: 0 0 0 14px;
+
+  &::before {
+    content: none;
+  }
+
+  &.outline-item-list-root {
+    padding: 0 6px;
+  }
+}
+
+.sx-outline-body .outline-item {
+  padding: 0;
+}
+
+.sx-outline-body .outline-item-row {
+  min-height: 26px;
+  border-radius: 6px;
+
+  &:hover {
+    background: var(--sx-island-raised);
+  }
+
+  // Selected / the cursor's row: the whole row, as in Contents
+  &:has(> .outline-item-link-highlight) {
+    background: var(--sx-row-active);
+  }
+}
+
+// Nothing to fold: keep the fold arrow's room, so titles line up
+.sx-outline-body .outline-item-no-children > .outline-item-row {
+  padding-left: 20px;
+}
+
+.sx-outline-body .outline-item-expand-collapse-btn {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  border-radius: 4px;
+  color: var(--sx-muted);
+
+  // the stock caret is drawn smaller: Contents' size
+  .material-symbols,
+  .outline-caret-icon {
+    width: auto !important; // the stock 24px box overran the 20px button
+    font-size: 16px !important;
+  }
+
+  &:hover {
+    background: transparent;
+    color: var(--sx-fg);
+  }
+}
+
+.sx-outline-body .outline-item-link {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 3px 4px;
+  border-radius: 0;
+  background: transparent !important;
+  color: var(--sx-fg);
+  font-size: 12.5px;
+  line-height: 20px;
+
+  &:hover {
+    background: transparent;
+  }
+
+  &.outline-item-link-highlight {
+    color: var(--sx-fg);
+    font-weight: 600;
   }
 }

@@ -1,0 +1,99 @@
+// The project Search panel (AyakaLeaf's full-project-search module), quieter
+// and roomier:
+// - No blue Search button: Enter searches (the button stays in the page,
+//   hidden, as the form's submit button)
+// - The field takes the whole width, in the dashboard's sunken look
+// - Match case, Regular expression and Whole word (Aa, [.*], W) sit under
+//   the field at its right as small toggles, on the accent when set; their
+//   names are in their tooltips
+// - A result line that runs out of room ends in "…"
+
+.full-project-search .full-project-search-form {
+  position: relative;
+  padding: 6px 8px 8px;
+
+  .row {
+    --bs-gutter-x: 0;
+  }
+
+  .col-auto {
+    display: none;
+  }
+
+  // The panels' find field (shell/_panels.scss), its icon drawn in
+  input[type='search'] {
+    @include sx-panel-field;
+
+    padding: 0 8px 0 28px;
+    background-image: $sx-panel-search-icon;
+    background-repeat: no-repeat;
+    background-position: 8px center;
+    background-size: 15px;
+  }
+
+  // Under the field at its right, not inside it: inside, they left the
+  // hint "Search all p…" in a 232px panel
+  .full-project-search-modifiers {
+    position: static;
+    justify-content: flex-end;
+    height: 22px;
+    gap: 2px;
+    margin: 4px 0 0;
+
+    .form-check {
+      margin: 0;
+    }
+
+    .form-check-label {
+      width: auto;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 4px;
+      border-radius: 4px;
+      color: var(--sx-muted);
+      font-family: var(--font-family-monospace, monospace);
+      font-size: 11px;
+
+      &:hover {
+        background-color: var(--sx-island-raised);
+        color: var(--sx-fg);
+      }
+    }
+
+    input:checked ~ .form-check-label {
+      background-color: color-mix(in srgb, var(--sx-accent) 22%, transparent);
+      color: var(--sx-accent);
+    }
+
+    input:focus-visible ~ .form-check-label {
+      box-shadow: 0 0 0 2px var(--sx-accent);
+    }
+  }
+}
+
+.full-project-search .matched-hit-snippet {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// A result row: the side panels' row shape; the chosen one on their
+// selected colour (tokens/_bridge.scss), its code in the normal weight
+.full-project-search .matched-file-hit {
+  border-radius: 6px;
+}
+
+// A file in the results: the panels' group row and count
+.full-project-search {
+  .collapsible-file-header {
+    @include sx-panel-group-row;
+
+    background-color: var(--sx-island);
+  }
+
+  .collapsible-file-header-count {
+    @include sx-panel-count;
+  }
+}

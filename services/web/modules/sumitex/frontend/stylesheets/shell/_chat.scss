@@ -2,23 +2,18 @@
 // chat-pane.tsx; chat.scss). Its colours come from --chat-* in
 // tokens/_bridge.scss.
 //
-// The header reads like Review's beside it; messages are bubbles in the
+// The header is every panel's (shell/_panels.scss); messages are bubbles in the
 // SumiTeX colours (yours on the selection tint, others' raised), and the
 // message box is a field like the others, with the accent focus ring.
 
-// ---------- header: as Review's ----------
+// ---------- header: the panels' header ----------
+// The panels' header (shell/_panels.scss), as on the left
 .sx-right-panel .rail-panel-header {
-  min-height: 44px;
-  padding: 0 var(--spacing-03) 0 var(--spacing-05);
-  border-bottom: 1px solid var(--sx-border);
+  @include sx-panel-header;
 }
 
 .sx-right-panel .rail-panel-title {
-  color: var(--sx-fg);
-  font-size: var(--font-size-03);
-  font-weight: 600;
-  letter-spacing: 0;
-  text-transform: none;
+  @include sx-panel-title;
 }
 
 // ---------- messages ----------

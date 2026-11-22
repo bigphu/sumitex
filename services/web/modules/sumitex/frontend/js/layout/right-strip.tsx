@@ -35,6 +35,8 @@ import { useTranslation } from 'react-i18next'
 import classNames from 'classnames'
 import MaterialIcon from '@/shared/components/material-icon'
 import OLTooltip from '@/shared/components/ol/ol-tooltip'
+import { KeyTip } from '../palette/key-tip'
+import { PANEL_KEYS } from '../palette/keys'
 import ChatPane from '@/features/chat/components/chat-pane'
 import ChatIndicator from '@/features/chat/components/chat-indicator'
 import { useChatContext } from '@/features/chat/context/chat-context'
@@ -77,11 +79,13 @@ const StripButton = forwardRef<
     onClick: () => void
     children?: ReactNode
     placement?: 'left' | 'bottom'
+    /** Its shortcut, shown in the tip */
+    keys?: string
   }
->(({ icon, label, active, disabled, onClick, children, placement = 'left' }, ref) => (
+>(({ icon, label, active, disabled, onClick, children, placement = 'left', keys }, ref) => (
   <OLTooltip
     id={`sx-right-strip-${icon}`}
-    description={label}
+    description={<KeyTip label={label} keys={keys} />}
     overlayProps={{ delay: 0, placement }}
   >
     <button
@@ -249,6 +253,7 @@ export default function RightStrip() {
             placement={placement}
             icon="rate_review"
             label={t('review_panel')}
+            keys={PANEL_KEYS['review-panel']}
             active={reviewOpen}
             disabled={view !== 'editor'}
             onClick={() => setReviewPanelOpen(open => !open)}

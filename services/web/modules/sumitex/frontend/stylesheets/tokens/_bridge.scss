@@ -98,8 +98,9 @@ body .full-project-search[data-bs-theme] {
   --full-project-search-color: var(--sx-fg);
   --full-project-search-results-bg-color: var(--sx-island);
   --full-project-search-border-color: var(--sx-border);
-  --full-project-search-selected-hit-bg-color: var(--sx-selected-bg);
-  --full-project-search-selected-hit-color: var(--sx-selected-fg);
+  // The chosen result: the side panels' selected row (shell/_sidepanel.scss)
+  --full-project-search-selected-hit-bg-color: var(--sx-row-active);
+  --full-project-search-selected-hit-color: var(--sx-fg);
   --collapsible-file-header-count-color: var(--sx-fg);
   --collapsible-file-header-count-bg-color: var(--sx-island-raised);
   --collapsible-file-header-hover-bg: var(--sx-island-raised);

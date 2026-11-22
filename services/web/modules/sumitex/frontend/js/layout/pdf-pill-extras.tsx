@@ -8,6 +8,7 @@
 import { createPortal } from 'react-dom'
 import MaterialIcon from '@/shared/components/material-icon'
 import OLTooltip from '@/shared/components/ol/ol-tooltip'
+import { KeyTip } from '../palette/key-tip'
 import { useCommandRegistry } from '@/features/ide-react/context/command-registry-context'
 import { usePortalTarget } from './use-portal-target'
 
@@ -23,7 +24,9 @@ export default function PdfPillExtras() {
   return createPortal(
     <OLTooltip
       id="sx-pdf-jump"
-      description="Show the cursor's place in the PDF"
+      description={
+        <KeyTip label="Show the cursor's place in the PDF" keys="Mod+Alt+J" />
+      }
       overlayProps={{ placement: 'top' }}
     >
       <button

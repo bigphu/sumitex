@@ -36,6 +36,7 @@ import { useCommandRegistry } from '@/features/ide-react/context/command-registr
 import { useCommandProvider } from '@/features/ide-react/hooks/use-command-provider'
 import getMeta from '@/utils/meta'
 import { keyLabel } from '../palette/keys'
+import { KeyTip } from '../palette/key-tip'
 import {
   CompileProfile,
   getCurrentChapter,
@@ -45,8 +46,6 @@ import {
   setProfile,
   subscribeProfile,
 } from '../compile/profile'
-
-const modifierKey = /Mac/i.test(navigator.platform) ? 'Cmd' : 'Ctrl'
 
 const COMPILER_LABELS: Record<string, string> = {
   pdflatex: 'pdfLaTeX',
@@ -341,7 +340,11 @@ export default function RunWidget() {
       <OLTooltip
         id="sx-run-tooltip"
         description={
-          compiling ? t('stop_compile') : `${t('recompile_pdf')} (${modifierKey} + Enter)`
+          compiling ? (
+            <KeyTip label={t('stop_compile')} keys="Shift+F5" />
+          ) : (
+            <KeyTip label={t('recompile_pdf')} keys="Mod+S" />
+          )
         }
         overlayProps={{ delay: { show: 300, hide: 0 }, placement: 'bottom' }}
       >

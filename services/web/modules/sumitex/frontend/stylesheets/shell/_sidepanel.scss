@@ -5,8 +5,7 @@
 // Header ("FILES", "FILE OUTLINE")
 .file-tree-toolbar,
 .outline-header {
-  height: 36px;
-  padding: 0 var(--spacing-03) 0 var(--spacing-04);
+  @include sx-panel-header;
 }
 
 .file-tree-toolbar h4,
@@ -47,6 +46,12 @@
     font-size: 15px !important;
     color: var(--sx-muted);
   }
+
+  // Icon and name on one middle line (the row is a flex box that left the
+  // 15px icon at its top)
+  .file-tree-entity-details {
+    align-items: center;
+  }
 }
 
 .outline-item-link {
@@ -54,9 +59,14 @@
   border-radius: 6px;
 }
 
+// One look for "selected" or "you are here" in every side panel: the row
+// on --sx-row-active (a step above the hover, --sx-island-raised), the
+// text in the normal colour, semi-bold. Files, the Outline's Contents and
+// Blocks, and Search's chosen result all use it.
 .file-tree li.selected > .entity .entity-name,
+.file-tree li.selected > .entity .entity-name .item-name,
 .outline-item-link-highlight {
-  font-weight: 500;
+  font-weight: 600 !important;
 }
 
 // File tree header, as in the mockup: "FILES" and its actions, nothing else.
@@ -132,20 +142,12 @@
 // right. 36px tall, an uppercase 11px muted label, 26px muted icon buttons.
 .rail-panel-header,
 .sx-outline-header {
-  min-height: 36px;
-  padding: 0 var(--spacing-03) 0 var(--spacing-04);
-  background: transparent;
-  border-bottom: 0;
+  @include sx-panel-header;
 }
 
 .rail-panel-title,
 .sx-outline-title {
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1.4;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--sx-muted);
+  @include sx-panel-title;
 }
 
 .rail-panel-header .rail-panel-header-button-subdued {
@@ -172,4 +174,58 @@
 // !important: the button carries Bootstrap's d-inline-grid
 [id^='ide-redesign-sidebar-panel'] .rail-panel-header-actions > :last-child {
   display: none !important;
+}
+
+// ---------- file types and the main document ----------
+// Each kind of file has its icon in its own quiet colour (the icon itself is
+// upstream's, by extension); the main document is tagged "main"
+// (files/file-tree-extras.tsx marks its row).
+.file-tree li[role='treeitem'] {
+  &:is(
+      [aria-label$='.tex' i],
+      [aria-label$='.ltx' i],
+      [aria-label$='.Rtex' i],
+      [aria-label$='.Rnw' i]
+    )
+    .file-tree-icon {
+    color: var(--sx-accent);
+  }
+
+  &:is([aria-label$='.bib' i], [aria-label$='.bst' i]) .file-tree-icon {
+    color: var(--sx-warning);
+  }
+
+  &:is(
+      [aria-label$='.png' i],
+      [aria-label$='.jpg' i],
+      [aria-label$='.jpeg' i],
+      [aria-label$='.gif' i],
+      [aria-label$='.svg' i],
+      [aria-label$='.eps' i]
+    )
+    .file-tree-icon {
+    color: var(--sx-positive);
+  }
+
+  &[aria-label$='.pdf' i] .file-tree-icon {
+    color: color-mix(in srgb, var(--sx-danger) 80%, var(--sx-muted));
+  }
+
+  &:is([aria-label$='.sty' i], [aria-label$='.cls' i]) .file-tree-icon {
+    color: #a78bfa;
+  }
+}
+
+.file-tree .entity[data-sx-main] .item-name::after {
+  content: 'main';
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 5px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--sx-accent) 16%, transparent);
+  color: var(--sx-accent);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 15px;
+  vertical-align: 1px;
 }

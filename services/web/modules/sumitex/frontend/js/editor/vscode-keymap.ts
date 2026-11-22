@@ -12,7 +12,15 @@
  *                   stays on F3 and Enter in the search box (and Cmd+G on
  *                   a Mac, where Go to line is Ctrl+G, as in VS Code).
  * - Ctrl+K Ctrl+S   the keyboard shortcuts sheet
- * - Ctrl+K Ctrl+0   fold all; Ctrl+K Ctrl+J unfold all
+ * - Ctrl+K Ctrl+0   fold all; Ctrl+K Ctrl+J unfold all (Ctrl+K Ctrl+O, the
+ *                   key this first had, still folds all)
+ * - Ctrl+Shift+[/]  fold / unfold at the cursor (Cmd+Option+[/] on a Mac)
+ * - Ctrl+K Ctrl+C   comment the lines; Ctrl+K Ctrl+U uncomment them
+ * - Ctrl+H          find and replace, the cursor in Replace (Cmd+Option+F
+ *                   on a Mac, where Cmd+H hides the window)
+ * - Ctrl+F2         select every match (as Ctrl+Shift+L)
+ * - Shift+Alt+I     a cursor at the end of each selected line
+ * - Ctrl+K Ctrl+X   trim the spaces at the ends of lines
  * - Shift+Alt+→/←   grow the selection to the enclosing group or
  *                   environment, and shrink it back
  * - Shift+F8        previous problem (F8, the next one, was already there)
@@ -46,11 +54,16 @@ import {
 } from '@codemirror/view'
 import {
   gotoLine,
+  openSearchPanel,
   selectNextOccurrence,
   selectSelectionMatches,
 } from '@codemirror/search'
-import { selectParentSyntax } from '@codemirror/commands'
-import { foldAll, unfoldAll } from '@codemirror/language'
+import {
+  lineComment,
+  lineUncomment,
+  selectParentSyntax,
+} from '@codemirror/commands'
+import { foldAll, foldCode, unfoldAll, unfoldCode } from '@codemirror/language'
 import { previousDiagnostic } from '@codemirror/lint'
 import { moveListItem } from './list-items'
 import { moveColumn, tableAt } from './table-columns'
@@ -214,6 +227,68 @@ const moveTableColumn =
     return true
   }
 
+// Find and replace with the cursor in Replace: the panel draws a moment
+// after it opens, so wait for its Replace field
+const findAndReplace: Command = view => {
+  openSearchPanel(view)
+  let tries = 0
+  const focus = () => {
+    const field = view.dom.querySelector<HTMLInputElement>(
+      '.ol-cm-search-form input[name="replace"]'
+    )
+    if (field) {
+      field.focus()
+      field.select()
+    } else if (tries++ < 20) {
+      window.requestAnimationFrame(focus)
+    }
+  }
+  window.requestAnimationFrame(focus)
+  return true
+}
+
+// A cursor at the end of every line the selection covers
+const cursorsAtLineEnds: Command = view => {
+  const { state } = view
+  const ranges = state.selection.ranges.flatMap(range => {
+    const first = state.doc.lineAt(range.from).number
+    const last = state.doc.lineAt(range.to).number
+    const ends = []
+    for (let n = first; n <= last; n++) {
+      ends.push(EditorSelection.cursor(state.doc.line(n).to))
+    }
+    return ends
+  })
+  if (ranges.length < 2) return false
+  view.dispatch({
+    selection: EditorSelection.create(ranges),
+    scrollIntoView: true,
+    userEvent: 'select',
+  })
+  return true
+}
+
+// Spaces and tabs at the ends of lines, gone (one undo step)
+export const trimTrailingWhitespace: Command = view => {
+  if (view.state.readOnly) return false
+  const changes = []
+  for (let n = 1; n <= view.state.doc.lines; n++) {
+    const line = view.state.doc.line(n)
+    const trailing = line.text.match(/[ \t]+$/)
+    if (trailing) {
+      changes.push({ from: line.to - trailing[0].length, to: line.to })
+    }
+  }
+  if (changes.length) view.dispatch({ changes, userEvent: 'delete' })
+  flashMessage(
+    view,
+    changes.length
+      ? `Trimmed ${changes.length} line${changes.length === 1 ? '' : 's'}`
+      : 'No spaces at the ends of lines'
+  )
+  return true
+}
+
 // Returning false lets the key fall through to Vim, Emacs or the stock
 // binding when VS Code keys are off
 const whenOn =
@@ -231,8 +306,17 @@ export const vscodeKeymap = () =>
       { key: 'Ctrl-g', run: whenOn(gotoLine) },
       { key: 'Mod-d', run: whenOn(addNextOccurrence) },
       { key: 'Mod-k Mod-d', run: whenOn(skipOccurrence) },
+      { key: 'Mod-k Mod-0', run: whenOn(foldAll) },
       { key: 'Mod-k Mod-o', run: whenOn(foldAll) },
       { key: 'Mod-k Mod-j', run: whenOn(unfoldAll) },
+      { key: 'Mod-Shift-[', mac: 'Mod-Alt-[', run: whenOn(foldCode) },
+      { key: 'Mod-Shift-]', mac: 'Mod-Alt-]', run: whenOn(unfoldCode) },
+      { key: 'Mod-k Mod-c', run: whenOn(lineComment) },
+      { key: 'Mod-k Mod-u', run: whenOn(lineUncomment) },
+      { key: 'Mod-h', mac: 'Mod-Alt-f', run: whenOn(findAndReplace) },
+      { key: 'Mod-F2', run: whenOn(selectSelectionMatches) },
+      { key: 'Shift-Alt-i', run: whenOn(cursorsAtLineEnds) },
+      { key: 'Mod-k Mod-x', run: whenOn(trimTrailingWhitespace) },
       { key: 'Shift-Alt-ArrowRight', run: whenOn(growSelection) },
       { key: 'Shift-Alt-ArrowLeft', run: whenOn(shrinkSelection) },
       { key: 'Shift-F8', run: whenOn(previousDiagnostic) },

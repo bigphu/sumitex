@@ -138,28 +138,23 @@
   min-height: 0;
 }
 
+// The panels' header and label (shell/_panels.scss), as on the left
 .sx-review-header {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-02);
-  padding: var(--spacing-03) var(--spacing-03) var(--spacing-02)
-    var(--spacing-05);
+  @include sx-panel-header;
 }
 
 .sx-review-title {
+  @include sx-panel-title;
+
   flex: 1 1 auto;
-  margin: 0;
-  color: var(--sx-fg);
-  font-size: var(--font-size-03);
-  font-weight: 600;
 }
 
+// Under the header, as the Outline's filter row: no rule between
 .sx-review-actions {
   display: flex;
   align-items: center;
   gap: var(--spacing-01);
-  padding: 0 var(--spacing-04) var(--spacing-03);
-  border-bottom: 1px solid var(--sx-border);
+  padding: 0 var(--spacing-03) var(--spacing-02) var(--spacing-02);
 }
 
 // Quiet text buttons, not three outlined pills
