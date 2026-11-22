@@ -1,8 +1,8 @@
 /**
  * The status bar along the bottom of the window (guide 1d, step 7), on the
- * frame rather than in an island: the path (project › folders › file ›
- * section), the last compile's problems (opens the log), line and column, a
- * rough word count, and the save state.
+ * frame rather than in an island: the path (folders › file › section; the
+ * title bar already names the project), the last compile's problems (opens
+ * the log), line and column, a rough word count, and the save state.
  *
  * Mounted by one marked line in ide-react/components/layout/main-layout.tsx.
  * In Zen it shrinks to one centred line (zen-chrome.tsx).
@@ -14,7 +14,6 @@ import { useEditorViewContext } from '@/features/ide-react/context/editor-view-c
 import { useEditorSelectionContext } from '@/shared/context/editor-selection-context'
 import { useUnsavedDocsContext } from '@/features/ide-react/context/unsaved-docs-context'
 import { useLayoutContext } from '@/shared/context/layout-context'
-import { useProjectContext } from '@/shared/context/project-context'
 import { useFileTreeOpenContext } from '@/features/ide-react/context/file-tree-open-context'
 import { ZenStatus } from './zen-chrome'
 import { ProblemsStatus } from './problems-widget'
@@ -81,7 +80,6 @@ function SaveState() {
 
 export default function StatusBar() {
   const { focusMode, view: ideView } = useLayoutContext()
-  const { name: projectName } = useProjectContext()
   const { openEntity } = useFileTreeOpenContext()
   const isDoc = openEntity?.type === 'doc'
   const position = useCursorPosition()
@@ -99,16 +97,9 @@ export default function StatusBar() {
 
   return (
     <footer className="sx-status-bar" aria-label="Status bar">
+      {/* The path from the file down (the title bar names the project) */}
       <div className="sx-status-path" translate="no">
-        <span className="sx-status-project">{projectName}</span>
-        {isDoc && ideView !== 'history' && (
-          <>
-            <span className="sx-status-sep" aria-hidden="true">
-              ›
-            </span>
-            <Breadcrumbs />
-          </>
-        )}
+        {isDoc && ideView !== 'history' && <Breadcrumbs />}
       </div>
       <div className="sx-status-end">
         <ProblemsStatus />

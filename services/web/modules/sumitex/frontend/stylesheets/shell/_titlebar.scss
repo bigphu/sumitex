@@ -305,3 +305,50 @@ body:has(.sx-titlebar) .ide-redesign-pdf-container .toolbar-pdf .compile-button-
     left: 12px;
   }
 }
+
+// The search box gives way on smaller windows: below 1500px it says just
+// "Search" (the shortcut shows in its tooltip on hover), below 1200px it is
+// just the icon (title-bar.tsx; the button keeps its accessible name)
+@media (max-width: 1499px) {
+  .sx-search {
+    flex: 0 0 auto;
+    min-width: 0;
+    padding-right: var(--spacing-04);
+
+    .sx-search-label {
+      flex: none;
+    }
+
+    .sx-search-key {
+      display: none;
+    }
+  }
+}
+
+@media (max-width: 1199px) {
+  .sx-search {
+    width: 28px;
+    padding: 0;
+    justify-content: center;
+    border-color: transparent;
+    background: transparent;
+
+    &:hover {
+      border-color: transparent;
+      background: var(--sx-island-raised);
+      color: var(--sx-fg);
+    }
+
+    .sx-search-label {
+      display: none;
+    }
+  }
+}
+
+// The full box (1500px and up) shows the shortcut itself: no tooltip then
+@media (min-width: 1500px) {
+  // OLTooltip suffixes the id; inline display:block needs the !important
+  #sx-search-tooltip-tooltip {
+    display: none !important;
+  }
+}

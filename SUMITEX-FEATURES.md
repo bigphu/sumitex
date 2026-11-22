@@ -131,7 +131,11 @@ Nothing is removed. Every stock command also stays in the palette.
 - **One layout button instead of three** (`layout/work-tab-bar.tsx`): the current layout's icon and a chevron, opening Source only, Source and PDF, and PDF only, each with its Ctrl+1/2/3.
 - **Scrollbars** (`shell/_scrollbars.scss`): a thin knob in the accent, everywhere, on no track. In Chromium it is a 5 px bar with the thumb drawn 3 px wide, filling out to full strength under the pointer. Firefox has no pixel width, so it gets its thinnest bar in the same blue.
 
-At 1366 px the code now has about 630 px. **Problems are marked once, by kind** (`editor/inline-problems.ts`):
+At 1366 px the code now has about 630 px. A second pass (22 Nov 2026):
+- **The title-bar search gives way on smaller windows:** below 1500 px it says just "Search", with the shortcut in a tooltip on hover; below 1200 px it is just the icon, with the same tooltip (`shell/_titlebar.scss`). The full box at 1500 px and up shows the shortcut itself, so it has no tooltip. It keeps its accessible name, "Search (Ctrl+P)".
+- **The overview ruler no longer marks the cursor**, since the accent scrollbar shows where you are. Its problem marks now come from the full list in `inline-problems.ts`, so warnings and notes from the syntax check and the compile log are marked too, notes in grey (`editor/overview-ruler.ts`).
+- **The divider arrows** that hide the side panel and the PDF appear only while the pointer is on the divider (`shell/_togglers.scss`).
+- **The status bar starts at the file**, since the title bar already names the project. **Problems are marked once, by kind** (`editor/inline-problems.ts`):
 - **The gutter** marks every line with a problem, with an icon for its kind: a red circle for an error, an amber triangle for a warning, a blue "i" for a note. Upstream drew only the first two, and SumiTeX had been hiding the error icons, so every icon looked like the warning triangle.
 - **On the cursor line**, the message is written after the code instead, behind the same icon, and that line's gutter icon steps aside.
 - **Every problem is included:** the messages read every diagnostic, as the gutter does. The lint state only keeps the underlined ones (errors and SumiTeX's checks), so the stock syntax check's warnings ("unclosed group {") and plain compile warnings had a gutter icon but never a message. The full list comes from `setDiagnosticsEffect` and is mapped through edits.
