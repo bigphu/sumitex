@@ -48,12 +48,26 @@ function SearchBox() {
         bubbles: true,
       })
     )
+  const key = isMac ? '⌘P' : 'Ctrl+P'
+  // The shortcut shows on hover; on smaller windows the box itself only
+  // says "Search" (or shows the icon), see shell/_titlebar.scss
   return (
-    <button type="button" className="sx-search" onClick={open}>
-      <MaterialIcon type="search" />
-      <span className="sx-search-label">Search</span>
-      <kbd className="sx-search-key">{isMac ? '⌘P' : 'Ctrl+P'}</kbd>
-    </button>
+    <OLTooltip
+      id="sx-search-tooltip"
+      description={`Search (${key})`}
+      overlayProps={{ delay: { show: 200, hide: 0 }, placement: 'bottom' }}
+    >
+      <button
+        type="button"
+        className="sx-search"
+        onClick={open}
+        aria-label={`Search (${key})`}
+      >
+        <MaterialIcon type="search" />
+        <span className="sx-search-label">Search</span>
+        <kbd className="sx-search-key">{key}</kbd>
+      </button>
+    </OLTooltip>
   )
 }
 

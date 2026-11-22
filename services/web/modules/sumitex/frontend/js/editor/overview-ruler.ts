@@ -1,9 +1,13 @@
 /**
  * The overview ruler on the editor's right edge (mockup frame 1): a thin
- * strip showing where the whole file's problems, TODO / FIXME notes and the
- * cursor are. Clicking a mark jumps there.
+ * strip showing where the whole file's problems and TODO / FIXME notes are.
+ * Clicking a mark jumps there. (Where you are, the accent scrollbar shows,
+ * so the ruler no longer marks the cursor.)
+ *
+ * Problems come from inline-problems.ts, which keeps every one the gutter
+ * shows, not just the underlined ones.
  */
-import { forEachDiagnostic } from '@codemirror/lint'
+import { forEachProblem } from './inline-problems'
 import type { EditorState } from '@codemirror/state'
 import { EditorView, ViewPlugin, type ViewUpdate } from '@codemirror/view'
 
@@ -22,10 +26,11 @@ function collect(state: EditorState): Mark[] {
     marks.push({ line, kind, pos })
   }
 
-  forEachDiagnostic(state, (diagnostic, from) => {
-    if (from <= state.doc.length) {
-      add(from, diagnostic.severity === 'error' ? 'error' : 'warning')
-    }
+  forEachProblem(state, ({ from, severity }) => {
+    add(
+      from,
+      severity === 'error' ? 'error' : severity === 'warning' ? 'warning' : 'info'
+    )
   })
 
   for (let n = 1; n <= state.doc.lines; n++) {
@@ -33,7 +38,6 @@ function collect(state: EditorState): Mark[] {
     if (line.text.includes('%') && TODO.test(line.text)) add(line.from, 'note')
   }
 
-  add(state.selection.main.head, 'cursor')
   return marks
 }
 
@@ -93,7 +97,7 @@ export const overviewRuler = () => [
       position: 'absolute',
       top: '0',
       bottom: '0',
-      right: '12px', // just left of the scrollbar
+      right: '7px', // just left of the 5px scrollbar
       width: '6px',
       zIndex: '5',
       pointerEvents: 'none',
@@ -111,11 +115,6 @@ export const overviewRuler = () => [
     '.sx-ruler-error': { background: 'var(--content-danger-themed, #ff7a6b)' },
     '.sx-ruler-warning': { background: 'var(--content-warning-themed, #e8b04a)' },
     '.sx-ruler-note': { background: 'var(--sx-accent, #7aa2ff)' },
-    '.sx-ruler-cursor': {
-      background: 'var(--sx-fg, #e6e4df)',
-      height: '2px',
-      opacity: '0.7',
-      pointerEvents: 'none',
-    },
+    '.sx-ruler-info': { background: 'var(--sx-muted, #a0a7b1)' },
   }),
 ]

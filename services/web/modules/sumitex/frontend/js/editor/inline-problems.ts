@@ -29,7 +29,7 @@ import {
   WidgetType,
 } from '@codemirror/view'
 
-type Problem = { from: number; severity: string; message: string }
+export type Problem = { from: number; severity: string; message: string }
 
 // Every diagnostic, by position, as last set
 const allProblems = StateField.define<readonly Problem[]>({
@@ -48,6 +48,20 @@ const allProblems = StateField.define<readonly Problem[]>({
     return problems.map(p => ({ ...p, from: tr.changes.mapPos(p.from, 1) }))
   },
 })
+
+/**
+ * Every problem in the file, as the gutter has them (the lint state's own
+ * forEachDiagnostic only sees the underlined ones). Empty when the inline
+ * problems extension isn't loaded.
+ */
+export function forEachProblem(
+  state: EditorState,
+  callback: (problem: Problem) => void
+) {
+  for (const problem of state.field(allProblems, false) ?? []) {
+    if (problem.from <= state.doc.length) callback(problem)
+  }
+}
 
 class ProblemText extends WidgetType {
   constructor(

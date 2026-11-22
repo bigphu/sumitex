@@ -1,11 +1,17 @@
 // The small chevron handles on the dividers that hide and show the side
-// panel and the PDF: kept, but quiet until you reach for them.
+// panel and the PDF: kept, but out of sight until the pointer is on the
+// divider (or the handle has the keyboard focus).
 .custom-toggler {
   height: 32px !important;
   background: transparent !important;
   color: var(--sx-muted);
-  opacity: 0.35;
+  opacity: 0;
   transition: opacity 0.12s ease-out;
+
+  .horizontal-resize-handle:hover &,
+  .vertical-resize-handle:hover & {
+    opacity: 0.6;
+  }
 
   .material-symbols {
     font-size: 14px;
